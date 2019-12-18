@@ -101,6 +101,9 @@ function init()
 			);
 */	
 	//光源
+	var ambient_light = new THREE.AmbientLight( 0x404040 ); // soft white light
+	scene.add( ambient_light );
+
 	var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
 	light1.position.set( 0, 0, 1000);
 	scene.add( light1 );
@@ -122,6 +125,10 @@ function init()
 	lights_gui.add(light2, 'intensity', 0.0, 1.0);
 	lights_gui.add(light3, 'intensity', 0.0, 1.0);
 	lights_gui.add(light4, 'intensity', 0.0, 1.0);
+	lights_gui.add(ambient_light.color, 'r');
+	lights_gui.add(ambient_light.color, 'g');
+	lights_gui.add(ambient_light.color, 'b');
+	// lights_gui.add(ambient_light, 'intensity');
 
 	//var light5 = new THREE.DirectionalLight( 0xffffff, 0.5 );
 	//light5.position.set( -1000, 0, 0);
