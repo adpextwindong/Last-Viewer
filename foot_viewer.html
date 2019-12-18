@@ -134,6 +134,8 @@ function init()
 
 	// EVENTS
 	THREEx.WindowResize(renderer, camera);
+	//Trigger resize so the canvas is laid out correctly on the first viewing of the page.
+	window.dispatchEvent(new Event('resize'));
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 	
 	// CONTROLS
