@@ -24,6 +24,7 @@
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/TrackballControls.js"></script>
 <script src="js/OBJLoader.js"></script>
+<script src="js/dat.gui.js"></script>
 
 <script>
 // standard global variables
@@ -116,6 +117,12 @@ function init()
 	light4.position.set( 0, 1000, 0);
 	scene.add( light4 );
 
+	var lights_gui = new dat.GUI();
+	lights_gui.add(light1, 'intensity', 0.0, 1.0);
+	lights_gui.add(light2, 'intensity', 0.0, 1.0);
+	lights_gui.add(light3, 'intensity', 0.0, 1.0);
+	lights_gui.add(light4, 'intensity', 0.0, 1.0);
+
 	//var light5 = new THREE.DirectionalLight( 0xffffff, 0.5 );
 	//light5.position.set( -1000, 0, 0);
 	//scene.add( light5 );
@@ -139,7 +146,7 @@ function init()
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 	
 	// CONTROLS
-	controls = new THREE.TrackballControls( camera );
+	controls = new THREE.TrackballControls( camera, renderer.domElement );
 	controls.maxDistance = config_MAX_DISTANCE;
 
 }
