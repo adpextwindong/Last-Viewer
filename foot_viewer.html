@@ -34,6 +34,8 @@ var keyboard = new THREEx.KeyboardState();
 //disable this for now as its slow
 let config_anti_aliasing = false;
 let config_obj_url = 'http://localhost:8000/foot.obj';
+//Limit zoom out distance
+const config_MAX_DISTANCE = 1000;
 
 document.querySelector("#state").innerHTML = "now loading...";
 init();
@@ -136,6 +138,7 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.TrackballControls( camera );
+	controls.maxDistance = config_MAX_DISTANCE;
 
 }
 
