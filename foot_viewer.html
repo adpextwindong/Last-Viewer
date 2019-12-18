@@ -30,6 +30,11 @@
 var container, scene, camera, renderer, controls;
 var keyboard = new THREEx.KeyboardState();
 
+//CONFIG
+//disable this for now as its slow
+let config_anti_aliasing = false;
+let config_obj_url = 'http://localhost:8000/foot.obj';
+
 document.querySelector("#state").innerHTML = "now loading...";
 init();
 animate();
@@ -65,7 +70,7 @@ function init()
 
 	var loader = new THREE.OBJLoader();
 	loader.load(
-		'http://localhost:8000/foot.obj',
+		config_obj_url,
 		function ( obj ) {  // 読み込み完了時のコールバック関数
 			var mesh = obj.getObjectByName("foot", false);
 			mesh.position.set(-125, -50, -50);
@@ -118,7 +123,7 @@ function init()
 	//scene.add( light6 );
 
 	//レンダラー
-	renderer = new THREE.WebGLRenderer( {antialias:true});
+	renderer = new THREE.WebGLRenderer( {antialias:config_anti_aliasing});
 	renderer.setSize( screen_width, screen_height );
 
 	container = document.createElement( 'div' );
