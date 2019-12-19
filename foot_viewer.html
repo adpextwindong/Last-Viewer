@@ -17,7 +17,7 @@
 	</style>
 </head>
 <body>
-<div id="state"></div>
+
 <script src="js/lib/three.js"></script>
 <script src="js/lib/THREEx.KeyboardState.js"></script>
 <script src="js/lib/THREEx.FullScreen.js"></script>
@@ -27,9 +27,44 @@
 <script src="js/lib/dat.gui.js"></script>
 
 <script src="js/viewer.js"></script>
+<script src="js/lib/vue.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<div id="app">
+	<div id="scan_picker">
+		<span>Scans avalible for viewing:</span>
+		<ul>
+		<li v-for="scan in scans">
+			<button type="button" v-on:click="loadForViewer(scan.path)">{{ scan.path }}</button> 
+		</li>
+		</ul>
+	</div>
+</div>
+
+<!-- TODO make this read the scans from a json for now to emulate a server api response -->
 <script>
+  var app = new Vue({
+	el: '#app',
+	data: {
+	  scans: [
+		{ path: 'foot1' },
+		{ path: 'foot2' },
+		{ path: 'foot3' }
+	  ]
+	},
+	methods : {
+		loadForViewer (path) {
+			console.log("recieved click for path" + path);
+		},
+	}
+  })
 
+</script>	
 
+<!-- <script>
+
+<div id="state"></div>
 document.querySelector("#state").innerHTML = "now loading...";
 //todo make this internal to Viewer
 
@@ -38,7 +73,7 @@ Viewer.init();
 //PRESENTATION
 document.querySelector("#state").innerHTML = "";
 Viewer.animateLoop();
-</script>
+</script> -->
 
 
 </body>
