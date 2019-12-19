@@ -6,12 +6,15 @@ var keyboard = new THREEx.KeyboardState();
 //CONFIG
 //disable this for now as its slow
 const config_ANTI_ALIASING = false;
-const config_MAX_DISTANCE = 1000;
 //Limit zoom out distance
+const config_MAX_DISTANCE = 1000;
+
+//TODO unhardcode this
 let config_obj_url = './data/foot1.obj';
 
 var Lighting = {
     init: function () {
+        //TODO unhardcode these positions and read from localstorage or something
         this.lights = [
         new THREE.AmbientLight( 0x404040 ), // soft white light
         new THREE.DirectionalLight( 0xffffff, 0.5 ),
@@ -106,8 +109,11 @@ var Viewer = {
         this.appendRendererToDom();
     },
 
+    getRendererDOMElem : function () {
+        return this.renderer.domElement;
+    },
     appendRendererToDom : function () {
-        //PRESENTATION
+        //PRESENTATION SOON TO BE DEPRECATED
         //TODO handle this rendering differently
         container = document.createElement( 'div' );
         document.body.appendChild( container );
