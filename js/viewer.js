@@ -91,11 +91,7 @@ var Viewer = {
         this.renderer = new THREE.WebGLRenderer( {antialias:config_ANTI_ALIASING});
         this.renderer.setSize( screen_width, screen_height );
 
-        //PRESENTATION
-        //TODO handle this rendering differently
-        container = document.createElement( 'div' );
-        document.body.appendChild( container );
-        container.appendChild( this.renderer.domElement );
+
 
         // EVENTS
         THREEx.WindowResize(this.renderer, this.camera);
@@ -107,6 +103,15 @@ var Viewer = {
         this.controls = new THREE.TrackballControls( this.camera, this.renderer.domElement );
         this.controls.maxDistance = config_MAX_DISTANCE;
 
+        this.appendRendererToDom();
+    },
+
+    appendRendererToDom : function () {
+        //PRESENTATION
+        //TODO handle this rendering differently
+        container = document.createElement( 'div' );
+        document.body.appendChild( container );
+        container.appendChild( this.renderer.domElement );
     },
 
     animateLoop: function () 
