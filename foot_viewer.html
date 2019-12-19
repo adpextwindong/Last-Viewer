@@ -18,172 +18,26 @@
 </head>
 <body>
 <div id="state"></div>
-<script src="js/three.js"></script>
-<script src="js/THREEx.KeyboardState.js"></script>
-<script src="js/THREEx.FullScreen.js"></script>
-<script src="js/THREEx.WindowResize.js"></script>
-<script src="js/TrackballControls.js"></script>
-<script src="js/OBJLoader.js"></script>
-<script src="js/dat.gui.js"></script>
+<script src="js/lib/three.js"></script>
+<script src="js/lib/THREEx.KeyboardState.js"></script>
+<script src="js/lib/THREEx.FullScreen.js"></script>
+<script src="js/lib/THREEx.WindowResize.js"></script>
+<script src="js/lib/TrackballControls.js"></script>
+<script src="js/lib/OBJLoader.js"></script>
+<script src="js/lib/dat.gui.js"></script>
 
+<script src="js/viewer.js"></script>
 <script>
-// standard global variables
-var container, scene, camera, renderer, controls;
-var keyboard = new THREEx.KeyboardState();
 
-//CONFIG
-//disable this for now as its slow
-let config_anti_aliasing = false;
-let config_obj_url = 'http://localhost:8000/foot.obj';
-//Limit zoom out distance
-const config_MAX_DISTANCE = 1000;
 
 document.querySelector("#state").innerHTML = "now loading...";
-init();
-animate();
+//todo make this internal to Viewer
 
-//--------------------------------------------
-function init() 
-{
-	// SCENE
-	scene = new THREE.Scene();
-
-	// CAMERA
-	var screen_height = window.innerWidth;
-	var screen_width  = window.innerHeight;
-	var view_angle = 60;
-	var aspect = screen_width / screen_height;
-	var near = 0.1;
-	var far = 2000;
-	
-	camera = new THREE.PerspectiveCamera( view_angle, aspect, near, far );
-	//camera = new THREE.OrthographicCamera( -500, 500, 500, -500, -2000, 2000 );
-	scene.add(camera);
-	camera.position.set(0, 0, 500);
-	camera.lookAt(scene.position);
-	
-
-	//ジオメトリ
-	//var geometry = new THREE.CubeGeometry(270, 100, 150);
-	//var material = new THREE.MeshLambertMaterial( { color: 0x660000 } );
-	//var cubeMesh = new THREE.Mesh( geometry, material);
-
-	//cubeMesh.rotation.set(30*Math.PI/180, 120*Math.PI/180, 0);
-	//scene.add( cubeMesh );
-
-	var loader = new THREE.OBJLoader();
-	loader.load(
-		config_obj_url,
-		function ( obj ) {  // 読み込み完了時のコールバック関数
-			var mesh = obj.getObjectByName("foot", false);
-			mesh.position.set(-125, -50, -50);
-			mesh.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
-			//mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
-			mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
-			mesh.material.ambient.set(0xdddddd);
-			//mesh.material.specular.set(0xffffff);
-			//mesh.material.shininess.set(10);
-			
-    		scene.add( obj );
-			//renderer.render( scene, camera );
-			document.querySelector("#state").innerHTML = "";
-		}
-	);
-
-/*
-	var loader = new THREE.JSONLoader();
-	loader.load( "./fire_hydrant.js", function( geometry ) {
-					var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { ambient: 0x030303, color: 0x111111, specular: 0xffaa00, shininess: 10 } ) );
-					mesh.position.set(-2, 0, -8);
-					scene.add( mesh );
-					document.querySelector("#state").innerHTML = "";
-				}
-			);
-*/	
-	//光源
-	var ambient_light = new THREE.AmbientLight( 0x404040 ); // soft white light
-	scene.add( ambient_light );
-
-	var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	light1.position.set( 0, 0, 1000);
-	scene.add( light1 );
-
-	var light2 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	light2.position.set( 0, 0, -1000);
-	scene.add( light2 );
-
-	var light3 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	light3.position.set( 0, -1000, 0);
-	scene.add( light3 );
-
-	var light4 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	light4.position.set( 0, 1000, 0);
-	scene.add( light4 );
-
-	var lights_gui = new dat.GUI();
-	lights_gui.add(light1, 'intensity', 0.0, 1.0);
-	lights_gui.add(light2, 'intensity', 0.0, 1.0);
-	lights_gui.add(light3, 'intensity', 0.0, 1.0);
-	lights_gui.add(light4, 'intensity', 0.0, 1.0);
-	lights_gui.add(ambient_light.color, 'r');
-	lights_gui.add(ambient_light.color, 'g');
-	lights_gui.add(ambient_light.color, 'b');
-	// lights_gui.add(ambient_light, 'intensity');
-
-	//var light5 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	//light5.position.set( -1000, 0, 0);
-	//scene.add( light5 );
-
-	//var light6 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-	//light6.position.set(1000,  0, 0);
-	//scene.add( light6 );
-
-	//レンダラー
-	renderer = new THREE.WebGLRenderer( {antialias:config_anti_aliasing});
-	renderer.setSize( screen_width, screen_height );
-
-	container = document.createElement( 'div' );
-	document.body.appendChild( container );
-	container.appendChild( renderer.domElement );
-
-	// EVENTS
-	THREEx.WindowResize(renderer, camera);
-	//Trigger resize so the canvas is laid out correctly on the first viewing of the page.
-	window.dispatchEvent(new Event('resize'));
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS
-	controls = new THREE.TrackballControls( camera, renderer.domElement );
-	controls.maxDistance = config_MAX_DISTANCE;
-
-}
-
-//----------------------------------------------
-function animate() 
-{
-    requestAnimationFrame( animate );
-	render();		
-	update();
-}
-
-//----------------------------------------------
-function update()
-{
-	if ( keyboard.pressed("z") ) 
-	{ 
-		// do something
-	}
-	
-	controls.update();
-	//stats.update();
-}
-
-//----------------------------------------------
-function render() 
-{
-	renderer.render( scene, camera );
-}
-
+Viewer.init();
+//TODO move this out, emit event or something. Listen for load complete
+//PRESENTATION
+document.querySelector("#state").innerHTML = "";
+Viewer.animateLoop();
 </script>
 
 
