@@ -45,9 +45,7 @@ var Lighting = {
 };
 
 var Viewer = {
-    init: function () {
-        //Viewer state variables
-
+    init: function (target_element, obj) {
         //SCENE
         this.scene = new THREE.Scene();
         // CAMERA
@@ -64,26 +62,16 @@ var Viewer = {
         this.camera.position.set(0, 0, 500);
         this.camera.lookAt(this.scene.position);
 
-        //TODO load foot obj seperately from the viewer as it will be part of an api call.
-        var loader = new THREE.OBJLoader();
-        loader.load(
-            config_obj_url,
-            ( obj ) => {  // 読み込み完了時のコールバック関数
-                var mesh = obj.getObjectByName("foot", false);
-                mesh.position.set(-125, -50, -50);
-                mesh.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
-                //mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
-                mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
-                mesh.material.ambient.set(0xdddddd);
-                //mesh.material.specular.set(0xffffff);
-                //mesh.material.shininess.set(10);
-                
-                this.scene.add( obj );
-                //TODO move this out, emit event or something. Listen for load complete
-                //PRESENTATION
-                document.querySelector("#state").innerHTML = "";
-            }
-        );
+        // TODO load foot obj seperately from the viewer as it will be part of an api call.
+        var mesh = obj.getObjectByName("foot", false);
+        mesh.position.set(-125, -50, -50);
+        mesh.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+        //mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
+        mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
+        mesh.material.ambient.set(0xdddddd);
+        //mesh.material.specular.set(0xffffff);
+        //mesh.material.shininess.set(10);
+        this.scene.add( obj );
 
         this.lighting = Lighting;
         this.lighting.init();
@@ -93,8 +81,6 @@ var Viewer = {
         //todo finish migrating
         this.renderer = new THREE.WebGLRenderer( {antialias:config_ANTI_ALIASING});
         this.renderer.setSize( screen_width, screen_height );
-
-
 
         // EVENTS
         THREEx.WindowResize(this.renderer, this.camera);
@@ -106,18 +92,17 @@ var Viewer = {
         this.controls = new THREE.TrackballControls( this.camera, this.renderer.domElement );
         this.controls.maxDistance = config_MAX_DISTANCE;
 
-        this.appendRendererToDom();
+        //TODO fix this and make it take in an element
+        this.appendRendererToDom(target_element);
     },
 
-    getRendererDOMElem : function () {
-        return this.renderer.domElement;
-    },
-    appendRendererToDom : function () {
-        //PRESENTATION SOON TO BE DEPRECATED
-        //TODO handle this rendering differently
-        container = document.createElement( 'div' );
-        document.body.appendChild( container );
-        container.appendChild( this.renderer.domElement );
+    // getRendererDOMElem : function () {
+    //     return this.renderer.domElement;
+    // },
+
+    //Appends the webgl renderer domElement to the app's div.
+    appendRendererToDom : function (target_element) {
+        target_element.appendChild( this.renderer.domElement );
     },
 
     animateLoop: function () 

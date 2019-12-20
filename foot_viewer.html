@@ -25,42 +25,28 @@
 <script src="js/lib/TrackballControls.js"></script>
 <script src="js/lib/OBJLoader.js"></script>
 <script src="js/lib/dat.gui.js"></script>
-
 <script src="js/viewer.js"></script>
-<script src="js/lib/vue.js"></script>
 
 
+
+<!-- see app.js for the corresponding vuejs app -->
 <link rel="stylesheet" type="text/css" href="css/style.css">
 <div id="app">
-	<div id="scan_picker">
-		<span>Scans avalible for viewing:</span>
-		<ul>
-		<li v-for="scan in scans">
-			<button type="button" v-on:click="loadForViewer(scan.path)">{{ scan.path }}</button> 
-		</li>
+	<div id="scan_picker" v-if="AppState !== AppStates.LOADED">
+		<ul v-if="AppState === AppStates.PICKING">
+			<span>Scans avalible for viewing:</span>
+			<li v-for="scan in scans">
+				<button type="button" v-on:click="loadViewer(scan.path)">{{ scan.path }}</button> 
+			</li>
+		</ul>
+		<div v-else-if="AppState === AppStates.LOADING">
+			now loading...
+		</div>
 		</ul>
 	</div>
 </div>
 
 <!-- TODO make this read the scans from a json for now to emulate a server api response -->
-<script>
-  var app = new Vue({
-	el: '#app',
-	data: {
-	  scans: [
-		{ path: 'foot1' },
-		{ path: 'foot2' },
-		{ path: 'foot3' }
-	  ]
-	},
-	methods : {
-		loadForViewer (path) {
-			console.log("recieved click for path" + path);
-		},
-	}
-  })
-
-</script>	
 
 <!-- <script>
 
@@ -69,12 +55,14 @@ document.querySelector("#state").innerHTML = "now loading...";
 //todo make this internal to Viewer
 
 Viewer.init();
-//TODO move this out, emit event or something. Listen for load complete
 //PRESENTATION
 document.querySelector("#state").innerHTML = "";
 Viewer.animateLoop();
 </script> -->
 
+
+<script src="js/lib/vue.js"></script>
+<script src="js/app.js"></script>
 
 </body>
 </html>
