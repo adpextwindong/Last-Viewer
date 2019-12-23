@@ -30,7 +30,7 @@
 
 	<!-- see app.js for the corresponding vuejs app -->
 	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<div id="app">
+	<div id="app" v-cloak>
 		<div id="scan_picker" v-if="AppState !== AppStates.LOADED">
 
 			<ul v-if="AppState === AppStates.PICKING">

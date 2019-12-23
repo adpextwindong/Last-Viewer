@@ -1,3 +1,8 @@
+/* Hide the index.html Vue content while it compiles */
+[v-cloak] {
+    display: none
+}
+
 #scan_picker {
     margin: auto;
     width: 50%;
