@@ -31,7 +31,7 @@ var app = new Vue({
             //TODO Spruce up the css for the loadscreen
             console.log("now loading...");
 
-            await sleep(100);
+            await sleep(1);
 
             var loader = new THREE.OBJLoader();
             var appScope = this;

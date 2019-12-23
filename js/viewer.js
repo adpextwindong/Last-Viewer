@@ -9,9 +9,6 @@ const config_ANTI_ALIASING = false;
 //Limit zoom out distance
 const config_MAX_DISTANCE = 1000;
 
-//TODO unhardcode this
-let config_obj_url = './data/foot1.obj';
-
 var Lighting = {
     init: function () {
         //TODO unhardcode these positions and read from localstorage or something

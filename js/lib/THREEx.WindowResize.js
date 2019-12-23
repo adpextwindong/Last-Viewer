@@ -46,7 +46,7 @@ THREEx.WindowResize	= function(renderer, camera){
 
 THREEx.ResizeForWidthOffset = function(renderer, camera, target_elem){
 	var callback = function (){
-		//TODO This might be extremely slow.
+		//TODO PERFORMANCE This might be extremely slow.
 		let computed_css_width = parseInt(getComputedStyle(target_elem).width);
 
 		renderer.setSize(computed_css_width, window.innerHeight);

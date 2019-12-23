@@ -51,5 +51,5 @@ canvas {
     width: 20%;
 }
 #data_display {
-    width: 20%;
+    max-width: 20%;
 }
