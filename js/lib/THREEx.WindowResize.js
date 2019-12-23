@@ -42,4 +42,27 @@ THREEx.WindowResize	= function(renderer, camera){
 			window.removeEventListener('resize', callback);
 		}
 	};
+};
+
+THREEx.ResizeForWidthOffset = function(renderer, camera, target_elem){
+	var callback = function (){
+		//TODO This might be extremely slow.
+		let computed_css_width = parseInt(getComputedStyle(target_elem).width);
+
+		renderer.setSize(computed_css_width, window.innerHeight);
+		camera.aspect = computed_css_width/ window.innerHeight;
+		camera.updateProjectionMatrix();
+	}
+
+	// bind the resize event
+	window.addEventListener('resize', callback, false);
+	// return .stop() the function to stop watching window resize
+	return {
+		/**
+		 * Stop watching window resize
+		*/
+		stop	: function(){
+			window.removeEventListener('resize', callback);
+		}
+	};
 }

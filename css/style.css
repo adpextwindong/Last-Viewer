@@ -5,3 +5,46 @@
     padding: 10px;
 }
 
+#app {
+    min-height: 100%;
+    min-width: 100%;
+}
+
+canvas {
+    display: inline-block;
+    vertical-align: top;
+    position: absolute;
+    z-index: 0;
+    /* margin-left: 20%; */
+    height: 100%;
+}
+
+#data_display_wrapper {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#data_display {
+    /* Critical layout */
+    position: absolute;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    /* TODO custom overflow-y styling */
+    z-index: 100;
+    /* Non-critical apperance  */
+    padding: 0.25em;
+    border: groove;
+}
+
+/* TODO make this responsive design */
+canvas {
+    width: 80%;
+}
+#data_display_wrapper {
+    width: 20%;
+}
+#data_display {
+    width: 20%;
+}

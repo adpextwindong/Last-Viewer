@@ -7,11 +7,11 @@ const AppStates = Object.freeze({
 
 const sleep = m => new Promise(r => setTimeout(r, m))
 
-var obj;
-
 var app = new Vue({
     el: '#app',
     data: {
+
+        //TODO make this actually point to fetched scans
         scans: [
         { path: './data/foot1.obj' },
         { path: './data/foot2.obj' },
@@ -34,11 +34,12 @@ var app = new Vue({
             await sleep(100);
 
             var loader = new THREE.OBJLoader();
-            var scope = this;
+            var appScope = this;
             loader.load(path, function(response_obj){
                     console.log("loaded");
-                    this.AppState = AppStates.LOADED;
-                    Viewer.init(scope.$el, response_obj);
+                    appScope.AppState = AppStates.LOADED;
+                    Viewer.stashLoadedObj(response_obj);
+                    Viewer.init(appScope.$el, response_obj);
                     Viewer.animateLoop();
                 }
             )
