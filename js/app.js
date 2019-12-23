@@ -44,6 +44,11 @@ var app = new Vue({
                 }
             )
         },
+
+        //TODO this is really ugly to expose it through the Vue controls. Might be less of a pain when through a component for the Viewer.
+        resetCamera () {
+            Viewer.resetCamera();
+        }
     },
 
     //TODO is this necessary?

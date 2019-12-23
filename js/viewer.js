@@ -130,6 +130,10 @@ var Viewer = {
         this.update();
     },
 
+    resetCamera: function (){
+        this.camera.position.set(0, 0, 500);
+        this.camera.lookAt(this.scene.position);
+    },
     animateOnce : function ()
     {
         this.render();		
