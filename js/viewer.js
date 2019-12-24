@@ -1,8 +1,6 @@
 var THREE = require('three');
 var TrackballControls = require('three-trackballcontrols');
 var LIGHTS = require('./lights.js');
-// import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
-// import * as dat from 'dat.gui';
 
 // standard global variables
 // var container;
@@ -17,7 +15,7 @@ const config_MAX_DISTANCE = 1000;
 module.exports = function () {
     this.viewer = {
         obj: null,
-        LIGHT_DEBUG: false,
+        LIGHT_DEBUG: true,
 
         //BUG? Without this stashing the obj fails to load for some reason.
         //Stashing before init prevents this.

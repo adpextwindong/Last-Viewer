@@ -1,4 +1,5 @@
 const THREE = require('three');
+const dat = require('dat.gui');
 
 module.exports = function() {
     return {
