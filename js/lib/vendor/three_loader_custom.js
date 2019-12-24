@@ -1,3 +1,7 @@
+// Based on three-obj-loader version 1.1.3 with modifications for handling
+// f 1// 2// 3// 4//
+// style layout in obj files.
+
 'use strict';
 
 function defaultOnError(err) {
