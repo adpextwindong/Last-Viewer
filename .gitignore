@@ -1,1 +1,4 @@
 /dist
+/nodes_modules
+
+bundle.js
