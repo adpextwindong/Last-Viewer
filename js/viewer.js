@@ -126,5 +126,13 @@ module.exports = function () {
         render: function () {
             this.renderer.render( this.scene, this.camera );
         },
+
+        hideLandmarks : function() {
+            this.obj.children.forEach(c => {
+                if(c.name !== "foot"){
+                    c.visible = !c.visible;
+                }
+            });
+        }
     };
 };

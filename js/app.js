@@ -56,6 +56,11 @@ var app = new Vue({
         //TODO this is really ugly to expose it through the Vue controls. Might be less of a pain when through a component for the Viewer.
         resetCamera () {
             appViewer.viewer.resetCamera();
+        },
+
+        //It might be easier to just object.add method to this class during an init phase from a list of methods or something.
+        hideLandmarks () {
+            appViewer.viewer.hideLandmarks();
         }
     },
 
