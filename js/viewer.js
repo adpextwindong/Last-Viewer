@@ -45,8 +45,11 @@ module.exports = function () {
 
             // TODO load foot obj seperately from the viewer as it will be part of an api call.
             var mesh = this.obj.getObjectByName("foot", false);
-            mesh.position.set(-125, -50, -50);
-            mesh.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+            // mesh.position.set(-125, -50, -50);
+            // mesh.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+            this.obj.position.set(-125, -50, -50);
+            this.obj.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+
             //mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
             mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
             //mesh.material.ambient.set(0xdddddd);
