@@ -19,7 +19,7 @@ canvas {
     display: inline-block;
     vertical-align: top;
     position: absolute;
-    z-index: 0;
+    z-index: -1;
     /* margin-left: 20%; */
     height: 100%;
 }
@@ -37,7 +37,7 @@ canvas {
     flex-direction: column;
     overflow-y: scroll;
     /* TODO custom overflow-y styling */
-    z-index: 100;
+    z-index: 10;
     /* Non-critical apperance  */
     padding: 0.25em;
     border: groove;
@@ -60,10 +60,10 @@ canvas {
 /* debug */
 
 #app > div.dg.main > div {
-    z-index: 10;
+    /* z-index: 10; */
 }
 
 #app > div.dg.main {
-    z-index: 10;
+    /* z-index: 10; */
     float: right;
 }
