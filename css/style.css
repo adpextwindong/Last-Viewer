@@ -46,6 +46,7 @@ canvas {
 /* TODO make this responsive design */
 canvas {
     width: 80%;
+    max-width: 80%;
 }
 #data_display_wrapper {
     width: 20%;
