@@ -1,3 +1,11 @@
+const Vue = require('../node_modules/vue/dist/vue.js');
+var Viewer = require('./viewer.js');
+var appViewer = new Viewer();
+var THREE = require('three');
+var OBJLoader = require('./lib/vendor/three_loader_custom');
+OBJLoader(THREE);
+
+
 const AppStates = Object.freeze({
     PICKING:   Symbol("picking"),
     LOADING:  	Symbol("loading"),
@@ -38,16 +46,16 @@ var app = new Vue({
             loader.load(path, function(response_obj){
                     console.log("loaded");
                     appScope.AppState = AppStates.LOADED;
-                    Viewer.stashLoadedObj(response_obj);
-                    Viewer.init(appScope.$el, response_obj);
-                    Viewer.animateLoop();
+                    appViewer.viewer.stashLoadedObj(response_obj);
+                    appViewer.viewer.init(appScope.$el, response_obj);
+                    appViewer.viewer.animateLoop();
                 }
             )
         },
 
         //TODO this is really ugly to expose it through the Vue controls. Might be less of a pain when through a component for the Viewer.
         resetCamera () {
-            Viewer.resetCamera();
+            appViewer.viewer.resetCamera();
         }
     },
 

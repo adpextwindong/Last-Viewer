@@ -44,7 +44,7 @@ THREEx.WindowResize	= function(renderer, camera){
 	};
 };
 
-THREEx.ResizeForWidthOffset = function(renderer, camera, target_elem){
+THREEx.ResizeForWidthOffset = function(renderer, camera, target_elem, controls){
 	var callback = function (){
 		//TODO PERFORMANCE This might be extremely slow.
 		let computed_css_width = parseInt(getComputedStyle(target_elem).width);
@@ -52,6 +52,7 @@ THREEx.ResizeForWidthOffset = function(renderer, camera, target_elem){
 		renderer.setSize(computed_css_width, window.innerHeight);
 		camera.aspect = computed_css_width/ window.innerHeight;
 		camera.updateProjectionMatrix();
+		controls.handleResize();
 	}
 
 	// bind the resize event
