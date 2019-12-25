@@ -47,12 +47,13 @@ module.exports = {
                 appViewer.animateLoop();
         },
 
-        __initLandmarkTexts(texts){
+        __initLandmarkTexts(text){
+            //Parses the obj textfile for the landmark descriptions and group names.
             //Landmark groups are always preceeded by a description line
             //# Pternion     -> Evens
             //g landmark_0   -> Odds
             //slice(2) in this line drops the first comment/group name seen in the file as its the foot model group.
-            let xs = texts.split('\n').filter(s => s[0] === '#' || s[0] === 'g').slice(2);
+            let xs = text.split('\n').filter(s => s[0] === '#' || s[0] === 'g').slice(2);
             let evens = xs.filter((s, ind) => ind % 2 === 0);
             let odds = xs.filter((s, ind) => ind % 2 === 1);
             
