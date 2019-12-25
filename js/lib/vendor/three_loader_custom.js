@@ -671,7 +671,7 @@ module.exports = function (THREE) {
         console.timeEnd('OBJLoader');
       }
 
-      return container;
+      return {"text": text, "obj": container};
     }
 
   };

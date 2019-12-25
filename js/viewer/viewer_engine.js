@@ -16,11 +16,14 @@ module.exports = function () {
     return {
         obj: null,
         LIGHT_DEBUG: true,
+        //function to emit event to the containing Vue component
+        fire_event_to_component: null,
 
-        init: function (target_element, scan_obj) {
+        init: function (target_element, scan_obj, component_event_emitter) {
             //SCENE
             this.obj = scan_obj;
             this.scene = new THREE.Scene();
+            this.fire_event_to_component = component_event_emitter;
             // CAMERA
             screen_height = window.innerWidth;
             screen_width  = window.innerHeight;
@@ -34,11 +37,13 @@ module.exports = function () {
             this.scene.add(this.camera);
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
+            
+            //TODO use the raycast to pick for a landmark then fire an event to the component and recompute its style there.
+            //force some sort of onHover styling or something
+            //raycaster = new THREE.Raycaster();
 
             // TODO load foot obj seperately from the viewer as it will be part of an api call.
             var mesh = this.obj.getObjectByName("foot", false);
-            // mesh.position.set(-125, -50, -50);
-            // mesh.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
             this.obj.position.set(-125, -50, -50);
             this.obj.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
 
@@ -76,6 +81,7 @@ module.exports = function () {
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
+            this.fire_event_to_component("test");
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.

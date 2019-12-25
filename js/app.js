@@ -39,10 +39,10 @@ var app = new Vue({
 
             var loader = new THREE.OBJLoader();
             var appScope = this;
-            loader.load(path, function(response_obj){
+            loader.load(path, function(response_text_obj_pair){
                     console.log("loaded");
                     appScope.AppState = AppStates.LOADED;
-                    appScope.$refs.viewerInstance.launchViewer(appScope.$el, response_obj);
+                    appScope.$refs.viewerInstance.launchViewer(appScope.$el, response_text_obj_pair);
                 }
             )
         },
