@@ -13,19 +13,13 @@ const config_ANTI_ALIASING = false;
 //Limit zoom out distance
 const config_MAX_DISTANCE = 1000;
 module.exports = function () {
-    this.viewer = {
+    return {
         obj: null,
         LIGHT_DEBUG: true,
 
-        //BUG? Without this stashing the obj fails to load for some reason.
-        //Stashing before init prevents this.
-        //Stores the loaded obj into the Viewer object for init use.
-        stashLoadedObj : function(response_obj) {
-            this.obj = response_obj;
-        },
-
         init: function (target_element, scan_obj) {
             //SCENE
+            this.obj = scan_obj;
             this.scene = new THREE.Scene();
             // CAMERA
             screen_height = window.innerWidth;
@@ -78,43 +72,33 @@ module.exports = function () {
             }
             //TODO enable controls
 
-            this.appendRendererToDom(target_element);
+            this.__appendRendererToDom(target_element);
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
         },
 
+        //TODO change this RAF architecture to not redraw unless a change in the scene happens.
+        animateLoop: function () 
+        { 
+            requestAnimationFrame( this.animateLoop.bind(this) );
+            this.__render();		
+            this.__update();
+        },
         // getRendererDOMElem : function () {
         //     return this.renderer.domElement;
         // },
 
-        appendRendererToDom : function (target_element) {
+        __appendRendererToDom : function (target_element) {
             target_element.append(this.renderer.domElement);
         },
 
         //Prepend the webgl renderer domElement to the app's div.
-        prependRendererToDom : function (target_element) {
+        __prependRendererToDom : function (target_element) {
             target_element.prepend( this.renderer.domElement );
         },
 
-        animateLoop: function () 
-        { 
-            requestAnimationFrame( this.animateLoop.bind(this) );
-            this.render();		
-            this.update();
-        },
-
-        resetCamera: function (){
-            this.camera.position.set(0, 0, 500);
-            this.camera.lookAt(this.scene.position);
-        },
-        // animateOnce : function ()
-        // {
-        //     this.render();		
-        //     this.update();
-        // },
-
-        update: function ()
+        __update: function ()
         {
             if ( keyboard.pressed("z") ) 
             { 
@@ -123,8 +107,15 @@ module.exports = function () {
 
             this.controls.update();
         },
-        render: function () {
+        __render: function () {
             this.renderer.render( this.scene, this.camera );
+        },
+
+
+        //External facing functions for controling the scene from the viewer?layout Vue component.
+        resetCamera: function (){
+            this.camera.position.set(0, 0, 500);
+            this.camera.lookAt(this.scene.position);
         },
 
         hideLandmarks : function() {

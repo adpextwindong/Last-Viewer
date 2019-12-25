@@ -22,6 +22,7 @@
 
 
 <body>
+	<!-- TODO add a WEBGL check -->
 	<!-- see app.js for the corresponding vuejs app -->
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<div id="app" v-cloak>
@@ -40,26 +41,7 @@
 			</ul>
 		</div>
 		
-		<div id="data_display_wrapper" v-if="AppState === AppStates.LOADED">
-			<div id="data_display" >
-				<button type="button" v-on:click="resetCamera()">Reset Camera</button>
-
-				Heres where all the data goes.
-
-				<span>249.8</span>
-
-				<span>0</span>
-
-				<span>232.4</span>
-
-				<span>94.4</span>
-
-				<span>238.9</span>
-				<button type="button" v-on:click="hideLandmarks()">Hide all landmarks</button>
-			</div>
-			<!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
-		</div>
-
+		<viewer ref="viewerInstance" v-show="AppState === AppStates.LOADED"></viewer>
 	</div>
 
 
