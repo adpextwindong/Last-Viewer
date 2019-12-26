@@ -1,10 +1,6 @@
 var THREE = require('three');
 var TrackballControls = require('three-trackballcontrols');
 var LIGHTS = require('./lights.js');
-
-// standard global variables
-// var container;
-// var scene, camera, renderer, controls;
 var keyboard = new THREEx.KeyboardState();
 
 //CONFIG
@@ -70,11 +66,6 @@ class PickHelper {
     }
   }
 
-  
-
-
-// this.clearPickPosition();
-
 module.exports = function () {
     return {
         obj: null,
@@ -102,10 +93,6 @@ module.exports = function () {
             this.scene.add(this.camera);
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
-            
-            //TODO use the raycast to pick for a landmark then fire an event to the component and recompute its style there.
-            //force some sort of onHover styling or something
-            //raycaster = new THREE.Raycaster();
 
             var mesh = this.obj.getObjectByName("foot", false);
             this.obj.position.set(-125, -50, -50);
@@ -176,9 +163,6 @@ module.exports = function () {
             this.__render();		
             this.__update();
         },
-        // getRendererDOMElem : function () {
-        //     return this.renderer.domElement;
-        // },
 
         __appendRendererToDom : function (target_element) {
             target_element.append(this.renderer.domElement);
@@ -203,6 +187,7 @@ module.exports = function () {
 
             //TODO this state machine should be made cleaner.
             //Initialization of the undefined states should be done in the constructor
+            //Event names should be centralized between engine and layout.
             if(this.pickHelper.pickedObject !== this.lastEmittedPickedObject){
                 if(this.triggerHoverOffForLastEmitted){
                     if(this.lastEmittedPickedObject !== undefined){
@@ -213,14 +198,12 @@ module.exports = function () {
                 }
 
                 if(this.pickHelper.pickedObject !== undefined){
-                    //TODO define a proper event name
                     this.fire_event_to_component("viewer_landmark_hover_on",this.pickHelper.pickedObject.name);
                     this.lastEmittedPickedObject = this.pickHelper.pickedObject;
                     this.triggerHoverOffForLastEmitted = true;
                 }
             }
         },
-        
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
         resetCamera: function (){
