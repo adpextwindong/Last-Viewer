@@ -38,8 +38,12 @@ module.exports = {
     created() {
         //TODO make a seperate structure for organizing engine event binds and functions
         console.log("setting up test event listener")
+        
+        //The current archtecture of finding the index for the matching landmark structure should be replaced
+        //with some sort of dictionary for simpler lookup.
+
         this.$on('viewer_landmark_hover_on', function(msg){
-            console.log("test event recieved inside component");
+            // console.log("test event recieved inside component");
             this.show_test_event = !this.show_test_event;
 
              
@@ -48,7 +52,7 @@ module.exports = {
             this.landmarks[ind].isActive = true;
         });
         this.$on('viewer_landmark_hover_off', function(msg){
-            console.log("test event recieved inside component");
+            // console.log("test event recieved inside component");
             this.show_test_event = !this.show_test_event;
 
              
@@ -66,7 +70,7 @@ module.exports = {
                 appViewer.init(target_element, obj, function (event_name, msg){
                     //This function will be the event emitter handle to the component for the Viewer Engine.
                     viewer_component_scope.$emit(event_name, msg);
-                    console.log("Emitted "+event_name+ " event from Viewer Engine");
+                    // console.log("Emitted "+event_name+ " event from Viewer Engine");
                 });
                 appViewer.animateLoop();
         },

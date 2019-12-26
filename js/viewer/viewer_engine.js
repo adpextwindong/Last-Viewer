@@ -193,8 +193,6 @@ module.exports = function () {
         {
             // if ( keyboard.pressed("z") ) 
             // { 
-            //     // TODO remove this after PoC of 3d picking is complete
-            //     this.fire_event_to_component("test","landmark_0");
             // }
 
             this.controls.update();
@@ -202,7 +200,9 @@ module.exports = function () {
         __render: function () {
             this.renderer.render( this.scene, this.camera );
             this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
-            //TODO emit event if the 
+
+            //TODO this state machine should be made cleaner.
+            //Initialization of the undefined states should be done in the constructor
             if(this.pickHelper.pickedObject !== this.lastEmittedPickedObject){
                 if(this.triggerHoverOffForLastEmitted){
                     if(this.lastEmittedPickedObject !== undefined){
