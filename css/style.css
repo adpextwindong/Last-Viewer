@@ -56,6 +56,22 @@ canvas {
     width: 20%;
 }
 
+#data_display_wrapper.closed {
+    max-width: 0%;
+    width: 0%;
+}
+
+#data_display_wrapper.closed #data_display{
+    max-width: 0%;
+    width: 0%;
+    display:none;
+}
+
+#data_display_wrapper.closed ~ canvas {
+    width: 100%;
+    max-width: 100%;
+}
+
 
 /* debug */
 
@@ -66,4 +82,8 @@ canvas {
 #app > div.dg.main {
     /* z-index: 10; */
     float: right;
+}
+
+.active {
+    background-color: orange;
 }

@@ -101,8 +101,8 @@ module.exports = function () {
         {
             if ( keyboard.pressed("z") ) 
             { 
-                // do something
-                this.fire_event_to_component("test");
+                // TODO remove this after PoC of 3d picking is complete
+                this.fire_event_to_component("test","landmark_0");
             }
 
             this.controls.update();

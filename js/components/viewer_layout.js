@@ -21,7 +21,7 @@ module.exports = {
             </div>
             <ul>
                 <li v-for="landmark in landmarks">
-                    <span>{{ landmark.description }}</span>
+                    <span v-bind:class="{ active: landmark.isActive }">{{ landmark.description }}</span>
                 </li>
             </ul>
             <button type="button" v-on:click="hideLandmarks()">Hide all landmarks</button>
@@ -36,10 +36,16 @@ module.exports = {
         }
     },
     created() {
+        //TODO make a seperate structure for organizing engine event binds and functions
         console.log("setting up test event listener")
-        this.$on('test', function(){
+        this.$on('test', function(msg){
             console.log("test event recieved inside component");
             this.show_test_event = !this.show_test_event;
+
+
+            //Toggle is active demo.
+            let ind = this.landmarks.findIndex(element => element.group_name === msg);
+            this.landmarks[ind].isActive = !this.landmarks[ind].isActive;
         });
     },
     methods: {
@@ -48,9 +54,9 @@ module.exports = {
                 this.__initLandmarkTexts(text);
 
                 viewer_component_scope = this;
-                appViewer.init(target_element, obj, function (event_name){
+                appViewer.init(target_element, obj, function (event_name, msg){
                     //This function will be the event emitter handle to the component for the Viewer Engine.
-                    viewer_component_scope.$emit(event_name);
+                    viewer_component_scope.$emit(event_name, msg);
                     console.log("Emitted "+event_name+ " event from Viewer Engine");
                 });
                 appViewer.animateLoop();
@@ -70,13 +76,18 @@ module.exports = {
             zip(evens,odds).forEach(ind => {
                 this.landmarks.push({
                             'description': ind[0].slice(2),
-                            'group_name': ind[1].slice(2)
+                            'group_name': ind[1].slice(2),
+                            'isActive': false
                         })
             });
+            //TODO remove this after PoC is complete for the 3d picking
+            this.landmarks[0].isActive = true;
                 
         },
+
         //Engine controls for the data display control panel.
         resetCamera () {
+            //TODO fix this to reset the whole scene.
             appViewer.resetCamera();
         },
 
