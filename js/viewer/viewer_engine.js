@@ -12,6 +12,65 @@ var keyboard = new THREEx.KeyboardState();
 const config_ANTI_ALIASING = false;
 //Limit zoom out distance
 const config_MAX_DISTANCE = 1000;
+
+class PickHelper {
+    constructor() {
+      this.raycaster = new THREE.Raycaster();
+      this.pickedObject = null;
+      this.pickedObjectSavedColor = 0;
+
+      this.pickPosition = {x: 0, y: 0};
+
+    }
+    pick(normalizedPosition, scene, camera) {
+      // restore the color if there is a picked object
+      if (this.pickedObject) {
+        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+        this.pickedObject = undefined;
+      }
+
+      // cast a ray through the frustum
+      this.raycaster.setFromCamera(normalizedPosition, camera);
+      // get the list of objects the ray intersected
+      const intersectedObjects = this.raycaster.intersectObjects(scene.children[1].children);
+      if (intersectedObjects.length) {
+        // pick the first object. It's the closest one
+        this.pickedObject = intersectedObjects[0].object;
+        // save its color
+        this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+        // set its emissive color to flashing red/yellow
+        this.pickedObject.material.emissive.setHex(0xFF0000);
+      }
+    }
+    getCanvasRelativePosition(e, render_domElement) {
+        const rect = render_domElement.getBoundingClientRect();
+        return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        };
+    }
+    
+    setPickPosition(e, render_domElement) {
+        const pos = this.getCanvasRelativePosition(e, render_domElement);
+        this.pickPosition.x = (pos.x / render_domElement.clientWidth ) *  2 - 1;
+        this.pickPosition.y = (pos.y / render_domElement.clientHeight) * -2 + 1;  // note we flip Y
+    }
+    
+    clearPickPosition() {
+        // unlike the mouse which always has a position
+        // if the user stops touching the screen we want
+        // to stop picking. For now we just pick a value
+        // unlikely to pick something
+        this.pickPosition.x = -100000;
+        this.pickPosition.y = -100000;
+    }
+  }
+
+  
+
+
+// this.clearPickPosition();
+
 module.exports = function () {
     return {
         obj: null,
@@ -75,6 +134,33 @@ module.exports = function () {
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
+
+            this.pickHelper = new PickHelper();
+            this.pickHelper.clearPickPosition();
+
+            //FIXME Hacky implementation
+            //This is a hack around window binding itself to the this keyword on callback
+
+            viewer_scope = this;
+            window.addEventListener('mousemove', function (e){
+                this.setPickPosition(e, viewer_scope.renderer.domElement);
+            }.bind(this.pickHelper));
+            window.addEventListener('mouseout', function(){
+                this.clearPickPosition();
+            }.bind(this.pickHelper));
+            window.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
+          
+            window.addEventListener('touchstart', function(event) {
+              // prevent the window from scrolling
+              event.preventDefault();
+              this.pickHelper.setPickPosition(event.touches[0]);
+            }.bind(this), {passive: false});
+          
+            window.addEventListener('touchmove', function(event) {
+                this.pickHelper.setPickPosition(event.touches[0]);
+            }.bind(this));
+          
+            window.addEventListener('touchend', this.pickHelper.clearPickPosition.bind(this.pickHelper));
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.
@@ -109,6 +195,7 @@ module.exports = function () {
         },
         __render: function () {
             this.renderer.render( this.scene, this.camera );
+            this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
         },
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
