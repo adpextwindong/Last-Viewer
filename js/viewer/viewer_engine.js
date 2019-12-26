@@ -42,7 +42,6 @@ module.exports = function () {
             //force some sort of onHover styling or something
             //raycaster = new THREE.Raycaster();
 
-            // TODO load foot obj seperately from the viewer as it will be part of an api call.
             var mesh = this.obj.getObjectByName("foot", false);
             this.obj.position.set(-125, -50, -50);
             this.obj.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
@@ -53,15 +52,12 @@ module.exports = function () {
             //mesh.material.specular.set(0xffffff);
             //mesh.material.shininess.set(10);
             this.scene.add( this.obj );
-
             this.lighting = new LIGHTS();
             this.lighting.init();
             this.lighting.lights.forEach(light => this.scene.add(light));
 
-            //todo finish migrating
             this.renderer = new THREE.WebGLRenderer( {antialias:config_ANTI_ALIASING, alpha : true});
             this.renderer.setSize( screen_width, screen_height );
-
            
             THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
             // CONTROLS
@@ -71,17 +67,14 @@ module.exports = function () {
             // EVENTS
             THREEx.ResizeForWidthOffset(this.renderer, this.camera, target_element, this.controls);
 
-
             if( this.LIGHT_DEBUG) {
                 this.lighting.setupLightGUI(target_element);
             }
-            //TODO enable controls
 
             this.__appendRendererToDom(target_element);
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
-            this.fire_event_to_component("test");
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.
@@ -109,6 +102,7 @@ module.exports = function () {
             if ( keyboard.pressed("z") ) 
             { 
                 // do something
+                this.fire_event_to_component("test");
             }
 
             this.controls.update();
@@ -116,7 +110,6 @@ module.exports = function () {
         __render: function () {
             this.renderer.render( this.scene, this.camera );
         },
-
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
         resetCamera: function (){

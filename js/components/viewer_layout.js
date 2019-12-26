@@ -16,7 +16,9 @@ module.exports = {
         <!-- TODO figure out how to bind the viewer methods -->
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
 
-            Heres where all the data goes.
+            <div v-if="show_test_event === true">
+                UI change on test event was successful.
+            </div>
             <ul>
                 <li v-for="landmark in landmarks">
                     <span>{{ landmark.description }}</span>
@@ -29,20 +31,27 @@ module.exports = {
     `,
     data() {
         return {
-            landmarks : []
+            landmarks : [],
+            show_test_event : false
         }
+    },
+    created() {
+        console.log("setting up test event listener")
+        this.$on('test', function(){
+            console.log("test event recieved inside component");
+            this.show_test_event = !this.show_test_event;
+        });
     },
     methods: {
         launchViewer(target_element, response_text_obj_pair) {
                 let {text, obj} = response_text_obj_pair;
-
                 this.__initLandmarkTexts(text);
-                //TODO parse OBJ text for landmarks
 
                 viewer_component_scope = this;
                 appViewer.init(target_element, obj, function (event_name){
+                    //This function will be the event emitter handle to the component for the Viewer Engine.
                     viewer_component_scope.$emit(event_name);
-                    console.log("Emitted event");
+                    console.log("Emitted "+event_name+ " event from Viewer Engine");
                 });
                 appViewer.animateLoop();
         },
