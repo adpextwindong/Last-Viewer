@@ -38,14 +38,23 @@ module.exports = {
     created() {
         //TODO make a seperate structure for organizing engine event binds and functions
         console.log("setting up test event listener")
-        this.$on('test', function(msg){
+        this.$on('viewer_landmark_hover_on', function(msg){
             console.log("test event recieved inside component");
             this.show_test_event = !this.show_test_event;
 
-
+             
             //Toggle is active demo.
             let ind = this.landmarks.findIndex(element => element.group_name === msg);
-            this.landmarks[ind].isActive = !this.landmarks[ind].isActive;
+            this.landmarks[ind].isActive = true;
+        });
+        this.$on('viewer_landmark_hover_off', function(msg){
+            console.log("test event recieved inside component");
+            this.show_test_event = !this.show_test_event;
+
+             
+            //Toggle is active demo.
+            let ind = this.landmarks.findIndex(element => element.group_name === msg);
+            this.landmarks[ind].isActive = false;
         });
     },
     methods: {
@@ -68,7 +77,7 @@ module.exports = {
             //# Pternion     -> Evens
             //g landmark_0   -> Odds
             //slice(2) in this line drops the first comment/group name seen in the file as its the foot model group.
-            let xs = text.split('\n').filter(s => s[0] === '#' || s[0] === 'g').slice(2);
+            let xs = text.split('\n').filter(s => s[0] === '#' || s[0] === 'g');//.slice(2);
             let evens = xs.filter((s, ind) => ind % 2 === 0);
             let odds = xs.filter((s, ind) => ind % 2 === 1);
             

@@ -16,7 +16,7 @@ const config_MAX_DISTANCE = 1000;
 class PickHelper {
     constructor() {
       this.raycaster = new THREE.Raycaster();
-      this.pickedObject = null;
+      this.pickedObject = undefined;
       this.pickedObjectSavedColor = 0;
 
       this.pickPosition = {x: 0, y: 0};
@@ -25,7 +25,9 @@ class PickHelper {
     pick(normalizedPosition, scene, camera) {
       // restore the color if there is a picked object
       if (this.pickedObject) {
-        this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+        if(this.pickedObject !== undefined){
+            this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+        }
         this.pickedObject = undefined;
       }
 
@@ -40,6 +42,8 @@ class PickHelper {
         this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
         // set its emissive color to flashing red/yellow
         this.pickedObject.material.emissive.setHex(0xFF0000);
+      }else{
+        this.pickedObject = undefined;
       }
     }
     getCanvasRelativePosition(e, render_domElement) {
@@ -77,6 +81,8 @@ module.exports = function () {
         LIGHT_DEBUG: true,
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
+        lastEmittedPickedObject: undefined,
+        triggerHoverOffForLastEmitted: true,
 
         init: function (target_element, scan_obj, component_event_emitter) {
             //SCENE
@@ -145,11 +151,11 @@ module.exports = function () {
             window.addEventListener('mousemove', function (e){
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
             }.bind(this.pickHelper));
-            window.addEventListener('mouseout', function(){
-                this.clearPickPosition();
-            }.bind(this.pickHelper));
+
+            window.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
             window.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
           
+            //TODO Touch stuff needs to be tested on mobile
             window.addEventListener('touchstart', function(event) {
               // prevent the window from scrolling
               event.preventDefault();
@@ -185,18 +191,36 @@ module.exports = function () {
 
         __update: function ()
         {
-            if ( keyboard.pressed("z") ) 
-            { 
-                // TODO remove this after PoC of 3d picking is complete
-                this.fire_event_to_component("test","landmark_0");
-            }
+            // if ( keyboard.pressed("z") ) 
+            // { 
+            //     // TODO remove this after PoC of 3d picking is complete
+            //     this.fire_event_to_component("test","landmark_0");
+            // }
 
             this.controls.update();
         },
         __render: function () {
             this.renderer.render( this.scene, this.camera );
             this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
+            //TODO emit event if the 
+            if(this.pickHelper.pickedObject !== this.lastEmittedPickedObject){
+                if(this.triggerHoverOffForLastEmitted){
+                    if(this.lastEmittedPickedObject !== undefined){
+                        this.fire_event_to_component("viewer_landmark_hover_off",this.lastEmittedPickedObject.name);
+                    }
+                    
+                    this.triggerHoverOffForLastEmitted = false;
+                }
+
+                if(this.pickHelper.pickedObject !== undefined){
+                    //TODO define a proper event name
+                    this.fire_event_to_component("viewer_landmark_hover_on",this.pickHelper.pickedObject.name);
+                    this.lastEmittedPickedObject = this.pickHelper.pickedObject;
+                    this.triggerHoverOffForLastEmitted = true;
+                }
+            }
         },
+        
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
         resetCamera: function (){
