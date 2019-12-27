@@ -104,6 +104,10 @@ module.exports = function () {
             //mesh.material.specular.set(0xffffff);
             //mesh.material.shininess.set(10);
             this.scene.add( this.obj );
+
+            var axesHelper = new THREE.AxesHelper( 1000 );
+            this.scene.add( axesHelper );
+
             this.lighting = new LIGHTS();
             this.lighting.init();
             this.lighting.lights.forEach(light => this.scene.add(light));
@@ -175,9 +179,27 @@ module.exports = function () {
 
         __update: function ()
         {
-            // if ( keyboard.pressed("z") ) 
-            // { 
-            // }
+            if ( keyboard.pressed("z") ) 
+            {
+                if(this.pickHelper.pickedObject !== undefined){
+                    console.log("lets try again");
+
+                    this.pickHelper.pickedObject.geometry.computeBoundingSphere();
+                    let test = this.pickHelper.pickedObject.geometry.boundingSphere.center.clone();
+
+                    this.obj.updateMatrixWorld(true);
+                    test.applyMatrix4(this.obj.matrixWorld);
+                    this.camera.updateMatrixWorld(true)
+                    let vector = test.project(this.camera);
+
+                    // console.log(vector);
+                    console.log({ 
+                        x: ((vector.x / 2) * this.renderer.domElement.width) + (this.renderer.domElement.width/2),
+                        y: (this.renderer.domElement.height/2) - ((vector.y / 2) * this.renderer.domElement.height) 
+                    });
+                }
+
+            }
 
             this.controls.update();
         },
