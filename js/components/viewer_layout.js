@@ -46,6 +46,7 @@ module.exports = {
             let ind = this.landmarks.findIndex(element => element.group_name === msg);
             this.landmarks[ind].isActive = true;
 
+            //TODO theres something buggy right now about the nametag highlighting with the hoverOn/Off
             this.$set(this, "landmark_highlighted", true);
             this.landmark_highlighted_name = msg;
         });
