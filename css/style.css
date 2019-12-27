@@ -43,6 +43,10 @@ canvas {
     border: groove;
 }
 
+#landmark_nametag span {
+    position: absolute;
+}
+
 /* TODO make this responsive design */
 canvas {
     width: 80%;

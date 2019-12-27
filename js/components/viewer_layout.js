@@ -11,14 +11,13 @@ const zip = (arr, ...arrs) => {
 
 module.exports = {
     template : `
-    <div id="data_display_wrapper">
-        <div id="data_display" >
-        <!-- TODO figure out how to bind the viewer methods -->
-            <button type="button" v-on:click="resetCamera()">Reset Camera</button>
 
-            <div v-if="show_test_event === true">
-                UI change on test event was successful.
-            </div>
+    <div id="data_display_wrapper">
+        <div id="landmark_nametag">
+            <span>{{ landmark_highlighted_name }} </span>
+        </div>
+        <div id="data_display" >
+            <button type="button" v-on:click="resetCamera()">Reset Camera</button>
             <ul>
                 <li v-for="landmark in landmarks">
                     <span v-bind:class="{ active: landmark.isActive }">{{ landmark.description }}</span>
@@ -32,7 +31,8 @@ module.exports = {
     data() {
         return {
             landmarks : [],
-            show_test_event : false
+            landmark_highlighted : false,
+            landmark_highlighted_name : "",
         }
     },
     created() {
@@ -42,23 +42,28 @@ module.exports = {
         //The current archtecture of finding the index for the matching landmark structure should be replaced
         //with some sort of dictionary for simpler lookup.
 
-        this.$on('viewer_landmark_hover_on', function(msg){
-            // console.log("test event recieved inside component");
-            this.show_test_event = !this.show_test_event;
-
-             
-            //Toggle is active demo.
+        this.$on('viewer_landmark_hover_on', function(msg){    
             let ind = this.landmarks.findIndex(element => element.group_name === msg);
             this.landmarks[ind].isActive = true;
+
+            this.$set(this, "landmark_highlighted", true);
+            this.landmark_highlighted_name = msg;
         });
         this.$on('viewer_landmark_hover_off', function(msg){
-            // console.log("test event recieved inside component");
-            this.show_test_event = !this.show_test_event;
-
-             
             //Toggle is active demo.
             let ind = this.landmarks.findIndex(element => element.group_name === msg);
             this.landmarks[ind].isActive = false;
+
+            this.$set(this, "landmark_highlighted", false);
+            this.landmark_highlighted_name = "";
+        });
+
+        this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
+            //TODO fix the reactivity issues with the style binding
+            this.$forceUpdate();
+            let lm_nametag = document.querySelector("#landmark_nametag span");
+            lm_nametag.style["left"] = (hightlighted_position_v2.x + 20) + "px";
+            lm_nametag.style["top"] = (hightlighted_position_v2.y - 20) + "px";
         });
     },
     methods: {
