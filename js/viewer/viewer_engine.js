@@ -193,27 +193,32 @@ module.exports = function () {
             this.renderer.render( this.scene, this.camera );
             this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
 
+            //REFACTOR This state machine should be refactored into its own function
+
             //TODO this state machine should be made cleaner.
             //Initialization of the undefined states should be done in the constructor
             //Event names should be centralized between engine and layout.
             if(this.pickHelper.pickedObject !== this.lastEmittedPickedObject){
                 if(this.triggerHoverOffForLastEmitted){
-                    if(this.lastEmittedPickedObject !== undefined){
-                        this.fire_event_to_component("viewer_landmark_hover_off",this.lastEmittedPickedObject.name);
+                    if(this.lastEmittedPickedObject){
+                        this.fire_event_to_component("viewer_landmark_hover_off",
+                            this.lastEmittedPickedObject.parent["name"] ,this.lastEmittedPickedObject.name);
                     }
                     
                     this.triggerHoverOffForLastEmitted = false;
                 }
 
-                if(this.pickHelper.pickedObject !== undefined){
-                    this.fire_event_to_component("viewer_landmark_hover_on",this.pickHelper.pickedObject.name);
+                if(this.pickHelper.pickedObject){
+                    this.fire_event_to_component("viewer_landmark_hover_on",
+                        this.pickHelper.pickedObject.parent["name"] ,this.pickHelper.pickedObject.name);
+
                     this.lastEmittedPickedObject = this.pickHelper.pickedObject;
                     this.triggerHoverOffForLastEmitted = true;
                 }
             }
             
             //TODO put this into a utility function
-            if(this.pickHelper.pickedObject !== undefined){
+            if(this.pickHelper.pickedObject){
                 this.pickHelper.pickedObject.geometry.computeBoundingSphere();
                 let mesh_center = this.pickHelper.pickedObject.geometry.boundingSphere.center.clone();
 
@@ -231,6 +236,7 @@ module.exports = function () {
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
         resetCamera: function (){
+            //TODO fix this
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
         },
