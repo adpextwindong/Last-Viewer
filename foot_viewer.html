@@ -34,7 +34,12 @@
 					<input type="checkbox" :id="scan" :value="scan.path" v-model="selectedScans">
 					<label for="scan">{{scan.path}}</label>
 				</li>
-				<button type="button" v-on:click="loadViewer(selectedScans)">Load selected scans</button>
+				<span>Insoles avalible for viewing:</span>
+				<li v-for="sole in insoles">
+					<input type="checkbox" :id="sole" :value="sole.path" v-model="selectedInsoles">
+					<label for="sole">{{sole.path}}</label>
+				</li>
+				<button type="button" v-on:click="loadViewer(selectedScans, selectedInsoles)">Load selected scans</button>
 			</ul>
 
 			<div v-else-if="AppState === AppStates.LOADING">

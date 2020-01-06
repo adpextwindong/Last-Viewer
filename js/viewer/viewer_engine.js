@@ -17,6 +17,9 @@ class PickHelper {
 
       this.pickPosition = {x: 0, y: 0};
 
+    //Event handling for fireEvents()
+      this.lastEmittedPickedObject = undefined;
+      this.triggerHoverOffForLastEmitted = true;
     }
     pick(normalizedPosition, scene, camera) {
       // restore the color if there is a picked object
@@ -31,7 +34,23 @@ class PickHelper {
       this.raycaster.setFromCamera(normalizedPosition, camera);
       // get the list of objects the ray intersected
       //collect all the children of the group (scan) objects and intersect them
-      const intersectedObjects = this.raycaster.intersectObjects(scene.children.filter(c => c.type == "Group").flatMap(g => g.children));
+
+      //FIXME assumes all top level Group objects have only a single layer of children
+      //This should go through the whole scene graph for groups
+      
+      const collectGroupChilds = (o => {
+          let xs = [];
+          if(o.children){
+                xs.push(... o.children.filter(c => c.type !== "Group"));
+                xs.push(... o.children.filter(c => c.type === "Group").flatMap(collectGroupChilds));
+          }
+          return xs;
+      });
+
+      const intersectedObjects = this.raycaster.intersectObjects(collectGroupChilds(scene).filter(obj => obj.constructor.name !== "AxesHelper"));
+
+      //Replace this with a function that recursively grabs all the nonGroup children of a tree and traverses the child groups for their children objects
+    //   const intersectedObjects = this.raycaster.intersectObjects(scene.children.filter(c => c.type == "Group").flatMap(g => g.children));
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
         this.pickedObject = intersectedObjects[0].object;
@@ -65,6 +84,45 @@ class PickHelper {
         this.pickPosition.x = -100000;
         this.pickPosition.y = -100000;
     }
+
+    fireEvents(fire_event_to_component, camera, renderer){
+        //Event names should be centralized between engine and layout.
+        if(this.pickedObject !== this.lastEmittedPickedObject){
+            if(this.triggerHoverOffForLastEmitted){
+                if(this.lastEmittedPickedObject){
+                    fire_event_to_component("viewer_landmark_hover_off",
+                        this.lastEmittedPickedObject.parent["name"] ,this.lastEmittedPickedObject.name);
+                }
+                
+                this.triggerHoverOffForLastEmitted = false;
+            }
+
+            if(this.pickedObject){
+                fire_event_to_component("viewer_landmark_hover_on",
+                    this.pickedObject.parent["name"] ,this.pickedObject.name);
+
+                this.lastEmittedPickedObject = this.pickedObject;
+                this.triggerHoverOffForLastEmitted = true;
+            }
+        }
+        
+        if(this.pickedObject){
+            this.pickedObject.geometry.computeBoundingSphere();
+            let mesh_center = this.pickedObject.geometry.boundingSphere.center.clone();
+
+            // 01 06 20 TODO
+            //Refactor this for multi obj handling
+            this.pickedObject.updateMatrixWorld(true);
+            mesh_center.applyMatrix4(this.pickedObject.matrixWorld);
+            camera.updateMatrixWorld(true)
+            let vector = mesh_center.project(camera);
+
+            fire_event_to_component("viewer_landmark_highlighted_position", { 
+                x: ((vector.x / 2) * renderer.domElement.width) + (renderer.domElement.width/2),
+                y: (renderer.domElement.height/2) - ((vector.y / 2) * renderer.domElement.height) 
+            });
+        }
+    }
   }
 
 module.exports = function () {
@@ -73,12 +131,13 @@ module.exports = function () {
         LIGHT_DEBUG: true,
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
-        lastEmittedPickedObject: undefined,
-        triggerHoverOffForLastEmitted: true,
 
-        init: function (target_element, scan_objs, component_event_emitter) {
+        init: function (target_element, component_event_emitter, scan_objs, insole_objs) {
+            //TODO consider how the scene graph should be built in relation to the loader,menu picker interface 
+
             //SCENE
             this.objs = scan_objs;
+            this.insole_objs = insole_objs;
             this.scene = new THREE.Scene();
             this.fire_event_to_component = component_event_emitter;
             // CAMERA
@@ -95,36 +154,45 @@ module.exports = function () {
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
 
-            var mesh = this.objs[0].getObjectByName("foot", false);
+            
 
             let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
                 o.children[0].geometry.computeBoundingBox();
                 return o.children[0].geometry.boundingBox.getSize();
             }).map(v => v.x));
 
+            //Position the foot objs across the X axis in a distributed manner.
             for(let i = 0; i < this.objs.length; i++){
                 this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
                 this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
-            }
 
+            }
+            
             //mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
-            mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
+            // var mesh = this.objs[0].getObjectByName("foot", false);
+            // mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
             //mesh.material.ambient.set(0xdddddd);
             //mesh.material.specular.set(0xffffff);
             //mesh.material.shininess.set(10);
-            this.objs.forEach(o =>{
-                this.scene.add( o );
-            });
 
+            // this.objs.forEach(o =>{
+            //     this.scene.add( o );
+            // });
+            // this.insole_objs.forEach(o =>{
+            //     this.scene.add( o );
+            // });
+
+            //TODO REFACTOR FIX ME REMOVE THIS TEST CODE
+            this.objs[0].add(this.insole_objs[0]);
+            this.scene.add(this.objs[0]);
+            
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );
 
             // var helper = new THREE.CameraHelper( this.camera );
             // this.scene.add( helper );
 
-            this.lighting = new LIGHTS();
-            this.lighting.init();
-            this.lighting.lights.forEach(light => this.scene.add(light));
+            this.__setupLighting(target_element);
 
             this.renderer = new THREE.WebGLRenderer( {antialias:config_ANTI_ALIASING, alpha : true});
             this.renderer.setSize( screen_width, screen_height );
@@ -137,10 +205,6 @@ module.exports = function () {
             // EVENTS
             THREEx.ResizeForWidthOffset(this.renderer, this.camera, target_element, this.controls);
 
-            if( this.LIGHT_DEBUG) {
-                this.lighting.setupLightGUI(target_element);
-            }
-
             this.__appendRendererToDom(target_element);
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
@@ -148,6 +212,7 @@ module.exports = function () {
 
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
+
 
             //FIXME Hacky implementation
             //This is a hack around window binding itself to the this keyword on callback
@@ -191,6 +256,15 @@ module.exports = function () {
             target_element.prepend( this.renderer.domElement );
         },
 
+        __setupLighting :function(target_element){
+            this.lighting = new LIGHTS();
+            this.lighting.init();
+            this.lighting.lights.forEach(light => this.scene.add(light));
+
+            if( this.LIGHT_DEBUG) {
+                this.lighting.setupLightGUI(target_element);
+            }
+        },
         __update: function ()
         {
             if ( keyboard.pressed("z") ) 
@@ -204,48 +278,9 @@ module.exports = function () {
             this.renderer.render( this.scene, this.camera );
             this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
 
-            //TODO This state machine should be refactored into its own function
+            this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
             //Picking must happen after rendering
 
-            //TODO this state machine should be made cleaner.
-            //Initialization of the undefined states should be done in the constructor
-            //Event names should be centralized between engine and layout.
-            if(this.pickHelper.pickedObject !== this.lastEmittedPickedObject){
-                if(this.triggerHoverOffForLastEmitted){
-                    if(this.lastEmittedPickedObject){
-                        this.fire_event_to_component("viewer_landmark_hover_off",
-                            this.lastEmittedPickedObject.parent["name"] ,this.lastEmittedPickedObject.name);
-                    }
-                    
-                    this.triggerHoverOffForLastEmitted = false;
-                }
-
-                if(this.pickHelper.pickedObject){
-                    this.fire_event_to_component("viewer_landmark_hover_on",
-                        this.pickHelper.pickedObject.parent["name"] ,this.pickHelper.pickedObject.name);
-
-                    this.lastEmittedPickedObject = this.pickHelper.pickedObject;
-                    this.triggerHoverOffForLastEmitted = true;
-                }
-            }
-            
-            //TODO put this into a utility function
-            if(this.pickHelper.pickedObject){
-                this.pickHelper.pickedObject.geometry.computeBoundingSphere();
-                let mesh_center = this.pickHelper.pickedObject.geometry.boundingSphere.center.clone();
-
-                // 01 06 20 TODO
-                //Refactor this for multi obj handling
-                this.pickHelper.pickedObject.updateMatrixWorld(true);
-                mesh_center.applyMatrix4(this.pickHelper.pickedObject.matrixWorld);
-                this.camera.updateMatrixWorld(true)
-                let vector = mesh_center.project(this.camera);
-
-                this.fire_event_to_component("viewer_landmark_highlighted_position", { 
-                    x: ((vector.x / 2) * this.renderer.domElement.width) + (this.renderer.domElement.width/2),
-                    y: (this.renderer.domElement.height/2) - ((vector.y / 2) * this.renderer.domElement.height) 
-                });
-            }
         },
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
@@ -256,6 +291,8 @@ module.exports = function () {
         },
 
         hideLandmarks : function() {
+            //Toggle visisbilty to all meshes not named "foot"
+            //TODO this might have to change for non foot models
             this.objs.forEach(o => {
                 o.children.forEach(c => {
                     if(c.name !== "foot"){

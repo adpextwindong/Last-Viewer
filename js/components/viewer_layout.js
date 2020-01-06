@@ -70,24 +70,35 @@ module.exports = {
     },
 
     methods: {
-        launchViewer(target_element, response_text_obj_pair_list) {
+        launchViewer(target_element, response_text_obj_tupple_list) {
             //TODO refactor to load multiple if needed
-                let objs = [];
-                response_text_obj_pair_list.forEach((p, i) => {
-                    let {text, obj} = p;
-                    obj["name"] = "foot"+i;
+                let scan_objs = [];
+                let insole_objs = [];
+
+                //hmm theres no real ordering
+                //TODO REFACTOR redesign the datastructure from the loader to retain structure data about the scans
+                //If an insole with a matching scan is loaded for example they should be grouped within THREEJS
+                //The same should go for a pair of feet scan with potential matching insole or last scans
+                response_text_obj_tupple_list.forEach((p, i) => {
+                    let {text, obj, MODEL_TYPE} = p;
+                    if(MODEL_TYPE === "SCAN"){
+                        obj["name"] = "foot"+i;
+                        scan_objs.push(obj);
+                    }else if(MODEL_TYPE === "INSOLE"){
+                        obj["name"] = "insole"+i;
+                        insole_objs.push(obj);
+                    }
                     this.__initLandmarkTexts(obj["name"],text);
-                    objs.push(obj);
                 });
                 
-
-
-                viewer_component_scope = this;
-                appViewer.init(target_element, objs, function (event_name, ...args){
-                    //This function will be the event emitter handle to the Vue component from the Viewer Engine.
+                let viewer_component_scope = this;
+                //This function will be the event emitter handle to the Vue component from the Viewer Engine.
+                let viewer_component_event_handle = function (event_name, ...args){
                     viewer_component_scope.$emit(event_name, ...args);
                     // console.log("Emitted "+event_name+ " event from Viewer Engine");
-                });
+                };
+
+                appViewer.init(target_element, viewer_component_event_handle, scan_objs, insole_objs);
 
                 //Refactor RAF loop
                 appViewer.animateLoop();
@@ -96,10 +107,9 @@ module.exports = {
         __initLandmarkTexts(parent_key, text){
             this.$set(this.landmarks, parent_key, []);
             //Parses the obj textfile for the landmark descriptions and group names.
-            //Landmark groups are always preceeded by a description line
+            //This assumes all landmark groups are always preceeded by a description line
             //# Pternion     -> Evens
             //g landmark_0   -> Odds
-            //slice(2) in this line drops the first comment/group name seen in the file as its the foot model group.
             let xs = text.split('\n').filter(s => s[0] === '#' || s[0] === 'g');//.slice(2);
             let evens = xs.filter((s, ind) => ind % 2 === 0);
             let odds = xs.filter((s, ind) => ind % 2 === 1);
@@ -115,6 +125,7 @@ module.exports = {
         },
 
         //Engine controls for the data display control panel.
+        //These functions just expose the Viewer Engine's external interface to the VueJS component at compilation time.
         resetCamera () {
             //TODO fix this to reset the whole scene.
             appViewer.resetCamera();

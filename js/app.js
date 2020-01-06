@@ -21,21 +21,25 @@ var app = new Vue({
 
         //TODO make this actually point to fetched scans
         scans: [
-        { path: './data/foot.obj' },
         { path: './data/foot1.obj' },
         { path: './data/foot2.obj' },
         { path: './data/foot3.obj' },
         ],
+        insoles: [
+            { path: './data/sole.obj' },
+        ],
         selectedScans : [],
+        selectedInsoles : [],
 
         AppStates : AppStates,
         AppState : null,
     },
     methods : {
-        async loadViewer (paths) {
-            console.log("recieved click for path " + paths);
+        async loadViewer (scan_paths, insole_paths) {
+            //TODO BUGFIX assert scan_paths and insole_paths together are not empty, enforce validation of button on
+            //selection menu as well
+
             this.AppState = AppStates.LOADING;
-            //TODO Spruce up the css for the loadscreen
             console.log("now loading...");
 
             await sleep(1);
@@ -45,15 +49,23 @@ var app = new Vue({
 
             let loadList = [];
             //Refactor turn this into an awaitable promise so we dont have to wait loop bellow.
-            paths.forEach(p => {
+            scan_paths.forEach(p => {
                     loader.load(p, function(response_text_obj_pair){
                         console.log("loaded");
+                        response_text_obj_pair["MODEL_TYPE"] = "SCAN";
                         loadList.push(response_text_obj_pair);
                     }
-                )
-            });
+                )});
+            insole_paths.forEach(p => {
+                loader.load(p, function(response_text_obj_pair){
+                    console.log("loaded");
+                    response_text_obj_pair["MODEL_TYPE"] = "INSOLE";
+                    loadList.push(response_text_obj_pair);
+                }
+            )});
             //TODO REFACTOR FIXME
-            while(loadList.length != paths.length){
+
+            while(loadList.length !== (scan_paths.length + insole_paths.length)){
                 await sleep(100);
             }
             appScope.AppState = AppStates.LOADED;
