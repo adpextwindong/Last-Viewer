@@ -70,18 +70,26 @@ module.exports = {
     },
 
     methods: {
-        launchViewer(target_element, response_text_obj_pair) {
+        launchViewer(target_element, response_text_obj_pair_list) {
             //TODO refactor to load multiple if needed
-                let {text, obj} = response_text_obj_pair;
-                obj["name"] = "foot1";
-                this.__initLandmarkTexts("foot1",text);
+                let objs = [];
+                response_text_obj_pair_list.forEach((p, i) => {
+                    let {text, obj} = p;
+                    obj["name"] = "foot"+i;
+                    this.__initLandmarkTexts(obj["name"],text);
+                    objs.push(obj);
+                });
+                
+
 
                 viewer_component_scope = this;
-                appViewer.init(target_element, obj, function (event_name, ...args){
+                appViewer.init(target_element, objs, function (event_name, ...args){
                     //This function will be the event emitter handle to the Vue component from the Viewer Engine.
                     viewer_component_scope.$emit(event_name, ...args);
                     // console.log("Emitted "+event_name+ " event from Viewer Engine");
                 });
+
+                //Refactor RAF loop
                 appViewer.animateLoop();
         },
 

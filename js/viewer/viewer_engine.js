@@ -30,7 +30,8 @@ class PickHelper {
       // cast a ray through the frustum
       this.raycaster.setFromCamera(normalizedPosition, camera);
       // get the list of objects the ray intersected
-      const intersectedObjects = this.raycaster.intersectObjects(scene.children[1].children);
+      //collect all the children of the group (scan) objects and intersect them
+      const intersectedObjects = this.raycaster.intersectObjects(scene.children.filter(c => c.type == "Group").flatMap(g => g.children));
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
         this.pickedObject = intersectedObjects[0].object;
@@ -75,9 +76,9 @@ module.exports = function () {
         lastEmittedPickedObject: undefined,
         triggerHoverOffForLastEmitted: true,
 
-        init: function (target_element, scan_obj, component_event_emitter) {
+        init: function (target_element, scan_objs, component_event_emitter) {
             //SCENE
-            this.obj = scan_obj;
+            this.objs = scan_objs;
             this.scene = new THREE.Scene();
             this.fire_event_to_component = component_event_emitter;
             // CAMERA
@@ -94,16 +95,26 @@ module.exports = function () {
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
 
-            var mesh = this.obj.getObjectByName("foot", false);
-            this.obj.position.set(-125, -50, -50);
-            this.obj.rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+            var mesh = this.objs[0].getObjectByName("foot", false);
+
+            let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
+                o.children[0].geometry.computeBoundingBox();
+                return o.children[0].geometry.boundingBox.getSize();
+            }).map(v => v.x));
+
+            for(let i = 0; i < this.objs.length; i++){
+                this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
+                this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+            }
 
             //mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
             mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
             //mesh.material.ambient.set(0xdddddd);
             //mesh.material.specular.set(0xffffff);
             //mesh.material.shininess.set(10);
-            this.scene.add( this.obj );
+            this.objs.forEach(o =>{
+                this.scene.add( o );
+            });
 
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );
@@ -193,7 +204,8 @@ module.exports = function () {
             this.renderer.render( this.scene, this.camera );
             this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
 
-            //REFACTOR This state machine should be refactored into its own function
+            //TODO This state machine should be refactored into its own function
+            //Picking must happen after rendering
 
             //TODO this state machine should be made cleaner.
             //Initialization of the undefined states should be done in the constructor
@@ -222,8 +234,10 @@ module.exports = function () {
                 this.pickHelper.pickedObject.geometry.computeBoundingSphere();
                 let mesh_center = this.pickHelper.pickedObject.geometry.boundingSphere.center.clone();
 
-                this.obj.updateMatrixWorld(true);
-                mesh_center.applyMatrix4(this.obj.matrixWorld);
+                // 01 06 20 TODO
+                //Refactor this for multi obj handling
+                this.pickHelper.pickedObject.updateMatrixWorld(true);
+                mesh_center.applyMatrix4(this.pickHelper.pickedObject.matrixWorld);
                 this.camera.updateMatrixWorld(true)
                 let vector = mesh_center.project(this.camera);
 
@@ -242,10 +256,12 @@ module.exports = function () {
         },
 
         hideLandmarks : function() {
-            this.obj.children.forEach(c => {
-                if(c.name !== "foot"){
-                    c.visible = !c.visible;
-                }
+            this.objs.forEach(o => {
+                o.children.forEach(c => {
+                    if(c.name !== "foot"){
+                        c.visible = !c.visible;
+                    }
+                });
             });
         }
     };
