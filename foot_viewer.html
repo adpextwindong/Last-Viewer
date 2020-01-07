@@ -29,29 +29,32 @@
 		<div id="scan_picker" v-if="AppState !== AppStates.LOADED">
 
 			<!-- INITIAL STATE -->
-			<ul v-if="AppState === AppStates.PICKING">
-				<span>Scans avalible for viewing:</span>
-				<li v-for="scan in scans">
-					<input type="checkbox" :id="scan" :value="scan.path" v-model="selectedScans">
-					<label for="scan">{{scan.path}}</label>
-				</li>
-				<span>Insoles avalible for viewing:</span>
-				<li v-for="sole in insoles">
-					<input type="checkbox" :id="sole" :value="sole.path" v-model="selectedInsoles">
-					<label for="sole">{{sole.path}}</label>
-				</li>
-				<!-- There should be some validation on this end that confirms a scan has been selected -->
-				<button type="button" v-on:click="loadViewer(selectedScans, selectedInsoles)">Load selected scans</button>
-
-
-
-				<span>Overlay Scene Graph Viewer:</span>
-				<li v-for="scheme in existing_load_schemes">
-					<button type="button" v-on:click="loadGraphViewer(scheme)">{{scheme}}</button>
-				</li>
+			<div v-if="AppState === AppStates.PICKING">
 				
+				<ul >
+					<span>Scans avalible for viewing:</span>
+					<li v-for="scan in scans">
+						<input type="checkbox" :id="scan" :value="scan.path" v-model="selectedScans">
+						<label for="scan">{{scan.path}}</label>
+					</li>
+					<span>Insoles avalible for viewing:</span>
+					<li v-for="sole in insoles">
+						<input type="checkbox" :id="sole" :value="sole.path" v-model="selectedInsoles">
+						<label for="sole">{{sole.path}}</label>
+					</li>
+					<!-- There should be some validation on this end that confirms a scan has been selected -->
+					<button type="button" v-on:click="loadViewer(selectedScans, selectedInsoles)">Load selected scans</button>
+				</ul>
 
-			</ul>
+				<div>
+					<span>Overlay Scene Graph Viewer:</span>
+					<li v-for="scheme in existing_load_schemes">
+						<button type="button" v-on:click="loadGraphViewer(scheme)">{{scheme}}</button>
+					</li>						
+				</div>				
+			</div>
+
+
 
 			<!-- LOADING STATE -->
 			<div v-else-if="AppState === AppStates.LOADING">
