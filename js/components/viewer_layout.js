@@ -13,8 +13,8 @@ module.exports = {
     template : `
 
     <div id="data_display_wrapper">
-        <div id="landmark_nametag">
-            <span>{{ landmark_highlighted_name }} </span>
+        <div id="landmark_nametag_wrapper">
+            <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
         </div>
         <div id="data_display" >
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
@@ -47,7 +47,7 @@ module.exports = {
 
                 //TODO theres something buggy right now about the nametag highlighting with the hoverOn/Off
                 this.$set(this, "landmark_highlighted", true);
-                this.landmark_highlighted_name = viewer_group_name;
+                this.landmark_highlighted_name = viewer_group_name + " " + this.landmarks[parent_key][ind].description;
             }
         });
         this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
@@ -63,7 +63,7 @@ module.exports = {
         });
 
         this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
-            let lm_nametag = document.querySelector("#landmark_nametag span");
+            let lm_nametag = document.querySelector("#landmark_nametag_wrapper span");
             lm_nametag.style["left"] = (hightlighted_position_v2.x + 20) + "px";
             lm_nametag.style["top"] = (hightlighted_position_v2.y - 20) + "px";
         });
@@ -71,24 +71,26 @@ module.exports = {
 
     methods: {
         launchViewer(target_element, response_text_obj_tupple_list) {
-            //TODO refactor to load multiple if needed
-                let scan_objs = [];
-                let insole_objs = [];
+            //We need to setup all the landmarks. That however is a presentation detail and can remain here.
+            //Model typing can be pushed up to the loader level
 
+            //TODO refactor to load multiple if needed
+                let objs = [];
                 //hmm theres no real ordering
                 //TODO REFACTOR redesign the datastructure from the loader to retain structure data about the scans
                 //If an insole with a matching scan is loaded for example they should be grouped within THREEJS
                 //The same should go for a pair of feet scan with potential matching insole or last scans
-                response_text_obj_tupple_list.forEach((p, i) => {
-                    let {text, obj, MODEL_TYPE} = p;
-                    if(MODEL_TYPE === "SCAN"){
-                        obj["name"] = "foot"+i;
-                        scan_objs.push(obj);
-                    }else if(MODEL_TYPE === "INSOLE"){
-                        obj["name"] = "insole"+i;
-                        insole_objs.push(obj);
-                    }
+                response_text_obj_tupple_list.forEach(tupple => {
+                    let {text, obj, MODEL_TYPE} = tupple;
                     this.__initLandmarkTexts(obj["name"],text);
+                    objs.push(obj);
+
+                    //TODO remove the scan/insole seperation
+                    // if(MODEL_TYPE === "FOOT"){
+                    //     scan_objs.push(obj);
+                    // }else if(MODEL_TYPE === "INSOLE"){
+                    //     insole_objs.push(obj);
+                    // }
                 });
                 
                 let viewer_component_scope = this;
@@ -98,10 +100,39 @@ module.exports = {
                     // console.log("Emitted "+event_name+ " event from Viewer Engine");
                 };
 
-                appViewer.init(target_element, viewer_component_event_handle, scan_objs, insole_objs);
+                appViewer.init(target_element, viewer_component_event_handle, objs);
 
                 //Refactor RAF loop
                 appViewer.animateLoop();
+        },
+
+        launchViewer_new(target_element, processed_loadGraphList) {
+            //We need to setup all the landmarks. That however is a presentation detail and can remain here.
+            //Model typing can be pushed up to the loader level
+
+            const addLandmarks = graph => {
+                let {text, obj} = graph.response_obj;
+                this.__initLandmarkTexts(obj["name"],text);
+                if(graph.overlay_children){
+                    graph.overlay_children.forEach(child => {
+                        addLandmarks(child);
+                    })
+                }
+            }
+            processed_loadGraphList.forEach(g => addLandmarks(g));
+            let objs = processed_loadGraphList.map(g => g.response_obj.obj);
+
+            let viewer_component_scope = this;
+            //This function will be the event emitter handle to the Vue component from the Viewer Engine.
+            let viewer_component_event_handle = function (event_name, ...args){
+                viewer_component_scope.$emit(event_name, ...args);
+                // console.log("Emitted "+event_name+ " event from Viewer Engine");
+            };
+
+            appViewer.init(target_element, viewer_component_event_handle, objs);
+
+            //Refactor RAF loop
+            appViewer.animateLoop();
         },
 
         __initLandmarkTexts(parent_key, text){
@@ -115,6 +146,8 @@ module.exports = {
             let odds = xs.filter((s, ind) => ind % 2 === 1);
             
             //slice(2) in this case drops the leading "# " and "g " line markers in the obj format
+
+            //landmarks schema
             zip(evens,odds).forEach(ind => {
                 this.landmarks[parent_key].push({
                             'description': ind[0].slice(2),

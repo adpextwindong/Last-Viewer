@@ -28,6 +28,7 @@
 	<div id="app" v-cloak>
 		<div id="scan_picker" v-if="AppState !== AppStates.LOADED">
 
+			<!-- INITIAL STATE -->
 			<ul v-if="AppState === AppStates.PICKING">
 				<span>Scans avalible for viewing:</span>
 				<li v-for="scan in scans">
@@ -39,15 +40,26 @@
 					<input type="checkbox" :id="sole" :value="sole.path" v-model="selectedInsoles">
 					<label for="sole">{{sole.path}}</label>
 				</li>
+				<!-- There should be some validation on this end that confirms a scan has been selected -->
 				<button type="button" v-on:click="loadViewer(selectedScans, selectedInsoles)">Load selected scans</button>
+
+
+
+				<span>Overlay Scene Graph Viewer:</span>
+				<li v-for="scheme in existing_load_schemes">
+					<button type="button" v-on:click="loadGraphViewer(scheme)">{{scheme}}</button>
+				</li>
+				
+
 			</ul>
 
+			<!-- LOADING STATE -->
 			<div v-else-if="AppState === AppStates.LOADING">
 				now loading...
 			</div>
-			</ul>
 		</div>
 		
+		<!-- VIEWER STATE -->
 		<viewer ref="viewerInstance" v-show="AppState === AppStates.LOADED"></viewer>
 	</div>
 

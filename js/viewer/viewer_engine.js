@@ -41,12 +41,15 @@ class PickHelper {
       const collectGroupChilds = (o => {
           let xs = [];
           if(o.children){
+                // push children objects onto xs
                 xs.push(... o.children.filter(c => c.type !== "Group"));
+                // Recurse onto Group child objects
                 xs.push(... o.children.filter(c => c.type === "Group").flatMap(collectGroupChilds));
           }
           return xs;
       });
 
+      //AxesHelper cannot be highlighted
       const intersectedObjects = this.raycaster.intersectObjects(collectGroupChilds(scene).filter(obj => obj.constructor.name !== "AxesHelper"));
 
       //Replace this with a function that recursively grabs all the nonGroup children of a tree and traverses the child groups for their children objects
@@ -132,12 +135,14 @@ module.exports = function () {
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
 
-        init: function (target_element, component_event_emitter, scan_objs, insole_objs) {
-            //TODO consider how the scene graph should be built in relation to the loader,menu picker interface 
+        init: function (target_element, component_event_emitter, objs) {
+            //TODO refactor scan_objs and insole_objs into a loadGraph object with its own javascript file
+            //Have the loadGraph object expose a function for returning a list of its top level objs so we can forEach scene.add them
 
             //SCENE
-            this.objs = scan_objs;
-            this.insole_objs = insole_objs;
+            this.objs = objs;
+            // this.insole_objs = insole_objs;
+
             this.scene = new THREE.Scene();
             this.fire_event_to_component = component_event_emitter;
             // CAMERA
@@ -154,8 +159,6 @@ module.exports = function () {
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
 
-            
-
             let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
                 o.children[0].geometry.computeBoundingBox();
                 return o.children[0].geometry.boundingBox.getSize();
@@ -167,24 +170,14 @@ module.exports = function () {
                 this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
 
             }
-            
-            //mesh.material = new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } );
-            // var mesh = this.objs[0].getObjectByName("foot", false);
-            // mesh.material.color.set(0xcccccc);	//.set(new THREE.MeshPhongMaterial( { color: 0xff0000, ambient:0xff0000, specular: 0xffffff, shininess:10 } ));
-            //mesh.material.ambient.set(0xdddddd);
-            //mesh.material.specular.set(0xffffff);
-            //mesh.material.shininess.set(10);
 
-            // this.objs.forEach(o =>{
-            //     this.scene.add( o );
-            // });
+            //is building the scene graph a obj load time detail or should that be left to the engine?
+            this.objs.forEach(o =>{
+                this.scene.add( o );
+            });
             // this.insole_objs.forEach(o =>{
             //     this.scene.add( o );
             // });
-
-            //TODO REFACTOR FIX ME REMOVE THIS TEST CODE
-            this.objs[0].add(this.insole_objs[0]);
-            this.scene.add(this.objs[0]);
             
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );
@@ -213,10 +206,7 @@ module.exports = function () {
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
 
-
-            //FIXME Hacky implementation
-            //This is a hack around window binding itself to the this keyword on callback
-
+            // Object Picking Events
             viewer_scope = this;
             window.addEventListener('mousemove', function (e){
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
@@ -278,9 +268,8 @@ module.exports = function () {
             this.renderer.render( this.scene, this.camera );
             this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
 
-            this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
             //Picking must happen after rendering
-
+            this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
         },
 
         //External facing functions for controling the scene from the viewer?layout Vue component.
