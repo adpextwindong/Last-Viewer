@@ -141,7 +141,6 @@ module.exports = function () {
 
             //SCENE
             this.objs = objs;
-            // this.insole_objs = insole_objs;
 
             this.scene = new THREE.Scene();
             this.fire_event_to_component = component_event_emitter;
@@ -168,16 +167,12 @@ module.exports = function () {
             for(let i = 0; i < this.objs.length; i++){
                 this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
                 this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
-
             }
 
             //is building the scene graph a obj load time detail or should that be left to the engine?
             this.objs.forEach(o =>{
                 this.scene.add( o );
             });
-            // this.insole_objs.forEach(o =>{
-            //     this.scene.add( o );
-            // });
             
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );

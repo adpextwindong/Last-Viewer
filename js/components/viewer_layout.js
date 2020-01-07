@@ -107,9 +107,6 @@ module.exports = {
         },
 
         launchViewer_new(target_element, processed_loadGraphList) {
-            //We need to setup all the landmarks. That however is a presentation detail and can remain here.
-            //Model typing can be pushed up to the loader level
-
             const addLandmarks = graph => {
                 let {text, obj} = graph.response_obj;
                 this.__initLandmarkTexts(obj["name"],text);

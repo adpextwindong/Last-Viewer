@@ -151,7 +151,7 @@ var app = new Vue({
 
             //Stitching the object graph together will have to wait for all responses to come back
             //async await here would be really nice
-            const startLoadOBJS = async loadGraph => {
+            const startLoadOBJS = loadGraph => {
                 loadGraph.load_state = "PENDING";
 
                 loader.load(loadGraph.path, function(response_text_obj_pair){
@@ -161,6 +161,7 @@ var app = new Vue({
                     
                     if(loadGraph.overlay_children){
                         loadGraph.load_state = "AWAITING CHILDREN";
+                        //Recurse onto children
                         loadGraph.overlay_children.forEach(child_load_graph => startLoadOBJS(child_load_graph));
                     }else{
                         loadGraph.load_state = "LOADED";
@@ -173,6 +174,7 @@ var app = new Vue({
                     if(g.overlay_children.some(g => g.load_state === "PENDING") === false){
                         g.load_state = "LOADED";
                     }else{
+                        //Recurse onto children
                         g.overlay_children.forEach(child => updateBasedOnAwaitingChildren(child));
                     }
                 }
@@ -180,7 +182,7 @@ var app = new Vue({
 
             loadGraphList.forEach(loadGraph => startLoadOBJS(loadGraph));
             while(loadGraphList.some(g => g.load_state !== "LOADED" )){
-                await sleep(200);
+                await sleep(100);
                 loadGraphList.filter(g => g.load_state !== "LOADED").forEach(g => updateBasedOnAwaitingChildren(g));
             }
 
@@ -189,6 +191,7 @@ var app = new Vue({
                 if(graph.overlay_children){
                     graph.overlay_children.forEach(child => {
                         graph.response_obj.obj.add(child.response_obj.obj);
+                        //Recurse onto children
                         stitchSceneGraph(child);
                     })
                 }
