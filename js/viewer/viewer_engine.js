@@ -135,14 +135,42 @@ module.exports = function () {
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
 
-        init: function (target_element, component_event_emitter, objs) {
-            //TODO refactor scan_objs and insole_objs into a loadGraph object with its own javascript file
+        init: function (target_element, component_event_emitter, processed_loadGraphList) {
             //Have the loadGraph object expose a function for returning a list of its top level objs so we can forEach scene.add them
 
+            const applyConfig = g => {
+                if(g.config){
+                    //iterate and pattern match on properties
+                    Object.entries(g.config).forEach(entry => {
+                        let key = entry[0];
+                        let value = entry[1];
+
+                        if(key === "position"){
+                            let {x,y,z} = value;
+                            g.response_object.obj.position.set(x,y,z);
+                        }else if(key === "material_color"){
+                            //This 0 index might be too hard coded
+                            g.response_object.obj.children[0].material.emissive.setHex(value);
+                        }else{
+                            console.log("undefined setting pattern match " + key + " " + value);
+                        }
+                    })
+                }
+                if(g.overlay_children){
+                    g.overlay_children.forEach(child => applyConfig(child));
+                }
+            }
+            processed_loadGraphList.forEach(g => applyConfig(g));
+
             //SCENE
-            this.objs = objs;
+            this.objs = processed_loadGraphList.map(g => g.response_object.obj);
+            //TODO apply configs to objs
 
             this.scene = new THREE.Scene();
+            this.objs.forEach(o =>{
+                this.scene.add( o );
+            });
+            
             this.fire_event_to_component = component_event_emitter;
             // CAMERA
             screen_height = window.innerWidth;
@@ -158,21 +186,19 @@ module.exports = function () {
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
 
-            let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
-                o.children[0].geometry.computeBoundingBox();
-                return o.children[0].geometry.boundingBox.getSize();
-            }).map(v => v.x));
-
-            //Position the foot objs across the X axis in a distributed manner.
-            for(let i = 0; i < this.objs.length; i++){
-                this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
-                this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+            //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
+            if(processed_loadGraphList.every(g => g.config === undefined)){
+                let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
+                    o.children[0].geometry.computeBoundingBox();
+                    return o.children[0].geometry.boundingBox.getSize();
+                }).map(v => v.x));
+    
+                //Position the foot objs across the X axis in a distributed manner.
+                for(let i = 0; i < this.objs.length; i++){
+                    this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
+                    this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+                }
             }
-
-            //is building the scene graph a obj load time detail or should that be left to the engine?
-            this.objs.forEach(o =>{
-                this.scene.add( o );
-            });
             
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );

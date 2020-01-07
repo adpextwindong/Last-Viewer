@@ -82,9 +82,6 @@ module.exports = {
             }
             processed_loadGraphList.forEach(g => addLandmarks(g));
 
-            //TODO this could be moved to the engine side for top level objects and the whole load graph can be retained
-            let objs = processed_loadGraphList.map(g => g.response_object.obj);
-
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
             let viewer_component_event_handle = function (event_name, ...args){
@@ -92,7 +89,7 @@ module.exports = {
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
             };
 
-            appViewer.init(target_element, viewer_component_event_handle, objs);
+            appViewer.init(target_element, viewer_component_event_handle, processed_loadGraphList);
 
             //Refactor RAF loop
             appViewer.animateLoop();

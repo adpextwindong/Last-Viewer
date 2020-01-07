@@ -36,7 +36,15 @@ var app = new Vue({
             path: "./data/foot1.obj",
             overlay_children: [{
                     type: "INSOLE",
-                    path: "./data/sole.obj"
+                    path: "./data/sole.obj",
+                    config: {
+                        position : {
+                            x: 30,
+                            y: 20,
+                            z: -10
+                        },
+                        material_color : 0x00FF00,
+                    }
                 }],
             }]
         ],
