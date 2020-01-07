@@ -43,8 +43,9 @@ canvas {
     border: groove;
 }
 
-#landmark_nametag span {
+#landmark_nametag_wrapper span {
     position: absolute;
+    background-color: black;
 }
 
 /* TODO make this responsive design */
