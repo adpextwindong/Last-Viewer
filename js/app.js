@@ -5,6 +5,7 @@ Vue.component('landmark_list', require('./components/landmark_list.js'));
 var THREE = require('three');
 var OBJLoader = require('./lib/vendor/three_loader_custom');
 OBJLoader(THREE);
+var LoadGraph = require('./loader/load_graph_helper.js')
 
 const AppStates = Object.freeze({
     PICKING:   Symbol("picking"),
@@ -15,6 +16,11 @@ const AppStates = Object.freeze({
 
 const sleep = m => new Promise(r => setTimeout(r, m))
 
+//Careful theres no validation on this
+const LoadGraphFromObject = o => {
+    let children = o.overlay_children ? o.overlay_children.map(LoadGraphFromObject) : undefined;
+    return new LoadGraph(o.name, o.path, o.type, children, o.config);
+}
 var app = new Vue({
     el: '#app',
     data: {
@@ -67,7 +73,6 @@ var app = new Vue({
             await sleep(1);
 
             var loader = new THREE.OBJLoader();
-            var appScope = this;
 
             let loadList = [];
             //Refactor turn this into an awaitable promise so we dont have to wait loop bellow.
@@ -97,11 +102,14 @@ var app = new Vue({
             while(loadList.length !== (scan_paths.length + insole_paths.length)){
                 await sleep(100);
             }
+
+            var appScope = this;
             appScope.AppState = AppStates.LOADED;
             appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadList);
         },
 
-        async loadGraphViewer (loadGraphList) {
+        async loadGraphViewer (loadGraphListRawObject) {
+            let loadGraphList = loadGraphListRawObject.map(LoadGraphFromObject);
 
             this.AppState = AppStates.LOADING;
             console.log("now loading...");
@@ -109,55 +117,18 @@ var app = new Vue({
             await sleep(1);
 
             var loader = new THREE.OBJLoader();
-            var appScope = this;
-
-            const startLoadOBJS = loadGraph => {
-                loadGraph.load_state = "PENDING";
-
-                loader.load(loadGraph.path, function(response_text_obj_pair){
-                    response_text_obj_pair["MODEL_TYPE"] = loadGraph.type;
-                    response_text_obj_pair.obj["name"] = loadGraph.name;
-                    loadGraph.response_object = response_text_obj_pair;
-                    
-                    if(loadGraph.overlay_children){
-                        loadGraph.load_state = "AWAITING CHILDREN";
-                        //Recurse onto children
-                        loadGraph.overlay_children.forEach(child_load_graph => startLoadOBJS(child_load_graph));
-                    }else{
-                        loadGraph.load_state = "LOADED";
-                    }
-                });
-            }
-            //TODO FIXME, doesnt handle errors right now.
-            const updateBasedOnAwaitingChildren = g => {
-                if(g.load_state === "AWAITING CHILDREN"){
-                    if(g.overlay_children.some(g => g.load_state === "PENDING") === false){
-                        g.load_state = "LOADED";
-                    }else{
-                        //Recurse onto children
-                        g.overlay_children.forEach(child => updateBasedOnAwaitingChildren(child));
-                    }
-                }
-            }
-
-            loadGraphList.forEach(loadGraph => startLoadOBJS(loadGraph));
+            
+            // TODO notLoaded predicate should be exposed
+            loadGraphList.forEach(loadGraph => loadGraph.startLoadOBJS(loader));
             while(loadGraphList.some(g => g.load_state !== "LOADED" )){
                 await sleep(100);
-                loadGraphList.filter(g => g.load_state !== "LOADED").forEach(g => updateBasedOnAwaitingChildren(g));
+                loadGraphList.filter(g => g.load_state !== "LOADED").forEach(g => g.updateBasedOnAwaitingChildren());
             }
 
-            //Handles calling all THREE OBJECT3D.add calls throughout the graph so the engine can just add the top level groups
-            const stitchSceneGraph = graph => {
-                if(graph.overlay_children){
-                    graph.overlay_children.forEach(child => {
-                        graph.response_object.obj.add(child.response_object.obj);
-                        //Recurse onto children
-                        stitchSceneGraph(child);
-                    })
-                }
-            }
-            loadGraphList.forEach(g => stitchSceneGraph(g));
+            //graph.stitchSubSceneGraph
+            loadGraphList.forEach(g => g.stitchSceneGraph());
 
+            var appScope = this;
             appScope.AppState = AppStates.LOADED;
             appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadGraphList);
         }

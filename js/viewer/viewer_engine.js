@@ -26,7 +26,8 @@ module.exports = function () {
                     Object.entries(g.config).forEach(entry => {
                         let key = entry[0];
                         let value = entry[1];
-
+                        console.log("Applying key and value "+ key + " "+ value);
+                        //TODO this should be done in a more safer manner with checks to prevent throwing exceptions on bad configs
                         if(key === "position"){
                             let {x,y,z} = value;
                             g.response_object.obj.position.set(x,y,z);
@@ -70,6 +71,8 @@ module.exports = function () {
 
             //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
             if(processed_loadGraphList.every(g => g.config === undefined)){
+                console.log("defaulting positions and rotations")
+
                 let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
                     o.children[0].geometry.computeBoundingBox();
                     return o.children[0].geometry.boundingBox.getSize();
