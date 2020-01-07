@@ -108,7 +108,7 @@ module.exports = {
 
         launchViewer_new(target_element, processed_loadGraphList) {
             const addLandmarks = graph => {
-                let {text, obj} = graph.response_obj;
+                let {text, obj} = graph.response_object;
                 this.__initLandmarkTexts(obj["name"],text);
                 if(graph.overlay_children){
                     graph.overlay_children.forEach(child => {
