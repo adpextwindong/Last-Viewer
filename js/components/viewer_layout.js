@@ -70,43 +70,7 @@ module.exports = {
     },
 
     methods: {
-        launchViewer(target_element, response_text_obj_tupple_list) {
-            //We need to setup all the landmarks. That however is a presentation detail and can remain here.
-            //Model typing can be pushed up to the loader level
-
-            //TODO refactor to load multiple if needed
-                let objs = [];
-                //hmm theres no real ordering
-                //TODO REFACTOR redesign the datastructure from the loader to retain structure data about the scans
-                //If an insole with a matching scan is loaded for example they should be grouped within THREEJS
-                //The same should go for a pair of feet scan with potential matching insole or last scans
-                response_text_obj_tupple_list.forEach(tupple => {
-                    let {text, obj, MODEL_TYPE} = tupple;
-                    this.__initLandmarkTexts(obj["name"],text);
-                    objs.push(obj);
-
-                    //TODO remove the scan/insole seperation
-                    // if(MODEL_TYPE === "FOOT"){
-                    //     scan_objs.push(obj);
-                    // }else if(MODEL_TYPE === "INSOLE"){
-                    //     insole_objs.push(obj);
-                    // }
-                });
-                
-                let viewer_component_scope = this;
-                //This function will be the event emitter handle to the Vue component from the Viewer Engine.
-                let viewer_component_event_handle = function (event_name, ...args){
-                    viewer_component_scope.$emit(event_name, ...args);
-                    // console.log("Emitted "+event_name+ " event from Viewer Engine");
-                };
-
-                appViewer.init(target_element, viewer_component_event_handle, objs);
-
-                //Refactor RAF loop
-                appViewer.animateLoop();
-        },
-
-        launchViewer_new(target_element, processed_loadGraphList) {
+        launchViewer(target_element, processed_loadGraphList) {
             const addLandmarks = graph => {
                 let {text, obj} = graph.response_object;
                 this.__initLandmarkTexts(obj["name"],text);
@@ -117,7 +81,9 @@ module.exports = {
                 }
             }
             processed_loadGraphList.forEach(g => addLandmarks(g));
-            let objs = processed_loadGraphList.map(g => g.response_obj.obj);
+
+            //TODO this could be moved to the engine side for top level objects and the whole load graph can be retained
+            let objs = processed_loadGraphList.map(g => g.response_object.obj);
 
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.

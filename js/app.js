@@ -68,7 +68,10 @@ var app = new Vue({
                         console.log("loaded");
                         response_text_obj_pair["MODEL_TYPE"] = "FOOT";
                         response_text_obj_pair.obj["name"] = "foot" + index;
-                        loadList.push(response_text_obj_pair);
+
+                        loadList.push({
+                            response_object: response_text_obj_pair
+                        });
                     }
                 )});
             insole_paths.forEach((path, index) => {
@@ -76,7 +79,10 @@ var app = new Vue({
                     console.log("loaded");
                     response_text_obj_pair["MODEL_TYPE"] = "INSOLE";
                     response_text_obj_pair.obj["name"] = "insole" + index;
-                    loadList.push(response_text_obj_pair);
+
+                    loadList.push({
+                        response_object: response_text_obj_pair
+                    });
                 }
             )});
 
@@ -86,9 +92,6 @@ var app = new Vue({
             appScope.AppState = AppStates.LOADED;
             appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadList);
         },
-
-
-
 
         async loadGraphViewer (loadGraphList) {
 
@@ -139,7 +142,7 @@ var app = new Vue({
             const stitchSceneGraph = graph => {
                 if(graph.overlay_children){
                     graph.overlay_children.forEach(child => {
-                        graph.response_obj.obj.add(child.response_obj.obj);
+                        graph.response_object.obj.add(child.response_object.obj);
                         //Recurse onto children
                         stitchSceneGraph(child);
                     })
@@ -148,7 +151,7 @@ var app = new Vue({
             loadGraphList.forEach(g => stitchSceneGraph(g));
 
             appScope.AppState = AppStates.LOADED;
-            appScope.$refs.viewerInstance.launchViewer_new(appScope.$el, loadGraphList);
+            appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadGraphList);
         }
     },
 
