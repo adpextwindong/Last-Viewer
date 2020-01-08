@@ -125,7 +125,6 @@ var app = new Vue({
 
             var loader = new THREE.OBJLoader();
             
-            // TODO notLoaded predicate should be exposed
             loadGraphList.forEach(loadGraph => loadGraph.startLoadOBJS(loader));
             while(loadGraphList.some(g => g.notLoaded())){
                 await sleep(100);

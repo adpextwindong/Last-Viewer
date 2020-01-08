@@ -41,22 +41,12 @@ module.exports = function () {
             //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
             if(processed_loadGraphList.every(g => g.config === undefined)){
                 console.log("defaulting positions and rotations")
-
-                let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
-                    o.children[0].geometry.computeBoundingBox();
-                    return o.children[0].geometry.boundingBox.getSize();
-                }).map(v => v.x));
-    
-                //Position the foot objs across the X axis in a distributed manner.
-                for(let i = 0; i < this.objs.length; i++){
-                    this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
-                    this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
-                }
+                this.__setDefaultOrientations();
             }
             
+            //THREEJS HELPERS
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );
-
             // var helper = new THREE.CameraHelper( this.camera );
             // this.scene.add( helper );
 
@@ -147,6 +137,18 @@ module.exports = function () {
             this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
         },
 
+        __setDefaultOrientations: function(){
+            let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
+                o.children[0].geometry.computeBoundingBox();
+                return o.children[0].geometry.boundingBox.getSize();
+            }).map(v => v.x));
+
+            //Position the foot objs across the X axis in a distributed manner.
+            for(let i = 0; i < this.objs.length; i++){
+                this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
+                this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+            }
+        },
         //External facing functions for controling the scene from the viewer layout Vue component.
         resetCamera: function (){
             //TODO fix this
