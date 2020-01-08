@@ -41,6 +41,7 @@ canvas {
     /* Non-critical apperance  */
     padding: 0.25em;
     border: groove;
+    overflow-wrap: break-word;
 }
 
 #landmark_nametag_wrapper span {

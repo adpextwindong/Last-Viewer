@@ -18,10 +18,18 @@ module.exports = {
         </div>
         <div id="data_display" >
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
-            <landmark_list v-for="(landmark_group,key,index) in landmarks"
-                v-bind:landmark_group="landmark_group"
-                v-bind:key=index></landmark_list>
-            <button type="button" v-on:click="hideLandmarks()">Hide all landmarks</button>
+            <scene_graph_hiearchy
+                v-bind:scene_graph_representation="scene_graph_representation"></scene_graph_hiearchy>
+
+            <div>
+                <div v-if="landmark_list_visible === true">
+                    <landmark_list v-for="(landmark_group,key,index) in landmarks"
+                        v-bind:landmark_group="landmark_group"
+                        v-bind:key=index></landmark_list>
+                </div>
+                <button type="button" v-on:click="hideLandmarks()">Hide all landmarks</button>
+            </div>
+            
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
     </div>
@@ -31,14 +39,18 @@ module.exports = {
             //Refactor for multi objs
             landmarks : {},
 
-
             landmark_highlighted : false,
             landmark_highlighted_name : "",
+            landmark_list_visible : true,
+
+            scene_graph_representation : [],
         }
     },
     created() {
         //TODO make a seperate structure for organizing engine event binds and functions
         console.log("setting up test event listener")
+
+
         //REFACTOR LANDMARK CODE
         this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){    
             let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
@@ -90,6 +102,12 @@ module.exports = {
             };
 
             appViewer.init(target_element, viewer_component_event_handle, processed_loadGraphList);
+            //TODO The load graph list can have a listener for "change" events to recompute and $set the representation
+            this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
+
+            this.$on('viewer_scene_graph_change', function(){
+                this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
+            });
 
             //Refactor RAF loop
             appViewer.animateLoop();
@@ -126,6 +144,7 @@ module.exports = {
 
         hideLandmarks () {
             appViewer.hideLandmarks();
+            this.landmark_list_visible = !this.landmark_list_visible;
         }
     }
     

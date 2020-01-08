@@ -29,13 +29,26 @@ const OBJ_TYPES = [
 ]
 
 module.exports = class LoadGraph{
-    constructor(name, path, type, overlay_children = [], config={}){
+    constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined){
         this.name = name;
         this.path = path;
         this.type = type;
 
-        this.overlay_children = overlay_children;//These are also load graphs
-        this.config = config;
+        if(overlay_children){
+            this.overlay_children = overlay_children;//These are also load graphs
+            this.overlay_children.forEach(c => {
+                c.parent = this;
+            });
+        }
+        
+        if(config){
+            this.config = config;
+        }
+        
+        if(parent){
+            this.parent = parent;
+        }
+        //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
     startLoadOBJS(obj_loader){
@@ -117,4 +130,26 @@ module.exports = class LoadGraph{
             this.overlay_children.forEach(child => child.applyConfig());
         }
     }
+
+    //Builds a simple model for the Viewer Layout Vue Component of the load graph.
+    //We might be able to convert this class into a scene graph manager and use the GraphRepresentationModel to aid with
+    //scene graph tree traversals when we want to edit the scene from the Vue layer.
+    buildGraphRepresentationModel(){
+        return {
+            "name" : this.name,
+            "type" : this.type,
+
+            //Optional based on existence in the graph
+            ...this.response_object && {
+                //Deep copy uuid?
+                scene_uuid: this.response_object.obj.uuid
+            },
+            ...this.overlay_children && {
+                overlay_children : this.overlay_children.map(c => c.buildGraphRepresentationModel())
+            }
+        };
+        
+    }
+
+    //Pre order Tree Traversal for uuid or something too????
 }

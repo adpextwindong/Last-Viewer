@@ -1,6 +1,7 @@
 const Vue = require('../node_modules/vue/dist/vue.js');
 Vue.component('viewer', require('./components/viewer_layout.js'));
 Vue.component('landmark_list', require('./components/landmark_list.js'));
+Vue.component('scene_graph_hiearchy', require('./components/scene_graph_hiearchy.js'));
 
 var THREE = require('three');
 var OBJLoader = require('../lib/vendor/three_loader_custom');
@@ -37,7 +38,7 @@ var app = new Vue({
 
         existing_load_schemes: [
             [{
-            name: "foot1 and sole",
+            name: "foot1",
             type: "FOOT",
             path: "./data/foot1.obj",
             config : {
@@ -48,6 +49,7 @@ var app = new Vue({
                 },
             },
             overlay_children: [{
+                    name: "sole",
                     type: "INSOLE",
                     path: "./data/sole.obj",
                     config: {
@@ -123,6 +125,7 @@ var app = new Vue({
 
             await sleep(1);
 
+            //TODO this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial
             var loader = new THREE.OBJLoader();
             
             loadGraphList.forEach(loadGraph => loadGraph.startLoadOBJS(loader));
