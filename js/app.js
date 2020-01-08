@@ -3,7 +3,7 @@ Vue.component('viewer', require('./components/viewer_layout.js'));
 Vue.component('landmark_list', require('./components/landmark_list.js'));
 
 var THREE = require('three');
-var OBJLoader = require('./lib/vendor/three_loader_custom');
+var OBJLoader = require('../lib/vendor/three_loader_custom');
 OBJLoader(THREE);
 var LoadGraph = require('./loader/load_graph_helper.js')
 
