@@ -26,14 +26,18 @@ module.exports = function () {
                     Object.entries(g.config).forEach(entry => {
                         let key = entry[0];
                         let value = entry[1];
+                        let obj = g.response_object.obj;
                         console.log("Applying key and value "+ key + " "+ value);
                         //TODO this should be done in a more safer manner with checks to prevent throwing exceptions on bad configs
                         if(key === "position"){
                             let {x,y,z} = value;
-                            g.response_object.obj.position.set(x,y,z);
+                            obj.position.set(x,y,z);
                         }else if(key === "material_color"){
                             //This 0 index might be too hard coded
-                            g.response_object.obj.children[0].material.emissive.setHex(value);
+                            obj.children[0].material.emissive.setHex(value);
+                        }else if(key === "rotation"){
+                            let {x,y,z} = value;
+                            obj.rotation.set(x,y,z);
                         }else{
                             console.log("undefined setting pattern match " + key + " " + value);
                         }
