@@ -18,41 +18,8 @@ module.exports = function () {
         fire_event_to_component: null,
 
         init: function (target_element, component_event_emitter, processed_loadGraphList) {
-            //Have the loadGraph object expose a function for returning a list of its top level objs so we can forEach scene.add them
-
-            const applyConfig = g => {
-                if(g.config){
-                    //iterate and pattern match on properties
-                    Object.entries(g.config).forEach(entry => {
-                        let key = entry[0];
-                        let value = entry[1];
-                        let obj = g.response_object.obj;
-                        console.log("Applying key and value "+ key + " "+ value);
-                        //TODO this should be done in a more safer manner with checks to prevent throwing exceptions on bad configs
-                        if(key === "position"){
-                            let {x,y,z} = value;
-                            obj.position.set(x,y,z);
-                        }else if(key === "material_color"){
-                            //This 0 index might be too hard coded
-                            obj.children[0].material.emissive.setHex(value);
-                        }else if(key === "rotation"){
-                            let {x,y,z} = value;
-                            obj.rotation.set(x,y,z);
-                        }else{
-                            console.log("undefined setting pattern match " + key + " " + value);
-                        }
-                    })
-                }
-                if(g.overlay_children){
-                    g.overlay_children.forEach(child => applyConfig(child));
-                }
-            }
-            processed_loadGraphList.forEach(g => applyConfig(g));
-
             //SCENE
             this.objs = processed_loadGraphList.map(g => g.response_object.obj);
-            //TODO apply configs to objs
-
             this.scene = new THREE.Scene();
             this.objs.forEach(o => this.scene.add( o ));
             

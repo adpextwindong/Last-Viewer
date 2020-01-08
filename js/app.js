@@ -127,13 +127,15 @@ var app = new Vue({
             
             // TODO notLoaded predicate should be exposed
             loadGraphList.forEach(loadGraph => loadGraph.startLoadOBJS(loader));
-            while(loadGraphList.some(g => g.load_state !== "LOADED" )){
+            while(loadGraphList.some(g => g.notLoaded())){
                 await sleep(100);
-                loadGraphList.filter(g => g.load_state !== "LOADED").forEach(g => g.updateBasedOnAwaitingChildren());
+                loadGraphList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
             }
 
-            //graph.stitchSubSceneGraph
-            loadGraphList.forEach(g => g.stitchSceneGraph());
+            loadGraphList.forEach(g => {
+                g.stitchSceneGraph();
+                g.applyConfig();
+            });
 
             var appScope = this;
             appScope.AppState = AppStates.LOADED;

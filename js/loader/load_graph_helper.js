@@ -74,6 +74,7 @@ module.exports = class LoadGraph{
         }
     }
 
+    //Book keeping functions for setuping up internal THREEJS after loading is complete
     stitchSceneGraph(){
         if(this.overlay_children){
             this.overlay_children.forEach(child => {
@@ -81,6 +82,39 @@ module.exports = class LoadGraph{
                 //Recurse onto children
                 child.stitchSceneGraph();
             })
+        }
+    }
+
+    //Utility predicate for the loading phase
+    notLoaded(){
+        return this.load_state !== "LOADED"
+    }
+    applyConfig(){
+        if(this.config){
+            //iterate and pattern match on properties
+            Object.entries(this.config).forEach(entry => {
+                let key = entry[0];
+                let value = entry[1];
+                let obj = this.response_object.obj;
+
+                console.log("Applying key and value "+ key + " "+ value);
+                //TODO this should be done in a more safer manner with checks to prevent throwing exceptions on bad configs
+                if(key === "position"){
+                    let {x,y,z} = value;
+                    obj.position.set(x,y,z);
+                }else if(key === "material_color"){
+                    //This 0 index might be too hard coded
+                    obj.children[0].material.emissive.setHex(value);
+                }else if(key === "rotation"){
+                    let {x,y,z} = value;
+                    obj.rotation.set(x,y,z);
+                }else{
+                    console.log("undefined setting pattern match " + key + " " + value);
+                }
+            })
+        }
+        if(this.overlay_children){
+            this.overlay_children.forEach(child => child.applyConfig());
         }
     }
 }
