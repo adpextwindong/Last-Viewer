@@ -191,7 +191,8 @@ module.exports = function () {
             //TODO this might have to change for non foot models
             this.objs.forEach(o => {
                 o.children.forEach(c => {
-                    if(c.name !== "foot" && c.type === "Mesh"){
+                    //instanceOf THREE.Mesh
+                    if(c.name !== "foot" && c instanceof THREE.Mesh){
                         c.visible = !c.visible;
                     }
                 });
