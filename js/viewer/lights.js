@@ -5,12 +5,28 @@ module.exports = function() {
     return {
         init: function () {
             //TODO unhardcode these positions and read from localstorage or something
+            let storage = window.localStorage;
+            let xs = [1,2,3,4];
+
+            let luminosity_values = Array(5);
+            xs.forEach(x => {
+                let propertyName = "viewer_light" + x + "_luminosity";
+                let storage_value = storage.getItem(propertyName);
+
+                if(storage_value !== undefined && isNaN(parseFloat(storage_value)) !== true ){
+                    luminosity_values[x] = parseFloat(storage_value);
+                }else{
+                    //default on failure
+                    luminosity_values[x] = 0.5;
+                }
+            });
+
             this.lights = [
             new THREE.AmbientLight( 0x404040 ), // soft white light
-            new THREE.DirectionalLight( 0xffffff, 0.5 ),
-            new THREE.DirectionalLight( 0xffffff, 0.5 ),
-            new THREE.DirectionalLight( 0xffffff, 0.5 ),
-            new THREE.DirectionalLight( 0xffffff, 0.5 ),
+            new THREE.DirectionalLight( 0xffffff, luminosity_values[1]),
+            new THREE.DirectionalLight( 0xffffff, luminosity_values[2]),
+            new THREE.DirectionalLight( 0xffffff, luminosity_values[3]),
+            new THREE.DirectionalLight( 0xffffff, luminosity_values[4]),
             ];
 
             this.lights[1].position.set( 0, 0, 1000);
@@ -20,13 +36,34 @@ module.exports = function() {
             //todo finish seting up the light positions
         },
 
+        defaults : function() {
+            let storage = window.localStorage;
+            let xs = [1,2,3,4];
+            xs.forEach(x => {
+                let propertyName = "viewer_light" + x + "_luminosity";
+                storage.setItem(propertyName,"0.5");
+            });
+        },
+
         setupLightGUI : function (target_element) {
             lights_gui = new dat.GUI({autoPlace: false, closed:true});
 
-            lights_gui.add(this.lights[1], 'intensity', 0.0, 1.0);
-            lights_gui.add(this.lights[2], 'intensity', 0.0, 1.0);
-            lights_gui.add(this.lights[3], 'intensity', 0.0, 1.0);
-            lights_gui.add(this.lights[4], 'intensity', 0.0, 1.0);
+            this.luminosity_controllers = [];
+
+            this.luminosity_controllers.push(lights_gui.add(this.lights[1], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(lights_gui.add(this.lights[2], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(lights_gui.add(this.lights[3], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(lights_gui.add(this.lights[4], 'intensity', 0.0, 1.0));
+
+            this.luminosity_controllers.forEach((controller, index) => {
+                // console.log("Strapping up the onFinishChange");
+                controller.onFinishChange(function(value){
+                    // console.log("Firing finish change "+ "viewer_light" + (index+1) + "_luminosity");
+                    let propertyName = "viewer_light" + (index+1) + "_luminosity";
+                    let storage = window.localStorage;
+                    storage.setItem(propertyName, value);
+                });
+            });
 
             lights_gui.add(this.lights[0].color, 'r');
             lights_gui.add(this.lights[0].color, 'g');
