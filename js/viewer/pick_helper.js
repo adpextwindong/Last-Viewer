@@ -26,9 +26,6 @@ module.exports = class PickHelper {
       // get the list of objects the ray intersected
       //collect all the children of the group (scan) objects and intersect them
 
-      //FIXME assumes all top level Group objects have only a single layer of children
-      //This should go through the whole scene graph for groups
-      
       const collectGroupChilds = (o => {
           let xs = [];
           if(o.children){
@@ -43,8 +40,6 @@ module.exports = class PickHelper {
       //AxesHelper cannot be highlighted
       const intersectedObjects = this.raycaster.intersectObjects(collectGroupChilds(scene).filter(obj => obj.constructor.name !== "AxesHelper"));
 
-      //Replace this with a function that recursively grabs all the nonGroup children of a tree and traverses the child groups for their children objects
-    //   const intersectedObjects = this.raycaster.intersectObjects(scene.children.filter(c => c.type == "Group").flatMap(g => g.children));
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
         this.pickedObject = intersectedObjects[0].object;
@@ -104,8 +99,6 @@ module.exports = class PickHelper {
             this.pickedObject.geometry.computeBoundingSphere();
             let mesh_center = this.pickedObject.geometry.boundingSphere.center.clone();
 
-            // 01 06 20 TODO
-            //Refactor this for multi obj handling
             this.pickedObject.updateMatrixWorld(true);
             mesh_center.applyMatrix4(this.pickedObject.matrixWorld);
             camera.updateMatrixWorld(true)

@@ -3,8 +3,7 @@
 Heres the kind of json schema Im expecting to load with this thing
 Overlay children are LoadGraphs as well incase you want to nest a Last/Insole scan
 
-existing_load_schemes: [
-            [{
+        {
             name: "foot1 and sole",
             type: "FOOT",
             path: "./data/foot1.obj",
@@ -19,9 +18,8 @@ existing_load_schemes: [
                         },
                         material_color : 0x00FF00,
                     }
-                }],
-            }]
-        ],
+            }],
+        }
 */
 const OBJ_TYPES = [
     "FOOT",
@@ -67,7 +65,6 @@ module.exports = class LoadGraph{
     }
     updateBasedOnAwaitingChildren(){
         if(this.load_state === "AWAITING CHILDREN"){
-            //This could be rewritten as a class predicate
             if(this.__pendingChildren() === false){
                 this.load_state = "LOADED";
             }else{

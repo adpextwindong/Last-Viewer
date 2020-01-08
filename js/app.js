@@ -40,6 +40,13 @@ var app = new Vue({
             name: "foot1 and sole",
             type: "FOOT",
             path: "./data/foot1.obj",
+            config : {
+                rotation : {
+                    x: -90*Math.PI/180,
+                    y: 0,
+                    z: -90*Math.PI/180
+                },
+            },
             overlay_children: [{
                     type: "INSOLE",
                     path: "./data/sole.obj",

@@ -50,9 +50,7 @@ module.exports = function () {
             //TODO apply configs to objs
 
             this.scene = new THREE.Scene();
-            this.objs.forEach(o =>{
-                this.scene.add( o );
-            });
+            this.objs.forEach(o => this.scene.add( o ));
             
             this.fire_event_to_component = component_event_emitter;
             // CAMERA
@@ -178,7 +176,7 @@ module.exports = function () {
             this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
         },
 
-        //External facing functions for controling the scene from the viewer?layout Vue component.
+        //External facing functions for controling the scene from the viewer layout Vue component.
         resetCamera: function (){
             //TODO fix this
             this.camera.position.set(0, 0, 500);

@@ -2,7 +2,7 @@ Current requirements:
 Vuejs
 Node.npm Package Manager (NPM)
 Browserify (installable through NPM)
-NPM packages lsited in package-lock.json
+NPM packages listed in package.json
 
 Running the viewer locally
 `python -m http.server`
