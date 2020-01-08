@@ -25,7 +25,7 @@ canvas {
 }
 
 #data_display_wrapper {
-    display: inline-block;
+    /* display: inline-block; */
     vertical-align: top;
 }
 
@@ -49,10 +49,10 @@ canvas {
 }
 
 /* TODO make this responsive design */
-canvas {
+/* canvas {
     width: 80%;
     max-width: 80%;
-}
+} */
 #data_display_wrapper {
     width: 20%;
 }
