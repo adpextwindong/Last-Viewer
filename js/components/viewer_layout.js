@@ -35,6 +35,10 @@ module.exports = {
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
     </div>
     `,
+
+    //It might be easier for a control object for each component to be generated that contains closures for each thing
+    //instead of vbinding everything. Ofc theres no compile time guarentee that the controls match up.
+    
     data() {
         return {
             //Refactor for multi objs

@@ -24,7 +24,7 @@ module.exports = function () {
             this.objs = processed_loadGraphList.map(g => g.response_object.obj);
             this.scene = new THREE.Scene();
             this.objs.forEach(o => this.scene.add( o ));
-            this.manager_init();
+            this.__manager_init();
             
             // CAMERA
             screen_height = window.innerWidth;
@@ -132,7 +132,7 @@ module.exports = function () {
             }
 
             this.controls.update();
-            this.manager_flush_change();
+            this.__manager_flush_change();
         },
         __render: function () {
             this.renderer.render( this.scene, this.camera );
@@ -167,22 +167,22 @@ module.exports = function () {
             xs.forEach(o => {
                 obj = o.getTHREEObj();
                 o.visible = !o.visible;
-                //TODO 2020 01 09 finish this
             });
 
-            this.manager_flush_change();
+            this.__manager_flush_change();
         },
 
-        manager_flush_change : function(force=false){
+        __manager_flush_change : function(force=false){
             //Setters applied to managed items can set the flush flag to true
             if(force || this.manager_flush_flag){
                 this.fire_event_to_component('viewer_scene_graph_change');
                 this.manager_flush_flag = false;
             }
         },
-        manager_init : function(){
+        __manager_init : function(){
             this.manager_flush_flag = false;
 
+            //Set up setters that notify the engine about property changes that the scene_graph_hiearchy component wants to show
             let engineScope = this;
             const bind_engine_watchers = function(g) {
                 Object.defineProperty(g.response_object.obj, 'visible', {
@@ -218,7 +218,7 @@ module.exports = function () {
                 }
             })
 
-            this.manager_flush_flag(true);
+            this.__manager_flush_change(true);
         },
 
         hideLandmarks : function() {
