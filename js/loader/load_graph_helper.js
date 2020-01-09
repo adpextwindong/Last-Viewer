@@ -152,4 +152,31 @@ module.exports = class LoadGraph{
     }
 
     //Pre order Tree Traversal for uuid or something too????
+    //Can return empty list representing no uuid in tree
+    //TODO testing on a deep tree would help
+    traverseForUUID(target_uuid){
+        if(this.response_object.obj.uuid === target_uuid){
+            return [this];
+        }else{
+            if(this.overlay_children){
+                return this.overlay_children.flatMap(g => g.traverseForUUID(target_uuid))
+            }else{
+                return [];
+            }
+        }
+    }
+
+    getTHREEObj(){
+        return this.response_object.obj;
+    }
+    removeChild(graph){
+        if(this.overlay_children.includes(graph)){
+            graph.parent = null;
+            this.overlay_children.splice(this.overlay_children.indexOf(graph),1);
+            //Recursively remove from tree?
+            if(this.overlay_children.length === 0){
+                this.overlay_children = undefined;
+            }
+        }
+    }
 }

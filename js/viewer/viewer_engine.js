@@ -12,7 +12,6 @@ const config_MAX_DISTANCE = 1000;
 
 module.exports = function () {
     return {
-        obj: null,
         LIGHT_DEBUG: true,
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
@@ -20,38 +19,12 @@ module.exports = function () {
         init: function (target_element, component_event_emitter, processed_loadGraphList) {
             this.fire_event_to_component = component_event_emitter;
 
-            //TODO expose a scene graph manager that lets the Vue layer do things
-            //For example removing an object from the scene by UUID would
-            //Traverse the this.objs list and remove it if its a top level obj.
-            //Using that object it would remove it from the scene graph and then traverse the loadGraphList to remove it?
-            //removing from the scene graph might not be necessary as it would be a parent
-
-            //At the end of any scene graph change the fire_event_to_component should be called with the 'viewer_scene_graph_change' event
-
-            // const isTopLevelObj = uuid => this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
-            
-            // if(isTopLevelObj(uuid)){
-            //     let removed = this.objs.splice(this.objs.map(o => o.uuid).indexOf(uuid) ,1);
-            //     this.scene.remove(removed[0]);
-            // }
-            //2020 1 08 FINISH THIS
-            //TODO implement a remove function in the load graph helper that remove a child and its respect descendants?
-            //Traverse for obj reference in load graph list, then call remove via its parent.
-            //Then fire event
-
-            //TODO Bind r to remove highlighted if instanceOf THREE.group
-
             //SCENE
             this.__processed_loadGraphList = processed_loadGraphList;
             this.objs = processed_loadGraphList.map(g => g.response_object.obj);
             this.scene = new THREE.Scene();
             this.objs.forEach(o => this.scene.add( o ));
             
-            //TODO make a scene graph manager interface
-
-            //TODO associate landmark groups with a UUID for dropping on scene_graph change
-
-
             // CAMERA
             screen_height = window.innerWidth;
             screen_width  = window.innerHeight;
@@ -184,6 +157,30 @@ module.exports = function () {
             //TODO fix this
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
+        },
+
+        //TODO Bind r to remove highlighted if instanceOf THREE.group
+        manager_removeUUID : function(uuid){
+            const isTopLevelObj = uuid => this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
+            
+            if(isTopLevelObj(uuid)){
+                let removed = this.objs.splice(this.objs.map(o => o.uuid).indexOf(uuid) ,1);
+                this.scene.remove(removed[0]);
+            }
+
+            let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
+            xs.forEach(o => {
+                this.scene.remove(o.getTHREEObj());
+                if(o.parent){
+                    o.parent.getTHREEObj().remove(o.getTHREEObj());
+                    o.parent.removeChild(o);
+                }else{
+                    //Apparently its the top of the tree or something
+                    this.__processed_loadGraphList.splice(this.__processed_loadGraphList.indexOf(o), 1);
+                }
+            })
+
+            this.fire_event_to_component('viewer_scene_graph_change');
         },
 
         hideLandmarks : function() {

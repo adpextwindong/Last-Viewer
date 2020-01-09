@@ -19,7 +19,8 @@ module.exports = {
         <div id="data_display" >
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
             <scene_graph_hiearchy
-                v-bind:scene_graph_representation="scene_graph_representation"></scene_graph_hiearchy>
+                v-bind:scene_graph_representation="scene_graph_representation"
+                v-bind:emitRemoveUUIDRequest="emitRemoveUUIDRequest"></scene_graph_hiearchy>
 
             <div>
                 <div v-if="landmark_list_visible === true">
@@ -106,13 +107,21 @@ module.exports = {
             this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
 
             this.$on('viewer_scene_graph_change', function(){
+                // console.log("Scene Graph change recieved");
                 this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
+            });
+
+            this.$on('scene_graph_component_remove_uuid_request', function(uuid){
+                appViewer.manager_removeUUID(uuid);
             });
 
             //Refactor RAF loop
             appViewer.animateLoop();
         },
 
+        emitRemoveUUIDRequest(uuid){
+            this.$emit('scene_graph_component_remove_uuid_request', uuid);
+        },
         __initLandmarkTexts(parent_key, text){
             this.$set(this.landmarks, parent_key, []);
             //Parses the obj textfile for the landmark descriptions and group names.
