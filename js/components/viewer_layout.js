@@ -48,10 +48,6 @@ module.exports = {
         }
     },
     created() {
-        //TODO make a seperate structure for organizing engine event binds and functions
-        console.log("setting up test event listener")
-
-
         //REFACTOR LANDMARK CODE
         this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){    
             let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
@@ -64,7 +60,6 @@ module.exports = {
             }
         });
         this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
-            //Toggle is active demo.
             let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
 
             if(ind !== -1){
@@ -103,11 +98,11 @@ module.exports = {
             };
 
             appViewer.init(target_element, viewer_component_event_handle, processed_loadGraphList);
-            //TODO The load graph list can have a listener for "change" events to recompute and $set the representation
+
             this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
 
             this.$on('viewer_scene_graph_change', function(){
-                // console.log("Scene Graph change recieved");
+                console.log("Scene Graph change recieved");
                 this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
             });
 

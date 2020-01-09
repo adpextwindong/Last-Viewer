@@ -143,7 +143,9 @@ module.exports = class LoadGraph{
             //Optional based on existence in the graph
             ...this.response_object && {
                 //Deep copy uuid?
-                scene_uuid: this.response_object.obj.uuid
+                scene_uuid: this.response_object.obj.uuid,
+                //Engine managed variables with data change events
+                visibility: this.response_object.obj.visible
             },
             ...this.overlay_children && {
                 overlay_children : this.overlay_children.map(c => c.buildGraphRepresentationModel())
@@ -155,6 +157,8 @@ module.exports = class LoadGraph{
     //Pre order Tree Traversal for uuid or something too????
     //Can return empty list representing no uuid in tree
     //TODO testing on a deep tree would help
+    //This list interface is awkward because of the children case potentially returning the uuid
+    //across multiple children due to the lack of ownership semantics/invariants.
     traverseForUUID(target_uuid){
         if(this.response_object.obj.uuid === target_uuid){
             return [this];
@@ -167,6 +171,12 @@ module.exports = class LoadGraph{
         }
     }
 
+    traverseAndApplyRecursively(f){
+        f(this);
+        if(this.overlay_children){
+            this.overlay_children.forEach(c => c.traverseAndApplyRecursively(f));
+        }
+    }
     getTHREEObj(){
         return this.response_object.obj;
     }

@@ -24,6 +24,7 @@ module.exports = function () {
             this.objs = processed_loadGraphList.map(g => g.response_object.obj);
             this.scene = new THREE.Scene();
             this.objs.forEach(o => this.scene.add( o ));
+            this.manager_init();
             
             // CAMERA
             screen_height = window.innerWidth;
@@ -131,6 +132,7 @@ module.exports = function () {
             }
 
             this.controls.update();
+            this.manager_flush_change();
         },
         __render: function () {
             this.renderer.render( this.scene, this.camera );
@@ -160,7 +162,42 @@ module.exports = function () {
             this.camera.lookAt(this.scene.position);
         },
 
-        //TODO Bind r to remove highlighted if instanceOf THREE.group
+        manager_toggleVisibility : function(uuid){
+            let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
+            xs.forEach(o => {
+                obj = o.getTHREEObj();
+                o.visible = !o.visible;
+                //TODO 2020 01 09 finish this
+            });
+
+            this.manager_flush_change();
+        },
+
+        manager_flush_change : function(force=false){
+            //Setters applied to managed items can set the flush flag to true
+            if(force || this.manager_flush_flag){
+                this.fire_event_to_component('viewer_scene_graph_change');
+                this.manager_flush_flag = false;
+            }
+        },
+        manager_init : function(){
+            this.manager_flush_flag = false;
+
+            let engineScope = this;
+            const bind_engine_watchers = function(g) {
+                Object.defineProperty(g.response_object.obj, 'visible', {
+                    set: function(v){
+                        engineScope.manager_flush_flag = true;
+                    }
+                });
+            }
+
+            //Some Groups don't have a visibility option
+
+            this.__processed_loadGraphList.forEach(g => bind_engine_watchers(g));
+
+        },
+
         manager_removeUUID : function(uuid){
             const isTopLevelObj = uuid => this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
             
@@ -181,7 +218,7 @@ module.exports = function () {
                 }
             })
 
-            this.fire_event_to_component('viewer_scene_graph_change');
+            this.manager_flush_flag(true);
         },
 
         hideLandmarks : function() {
