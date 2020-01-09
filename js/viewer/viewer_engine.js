@@ -158,8 +158,7 @@ module.exports = function () {
         //External facing functions for controling the scene from the viewer layout Vue component.
         resetCamera: function (){
             //TODO fix this
-            this.camera.position.set(0, 0, 500);
-            this.camera.lookAt(this.scene.position);
+            this.controls.reset();    
         },
 
         manager_toggleVisibility : function(uuid){
