@@ -18,7 +18,7 @@ const AppStates = Object.freeze({
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 //Careful theres no validation on this
-const LoadGraphFromObject = o => {
+const LoadGraphFromObject = (o) => {
     let children = o.overlay_children ? o.overlay_children.map(LoadGraphFromObject) : undefined;
     return new LoadGraph(o.name, o.path, o.type, children, o.config);
 }
@@ -73,48 +73,16 @@ var app = new Vue({
     },
     methods : {
         async loadViewer (scan_paths, insole_paths) {
-            //TODO BUGFIX assert scan_paths and insole_paths together are not empty, enforce validation of button on
-            //selection menu as well
+            let loadGraphList = [];
 
-            this.AppState = AppStates.LOADING;
-            console.log("now loading...");
-
-            await sleep(1);
-
-            var loader = new THREE.OBJLoader();
-
-            let loadList = [];
-            //Refactor turn this into an awaitable promise so we dont have to wait loop bellow.
-            scan_paths.forEach((path,index) => {
-                    loader.load(path, function(response_text_obj_pair){
-                        console.log("loaded");
-                        response_text_obj_pair["MODEL_TYPE"] = "FOOT";
-                        response_text_obj_pair.obj["name"] = "foot" + index;
-
-                        loadList.push({
-                            response_object: response_text_obj_pair
-                        });
-                    }
-                )});
+            scan_paths.forEach((path, index) => {
+                loadGraphList.push(new LoadGraph( "foot" + index , path, "FOOT"));
+            })
             insole_paths.forEach((path, index) => {
-                loader.load(path, function(response_text_obj_pair){
-                    console.log("loaded");
-                    response_text_obj_pair["MODEL_TYPE"] = "INSOLE";
-                    response_text_obj_pair.obj["name"] = "insole" + index;
+                loadGraphList.push(new LoadGraph( "insole" + index , path, "INSOLE"));
+            })
 
-                    loadList.push({
-                        response_object: response_text_obj_pair
-                    });
-                }
-            )});
-
-            while(loadList.length !== (scan_paths.length + insole_paths.length)){
-                await sleep(100);
-            }
-
-            var appScope = this;
-            appScope.AppState = AppStates.LOADED;
-            appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadList);
+            this.loadGraphViewer(loadGraphList);
         },
 
         async loadGraphViewer (loadGraphListRawObject) {

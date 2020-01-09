@@ -152,6 +152,7 @@ module.exports = function () {
                 this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
             }
         },
+        
         //External facing functions for controling the scene from the viewer layout Vue component.
         resetCamera: function (){
             //TODO fix this

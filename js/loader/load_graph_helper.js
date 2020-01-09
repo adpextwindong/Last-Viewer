@@ -28,6 +28,7 @@ const OBJ_TYPES = [
     "FOOT_PAIR"
 ]
 
+//This might have to be renamed to LoadTree
 module.exports = class LoadGraph{
     constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined){
         this.name = name;

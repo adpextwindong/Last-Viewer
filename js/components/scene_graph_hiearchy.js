@@ -18,8 +18,6 @@ module.exports = {
     name: 'scene_graph_hiearchy',
 }
 
-//TODO make a button to emit a componentRequest_removeUUID event
-
 // <div>
 // {{ JSON.stringify(scene_graph_representation) }}
 // </div>
