@@ -93,3 +93,24 @@ canvas {
 .active {
     background-color: orange;
 }
+
+/* TODO convert this file into scss cause it needs more organization. 
+    TODO Figure out a correct way to handle on the on click event and hide the data display.
+    TODO custom scroll bar
+*/
+.wrapper_closer{
+	position: absolute;
+    left: 20%;
+    height: 100%;
+    width: 15%;
+    opacity: 50%;
+}
+
+.wrapper_closer:hover{
+	position: absolute;
+    left: 20%;
+    height: 100%;
+    width: 15%;
+    opacity: 50%;
+    background-image: linear-gradient(to right, white , black);
+}

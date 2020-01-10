@@ -12,7 +12,7 @@ const zip = (arr, ...arrs) => {
 module.exports = {
     template : `
 
-    <div id="data_display_wrapper">
+    <div id="data_display_wrapper" class="wrapper">
         <div id="landmark_nametag_wrapper">
             <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
         </div>
@@ -35,6 +35,9 @@ module.exports = {
             
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
+        <div class="wrapper_closer">
+            stuff
+        </div>
     </div>
     `,
 
