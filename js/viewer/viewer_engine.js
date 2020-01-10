@@ -157,7 +157,6 @@ module.exports = function () {
         
         //External facing functions for controling the scene from the viewer layout Vue component.
         resetCamera: function (){
-            //TODO fix this
             this.controls.reset();    
         },
 
@@ -195,6 +194,10 @@ module.exports = function () {
 
             this.__processed_loadGraphList.forEach(g => bind_engine_watchers(g));
 
+            //On removal we should stash the obj into a lookup table with the paths so they can be hotswapped back in potentially.
+            //Now we just need a loading interface for the engine that add new graph/objs on the fly
+            //Then a right click interface that goes to the nearest parent instanceOf THREE.group and appends the desired thing
+            //This would of course require a menu interface for selecting a new scan.
         },
 
         manager_removeUUID : function(uuid){

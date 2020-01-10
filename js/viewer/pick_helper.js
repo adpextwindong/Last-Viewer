@@ -4,6 +4,7 @@ module.exports = class PickHelper {
     constructor() {
       this.raycaster = new THREE.Raycaster();
       this.pickedObject = undefined;
+      this.lastFramePickObject = undefined;
       this.pickedObjectSavedColor = 0;
 
       this.pickPosition = {x: 0, y: 0};
@@ -76,7 +77,10 @@ module.exports = class PickHelper {
 
     fireEvents(fire_event_to_component, camera, renderer){
         //Event names should be centralized between engine and layout.
-        if(this.pickedObject !== this.lastEmittedPickedObject){
+        if(this.pickedObject !== this.lastFramePickObject){
+            //Our mouse is on top of something new.
+            //this.pickedObject could be undefined
+
             if(this.triggerHoverOffForLastEmitted){
                 if(this.lastEmittedPickedObject){
                     fire_event_to_component("viewer_landmark_hover_off",
@@ -95,6 +99,8 @@ module.exports = class PickHelper {
             }
         }
         
+        this.lastFramePickObject = this.pickedObject;
+
         if(this.pickedObject){
             this.pickedObject.geometry.computeBoundingSphere();
             let mesh_center = this.pickedObject.geometry.boundingSphere.center.clone();
