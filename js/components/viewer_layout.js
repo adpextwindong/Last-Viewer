@@ -78,10 +78,10 @@ module.exports = {
             }
         });
 
+
         this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
-            let lm_nametag = document.querySelector("#landmark_nametag_wrapper span");
-            lm_nametag.style["left"] = (hightlighted_position_v2.x + 20) + "px";
-            lm_nametag.style["top"] = (hightlighted_position_v2.y - 20) + "px";
+            this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
+            this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
         });
     },
 
@@ -130,6 +130,8 @@ module.exports = {
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
             };
+
+            this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
         },
 
         __initLandmarkTexts(parent_key, text){
