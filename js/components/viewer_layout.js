@@ -18,9 +18,11 @@ module.exports = {
         </div>
         <div id="data_display" >
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
+
             <scene_graph_hiearchy
                 v-bind:scene_graph_representation="scene_graph_representation"
-                v-bind:emitRemoveUUIDRequest="emitRemoveUUIDRequest"></scene_graph_hiearchy>
+                v-bind:engine_interface="engine_interface"
+                ></scene_graph_hiearchy>
 
             <div>
                 <div v-if="landmark_list_visible === true">
@@ -49,6 +51,8 @@ module.exports = {
             landmark_list_visible : true,
 
             scene_graph_representation : [],
+
+            engine_interface : {},
         }
     },
     created() {
@@ -116,11 +120,18 @@ module.exports = {
 
             //Refactor RAF loop
             appViewer.animateLoop();
+
+            //Engine interface for controller components
+            this.engine_interface = {
+                toggleVisibilityUUID : function(uuid){
+                    appViewer.toggleVisibilityUUID(uuid);
+                },
+                emitRemoveUUIDRequest: function(uuid){
+                    this.$emit('scene_graph_component_remove_uuid_request', uuid);
+                }.bind(this),
+            };
         },
 
-        emitRemoveUUIDRequest(uuid){
-            this.$emit('scene_graph_component_remove_uuid_request', uuid);
-        },
         __initLandmarkTexts(parent_key, text){
             this.$set(this.landmarks, parent_key, []);
             //Parses the obj textfile for the landmark descriptions and group names.
@@ -146,7 +157,6 @@ module.exports = {
         //Engine controls for the data display control panel.
         //These functions just expose the Viewer Engine's external interface to the VueJS component at compilation time.
         resetCamera () {
-            //TODO fix this to reset the whole scene.
             appViewer.resetCamera();
         },
 
