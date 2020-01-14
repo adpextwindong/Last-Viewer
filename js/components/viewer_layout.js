@@ -20,9 +20,9 @@ module.exports = {
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
 
             <scene_graph_hiearchy
-                v-bind:scene_graph_representation="scene_graph_representation"
-                v-bind:engine_interface="engine_interface"
-                ></scene_graph_hiearchy>
+            v-bind:scene_graph_representation="scene_graph_representation"
+            v-bind:engine_interface="engine_interface"
+            />
 
             <div>
                 <div v-if="landmark_list_visible === true">
@@ -90,17 +90,7 @@ module.exports = {
 
     methods: {
         launchViewer(target_element, processed_loadGraphList) {
-            const addLandmarks = graph => {
-                let {text, obj} = graph.response_object;
-                this.__initLandmarkTexts(obj["name"],text);
-                if(graph.overlay_children){
-                    graph.overlay_children.forEach(child => {
-                        addLandmarks(child);
-                    })
-                }
-            }
-            processed_loadGraphList.forEach(g => addLandmarks(g));
-
+            this.__grabLandmarks(processed_loadGraphList);
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
             let viewer_component_event_handle = function (event_name, ...args){
@@ -110,6 +100,7 @@ module.exports = {
 
             appViewer.init(target_element, viewer_component_event_handle, processed_loadGraphList);
 
+            //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
 
             this.$on('viewer_scene_graph_change', function(){
@@ -121,7 +112,8 @@ module.exports = {
                 appViewer.manager_removeUUID(uuid);
             });
 
-            //Refactor RAF loop
+            //TODO Refactor RAF loop
+            //Starts rendering the scene
             appViewer.animateLoop();
 
             //Engine interface for controller components
@@ -160,6 +152,18 @@ module.exports = {
                             'isActive': false
                         })
             });   
+        },
+        __grabLandmarks(processed_loadGraphList){
+            const addLandmarks = graph => {
+                let {text, obj} = graph.response_object;
+                this.__initLandmarkTexts(obj["name"],text);
+                if(graph.overlay_children){
+                    graph.overlay_children.forEach(child => {
+                        addLandmarks(child);
+                    })
+                }
+            }
+            processed_loadGraphList.forEach(g => addLandmarks(g));
         },
 
         //Engine controls for the data display control panel.
