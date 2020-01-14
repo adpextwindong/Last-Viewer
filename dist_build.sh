@@ -1,5 +1,5 @@
-echo "Building bundle.js"
-browserify js/app.js -o bundle.js
+echo "Running build script"
+./build.sh
 
 echo "Cleaning dist folder"
 rm -rf dist/
