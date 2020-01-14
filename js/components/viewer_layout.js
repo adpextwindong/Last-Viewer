@@ -16,7 +16,7 @@ module.exports = {
         <div id="landmark_nametag_wrapper">
             <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
         </div>
-        <div id="data_display" >
+        <div id="data_display" class="wrapper_open" >
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
 
             <scene_graph_hiearchy
@@ -35,8 +35,8 @@ module.exports = {
             
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
-        <div class="wrapper_closer">
-            stuff
+        <div id="wrapper_closer" v-on:click="toggleMenu()">
+            
         </div>
     </div>
     `,
@@ -134,7 +134,10 @@ module.exports = {
                 }.bind(this),
             };
 
+            //Stashing elements to avoid dom traversals later
             this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
+            this.menu_display_wrapper_el = document.querySelector("#data_display_wrapper");
+            this.menu_wrapper_closer_el = document.querySelector("#wrapper_closer");
         },
 
         __initLandmarkTexts(parent_key, text){
@@ -165,9 +168,15 @@ module.exports = {
             appViewer.resetCamera();
         },
 
+        //Presentation controlling functions
         hideLandmarks () {
             appViewer.hideLandmarks();
             this.landmark_list_visible = !this.landmark_list_visible;
+        },
+
+        toggleMenu(){
+            this.menu_display_wrapper_el.classList.toggle("closed");
+            this.menu_wrapper_closer_el.classList.toggle("closed");
         }
     }
     

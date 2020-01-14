@@ -50,36 +50,53 @@ canvas {
 }
 
 /* TODO make this responsive design */
-/* canvas {
-    width: 80%;
-    max-width: 80%;
-} */
 #data_display_wrapper {
     width: 20%;
-}
-#data_display {
-    max-width: 20%;
-    width: 20%;
+    #data_display {
+        max-width: 20%;
+        width: 20%;
+    }
+
+    &.closed{
+        max-width: 0%;
+        width: 0%;
+
+        #data_display{
+            max-width: 0%;
+            width: 0%;
+            display:none;
+        }
+
+        &　~ canvas{
+            width: 100%;
+            max-width: 100%;
+        }
+    }
 }
 
-#data_display_wrapper.closed {
-    max-width: 0%;
-    width: 0%;
+#wrapper_closer{
+    position: absolute;
+    height: 100%;
+
+    left: 20%;
+    &.closed{
+        left: 0%;   
+    }
+
+    width: 15%;
+    opacity: 50%;
+    
+    /*
+        Make width a function of visual units
+
+        TODO add a transition
+    */
+    &:hover{
+        background-image: linear-gradient(to right, white , black);
+    }
 }
 
-#data_display_wrapper.closed #data_display{
-    max-width: 0%;
-    width: 0%;
-    display:none;
-}
-
-#data_display_wrapper.closed ~ canvas {
-    width: 100%;
-    max-width: 100%;
-}
-
-
-/* debug */
+/* debug menu styling */
 
 #app > div.dg.main > div {
     /* z-index: 10; */
@@ -90,6 +107,7 @@ canvas {
     float: right;
 }
 
+/* Landmark highlighting */
 .active {
     background-color: orange;
 }
@@ -98,19 +116,3 @@ canvas {
     TODO Figure out a correct way to handle on the on click event and hide the data display.
     TODO custom scroll bar
 */
-.wrapper_closer{
-	position: absolute;
-    left: 20%;
-    height: 100%;
-    width: 15%;
-    opacity: 50%;
-}
-
-.wrapper_closer:hover{
-	position: absolute;
-    left: 20%;
-    height: 100%;
-    width: 15%;
-    opacity: 50%;
-    background-image: linear-gradient(to right, white , black);
-}
