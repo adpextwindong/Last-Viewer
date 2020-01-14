@@ -145,7 +145,12 @@ module.exports = class LoadGraph{
                 //Deep copy uuid?
                 scene_uuid: this.response_object.obj.uuid,
                 //Engine managed variables with data change events
-                visibility: this.response_object.obj.visible
+
+                //TODO refactor this
+                visibility: this.response_object.obj.visible ? this.response_object.obj.visible : 
+                        (this.response_object.obj.children && this.response_object.obj.children[0] ? this.response_object.obj.children[0].visible : undefined)
+                //This is a disgusting ternate that could be replaced with a lambda.
+                //A Group with a foot mesh and landmarks will not have its own visible field so we need to use the foot mesh's instead.   
             },
             ...this.overlay_children && {
                 overlay_children : this.overlay_children.map(c => c.buildGraphRepresentationModel())

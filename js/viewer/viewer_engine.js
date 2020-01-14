@@ -160,11 +160,29 @@ module.exports = function () {
             this.controls.reset();    
         },
 
+        hideLandmarks : function() {
+            this.objs.forEach(o => {
+                o.children.forEach(c => {
+                    //name is as defined by obj file Im pretty sure.
+                    if(c.name !== "foot" && c instanceof THREE.Mesh){
+                        c.visible = !c.visible;
+                    }
+                });
+            });
+        },
+
+        //
+        //SCENE MANAGER
+        //All functions should call __manager_flush_change() to propagate a scene graph representation model change
+        //in the Layout level.
+        //
         manager_toggleVisibility : function(uuid){
             let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
             xs.forEach(o => {
                 obj = o.getTHREEObj();
-                o.visible = !o.visible;
+                if(o.visible){
+                    o.visible = !o.visible;
+                }
             });
 
             this.__manager_flush_change();
@@ -223,17 +241,5 @@ module.exports = function () {
             this.__manager_flush_change(true);
         },
 
-        hideLandmarks : function() {
-            //Toggle visisbilty to all meshes not named "foot"
-            //TODO this might have to change for non foot models
-            this.objs.forEach(o => {
-                o.children.forEach(c => {
-                    //instanceOf THREE.Mesh
-                    if(c.name !== "foot" && c instanceof THREE.Mesh){
-                        c.visible = !c.visible;
-                    }
-                });
-            });
-        }
     };
 };
