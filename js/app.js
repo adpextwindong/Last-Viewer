@@ -1,4 +1,7 @@
 const Vue = require('../node_modules/vue/dist/vue.js');
+import VueContext from 'vue-context';
+
+Vue.component('VueContext',VueContext);
 Vue.component('viewer', require('./components/viewer_layout.js'));
 Vue.component('landmark_list', require('./components/landmark_list.js'));
 Vue.component('scene_graph_hiearchy', require('./components/scene_graph_hiearchy.js'));

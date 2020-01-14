@@ -31,7 +31,7 @@ module.exports = class PickHelper {
                 let removed = this.selection.splice(0, this.selection.length);
                 removed.forEach(tupple => {
                     let {obj, original_color} = tupple;
-                    if(obj){
+                    if(obj && obj.material.emissive){
                         obj.material.emissive.setHex(original_color);
                     }
                 });    
@@ -41,7 +41,9 @@ module.exports = class PickHelper {
         if(this.pickedObject && !this.InSelection(this.pickedObject)){
             //append picked object to selection and stash color
             this.selection.push({"obj": this.pickedObject, "original_color" : this.pickedObjectSavedColor});
-            this.pickedObject.material.emissive.setHex(SELECTION_COLOR);
+            if(this.pickedObject.material.emissive){
+                this.pickedObject.material.emissive.setHex(SELECTION_COLOR);
+            }
             //TODO we need to flush a selection change to the model in the layout
         }
     }
@@ -50,7 +52,9 @@ module.exports = class PickHelper {
       if (this.pickedObject) {
         if(this.pickedObject !== undefined){
             if(!this.InSelection(this.pickedObject)){
-                this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+                if(this.pickedObject.material.emissive){
+                    this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+                }
             }
         }
         this.pickedObject = undefined;
@@ -79,11 +83,16 @@ module.exports = class PickHelper {
         // pick the first object. It's the closest one
         this.pickedObject = intersectedObjects[0].object;
         // save its color
-        this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
-        // set its emissive color to flashing red/yellow
-
+        if(this.pickedObject.material.emissive){
+            this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+            // set its emissive color to flashing red/yellow    
+        }
+        
         if(!this.InSelection(this.pickedObject)){
-            this.pickedObject.material.emissive.setHex(PICKING_COLOR);
+            if(this.pickedObject.material.emissive){
+                this.pickedObject.material.emissive.setHex(PICKING_COLOR);
+            }
+
         }
         
       }else{
