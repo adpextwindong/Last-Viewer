@@ -2,8 +2,9 @@ Current requirements:
 Vuejs
 Node.npm Package Manager (NPM)
 Browserify (installable through NPM)
+SASS for SCSS (installable through NPM)
 NPM packages listed in package.json
-SASS for SCSS
+
 
 Running the viewer locally
 `python -m http.server`
