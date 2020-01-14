@@ -1,5 +1,8 @@
 var THREE = require('three');
 
+const SELECTION_COLOR = 0xFFA500;
+const PICKING_COLOR = 0xFF0000;
+
 module.exports = class PickHelper {
     constructor() {
       this.raycaster = new THREE.Raycaster();
@@ -12,12 +15,43 @@ module.exports = class PickHelper {
     //Event handling for fireEvents()
       this.lastEmittedPickedObject = undefined;
       this.triggerHoverOffForLastEmitted = true;
+
+      //Selection Related handling
+      this.selection = []; // [{obj, savedColor}]
+      this.InSelection = o => {
+          return this.selection.map(tupple => tupple.obj).includes(o)
+      }
+    }
+
+    handle_left_click_selection(mouse_event, shift_key){
+
+        if(!shift_key){
+            //Reset colors and clear selection
+            if(this.selection.length){
+                let removed = this.selection.splice(0, this.selection.length);
+                removed.forEach(tupple => {
+                    let {obj, original_color} = tupple;
+                    if(obj){
+                        obj.material.emissive.setHex(original_color);
+                    }
+                });    
+            }
+        }
+
+        if(this.pickedObject && !this.InSelection(this.pickedObject)){
+            //append picked object to selection and stash color
+            this.selection.push({"obj": this.pickedObject, "original_color" : this.pickedObjectSavedColor});
+            this.pickedObject.material.emissive.setHex(SELECTION_COLOR);
+            //TODO we need to flush a selection change to the model in the layout
+        }
     }
     pick(normalizedPosition, scene, camera) {
       // restore the color if there is a picked object
       if (this.pickedObject) {
         if(this.pickedObject !== undefined){
-            this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+            if(!this.InSelection(this.pickedObject)){
+                this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
+            }
         }
         this.pickedObject = undefined;
       }
@@ -47,7 +81,11 @@ module.exports = class PickHelper {
         // save its color
         this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
         // set its emissive color to flashing red/yellow
-        this.pickedObject.material.emissive.setHex(0xFF0000);
+
+        if(!this.InSelection(this.pickedObject)){
+            this.pickedObject.material.emissive.setHex(PICKING_COLOR);
+        }
+        
       }else{
         this.pickedObject = undefined;
       }

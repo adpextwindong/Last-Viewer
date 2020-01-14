@@ -76,6 +76,18 @@ module.exports = function () {
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
 
+            //TODO this should be added/removed based on the current context of mouse interactions.
+            //The currently added function & options should be stashed so the event listener can be appropriately remvoed
+            //https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener#Matching_event_listeners_for_removal
+
+            //TODO contextmenu is the right click event...
+            this.__state_current_mouse_handler = function(e){
+                //TODO right click handling
+                //We might have to hack around the current trackball controls impl
+                this.__state_mouse_handle_click_event = e;
+            }.bind(this);
+            this.renderer.domElement.addEventListener('click', this.__state_current_mouse_handler);
+
             viewer_scope = this;
             window.addEventListener('mousemove', function (e){
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
@@ -140,6 +152,12 @@ module.exports = function () {
 
             //Picking must happen after rendering
             this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
+
+            //TODO contextmenu is another event type we need to handle for right clicking.
+            if(this.__state_mouse_handle_click_event){
+                this.pickHelper.handle_left_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
+                this.__state_mouse_handle_click_event = false; //Clears mouse event on handle
+            }
         },
 
         __setDefaultOrientations: function(){
@@ -188,6 +206,8 @@ module.exports = function () {
             this.__manager_flush_change();
         },
 
+        // CRITICAL EVENT LAYER
+        // This handles telling the viewer layout to query for a new version of the scene graph model.
         __manager_flush_change : function(force=false){
             //Setters applied to managed items can set the flush flag to true
             if(force || this.manager_flush_flag){

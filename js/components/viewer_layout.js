@@ -103,6 +103,8 @@ module.exports = {
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
 
+            //CRITICAL EVENT LAYER
+            //This is the event handler that queries the loadGraphList for updates on the scene graph model.
             this.$on('viewer_scene_graph_change', function(){
                 console.log("Scene Graph change recieved");
                 this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
