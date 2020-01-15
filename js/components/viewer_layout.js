@@ -222,8 +222,6 @@ module.exports = {
         },
 
         away: function() {
-            console.log('clicked away');
-
             if(this.context_menu_active){
                 this.context_menu_active = false;
                 this.context_menu_el.style["left"] = -10000 + "px";
