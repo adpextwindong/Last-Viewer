@@ -116,3 +116,11 @@ canvas {
     TODO Figure out a correct way to handle on the on click event and hide the data display.
     TODO custom scroll bar
 */
+
+#context_menu {
+    position: absolute;
+    background-color: black;
+    //Offscreen to start with
+    left: -10000px;
+    top: -10000px;
+}
