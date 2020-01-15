@@ -131,11 +131,6 @@ module.exports = function () {
             target_element.append(this.renderer.domElement);
         },
 
-        //Prepend the webgl renderer domElement to the app's div.
-        __prependRendererToDom : function (target_element) {
-            target_element.prepend( this.renderer.domElement );
-        },
-
         __setupLighting :function(target_element){
             this.lighting = new LIGHTS();
             this.lighting.init();
@@ -147,11 +142,6 @@ module.exports = function () {
         },
         __update: function ()
         {
-            if ( keyboard.pressed("z") ) 
-            {
-
-            }
-
             this.controls.update();
             this.__manager_flush_change();
         },
@@ -162,7 +152,6 @@ module.exports = function () {
             //Picking must happen after rendering
             this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
 
-            //TODO contextmenu is another event type we need to handle for right clicking.
             if(this.__state_mouse_handle_click_event){
                 this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
                 this.__state_mouse_handle_click_event = false; //Clears mouse event on handle
@@ -171,6 +160,7 @@ module.exports = function () {
             if(this.__state_mouse_handle_contextmenu_event){
                 this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true)
                 //TODO context menu handling
+                //We should add handling for a context enum that can handle different context situations and obj interactions.
                 this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));
                 this.__state_mouse_handle_contextmenu_event = false;
             }

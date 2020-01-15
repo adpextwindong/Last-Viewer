@@ -81,29 +81,29 @@ module.exports = {
     },
     created() {
         //REFACTOR LANDMARK CODE
-        this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){    
+
+        const applyOnExistingLandmark = (parent_key, viewer_group_name, f) => {
             if(this.landmarks[parent_key]){
                 let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
                 if(ind !== -1){
-                    this.landmarks[parent_key][ind].isActive = true;
-    
-                    //TODO theres something buggy right now about the nametag highlighting with the hoverOn/Off
-                    this.$set(this, "landmark_highlighted", true);
-                    this.landmark_highlighted_name = viewer_group_name + " " + this.landmarks[parent_key][ind].description;
-                }    
-            }
-        });
-        this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
-            if(this.landmarks[parent_key]){
-                let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
-
-                if(ind !== -1){
-                    this.landmarks[parent_key][ind].isActive = false;
-
-                    this.$set(this, "landmark_highlighted", false);
-                    this.landmark_highlighted_name = "";
+                    f(ind);
                 }
             }
+        };
+
+        this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
+            applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
+                this.landmarks[parent_key][ind].isActive = true;
+                this.$set(this, "landmark_highlighted", true);
+                this.landmark_highlighted_name = viewer_group_name + " " + this.landmarks[parent_key][ind].description;
+            });
+        });
+        this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
+            applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
+                this.landmarks[parent_key][ind].isActive = false;
+                this.$set(this, "landmark_highlighted", false);
+                this.landmark_highlighted_name = "";
+            });
         });
 
         this.$on('contextmenu_selected_uuids', function(uuids){
