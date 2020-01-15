@@ -80,7 +80,8 @@ module.exports = class PickHelper {
       });
 
       //AxesHelper cannot be highlighted
-      const intersectedObjects = this.raycaster.intersectObjects(collectGroupChilds(scene).filter(obj => obj.constructor.name !== "AxesHelper"));
+      let candidate_objects = collectGroupChilds(scene).filter(obj => obj.type === "Mesh" && obj.constructor.name !== "AxesHelper");
+      const intersectedObjects = this.raycaster.intersectObjects(candidate_objects);
 
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
