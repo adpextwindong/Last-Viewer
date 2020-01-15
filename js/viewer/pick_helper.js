@@ -23,7 +23,7 @@ module.exports = class PickHelper {
       }
     }
 
-    handle_left_click_selection(mouse_event, shift_key){
+    handle_click_selection(mouse_event, shift_key){
 
         if(!shift_key){
             //Reset colors and clear selection
@@ -33,6 +33,9 @@ module.exports = class PickHelper {
                     let {obj, original_color} = tupple;
                     if(obj && obj.material.emissive){
                         obj.material.emissive.setHex(original_color);
+                        if(this.pickedObject === obj){
+                            this.pickedObjectSavedColor = original_color;
+                        }
                     }
                 });    
             }

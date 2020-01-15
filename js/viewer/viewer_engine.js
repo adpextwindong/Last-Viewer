@@ -88,6 +88,15 @@ module.exports = function () {
             }.bind(this);
             this.renderer.domElement.addEventListener('click', this.__state_current_mouse_handler);
 
+            this.renderer.domElement.addEventListener('contextmenu', function(e){
+                let vector = {
+                    x: e.clientX,
+                    y: e.clientY,
+                };
+                this.fire_event_to_component("viewer_context_menu_position", vector);
+                this.__state_mouse_handle_contextmenu_event = e;
+            }.bind(this));
+
             viewer_scope = this;
             window.addEventListener('mousemove', function (e){
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
@@ -155,8 +164,15 @@ module.exports = function () {
 
             //TODO contextmenu is another event type we need to handle for right clicking.
             if(this.__state_mouse_handle_click_event){
-                this.pickHelper.handle_left_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
+                this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
                 this.__state_mouse_handle_click_event = false; //Clears mouse event on handle
+            }
+
+            if(this.__state_mouse_handle_contextmenu_event){
+                this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true)
+                //TODO context menu handling
+                this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));
+                this.__state_mouse_handle_contextmenu_event = false;
             }
         },
 

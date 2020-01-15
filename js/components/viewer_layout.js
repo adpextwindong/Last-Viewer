@@ -1,5 +1,6 @@
 // This is the Vue Component file for the 3D Viewer.
-// Its seperated from the APP￥\
+// Its seperated from the APP
+var vueclickaway = require('vue-clickaway');
 
 var Viewer = require('../viewer/viewer_engine.js');
 var appViewer = new Viewer();
@@ -10,12 +11,32 @@ const zip = (arr, ...arrs) => {
 }
 
 module.exports = {
+    mixins: [ vueclickaway.mixin ],
     template : `
 
     <div id="data_display_wrapper" class="wrapper">
         <div id="landmark_nametag_wrapper">
             <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
         </div>
+        <div v-on-clickaway="away" id="context_menu">
+            <p @contextmenu.prevent="$refs.menu.open">
+                Right click on me
+            </p>
+
+            <vue-context ref="menu">
+                <li>
+                    <a @click.prevent="")">
+                        Option 1
+                    </a>
+                </li>
+                <li>
+                    <a @click.prevent="">
+                        Option 2
+                    </a>
+                </li>
+            </vue-context>
+        </div>
+
         <div id="data_display" class="wrapper_open" >
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>
 
@@ -85,11 +106,21 @@ module.exports = {
             }
         });
 
-
+        this.$on('contextmenu_selected_uuids', function(uuids){
+            console.log("Recieved selected uuids for context menu interaction");
+            console.log(uuids);
+        });
         this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
             this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
             this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
             this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
+        });
+
+        this.$on('viewer_context_menu_position', function(context_menu_position_v2){
+            this.context_menu_active = true;
+            this.context_menu_el = document.querySelector('#context_menu');
+            this.context_menu_el.style["left"] = (context_menu_position_v2.x + 20) + "px";
+            this.context_menu_el.style["top"] = (context_menu_position_v2.y - 20) + "px";
         });
     },
 
@@ -188,7 +219,17 @@ module.exports = {
         toggleMenu(){
             this.menu_display_wrapper_el.classList.toggle("closed");
             this.menu_wrapper_closer_el.classList.toggle("closed");
-        }
+        },
+
+        away: function() {
+            console.log('clicked away');
+
+            if(this.context_menu_active){
+                this.context_menu_active = false;
+                this.context_menu_el.style["left"] = -10000 + "px";
+                this.context_menu_el.style["top"] = -10000 + "px";
+            }
+          },
     }
     
 }
