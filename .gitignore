@@ -1,4 +1,7 @@
 /dist
 /node_modules
 
+/css/style.css
+
+*.map
 bundle.js
