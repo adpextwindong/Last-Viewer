@@ -64,6 +64,19 @@ var app = new Vue({
                         material_color : 0x00FF00,
                     }
                 }],
+            }],
+
+
+            [{
+                name: "foot",
+                type: "FOOT",
+                path: "./data/201708031726l.obj",
+                
+                overlay_children: [{
+                    name: "last",
+                    type: "LAST",
+                    path: "./data/tschiyama_last.obj",
+                }]
             }]
         ],
 

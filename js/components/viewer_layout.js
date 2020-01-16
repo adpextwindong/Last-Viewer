@@ -185,8 +185,8 @@ module.exports = {
             //landmarks schema
             zip(evens,odds).forEach(ind => {
                 this.landmarks[parent_key].push({
-                            'description': ind[0].slice(2),
-                            'group_name': ind[1].slice(2),
+                            'description': ind[0] ? ind[0].slice(2) : "",
+                            'group_name': ind[1] ? ind[1].slice(2) : "",
                             'isActive': false
                         })
             });   
