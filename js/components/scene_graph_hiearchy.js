@@ -6,6 +6,7 @@ module.exports = {
             <span>Type : {{ graph_repr.type }} </span>
             <span>UUID : {{ graph_repr.scene_uuid }} </span>
             <span>Visibility : {{ graph_repr.visibility }} </span>
+            <button type="button" v-on:click="engine_interface.toggleVisibilityUUID(graph_repr.scene_uuid)">Toggle Visibility</button>
             <button type="button" v-on:click="engine_interface.emitRemoveUUIDRequest(graph_repr.scene_uuid)">Remove from scene</button>
 
             <scene_graph_hiearchy v-if="graph_repr.overlay_children !== undefined"

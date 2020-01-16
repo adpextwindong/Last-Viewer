@@ -157,7 +157,7 @@ module.exports = {
             //Engine interface for controller components
             this.engine_interface = {
                 toggleVisibilityUUID : function(uuid){
-                    appViewer.toggleVisibilityUUID(uuid);
+                    appViewer.manager_toggleVisibility(uuid);
                 },
                 emitRemoveUUIDRequest: function(uuid){
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);

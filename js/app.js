@@ -34,6 +34,7 @@ var app = new Vue({
         { path: './data/foot1.obj' },
         { path: './data/foot2.obj' },
         { path: './data/foot3.obj' },
+        { path: './data/landmark.obj'},
         ],
         insoles: [
             { path: './data/sole.obj' },
@@ -71,11 +72,49 @@ var app = new Vue({
                 name: "foot",
                 type: "FOOT",
                 path: "./data/201708031726l.obj",
-                
+                config :{
+                    position : {
+                        x: 0,
+                        y: 0,
+                        z: 0,
+                    }
+                },
                 overlay_children: [{
                     name: "last",
                     type: "LAST",
                     path: "./data/tschiyama_last.obj",
+                    config :{
+                        position : {
+                            x: 0,
+                            y: 0,
+                            z: 0,
+                        }
+                    },
+                }]
+            }],
+            
+            [{
+                name: "foot",
+                type: "FOOT",
+                path: "./data/201708031726l_reformed.obj",
+                config :{
+                    position : {
+                        x: 0,
+                        y: 0,
+                        z: -18,
+                    }
+                },
+                overlay_children: [{
+                    name: "last",
+                    type: "LAST",
+                    path: "./data/tschiyama_last.obj",
+                    config :{
+                        position : {
+                            x: 0,
+                            y: 0,
+                            z: 18,
+                        }
+                    },
                 }]
             }]
         ],

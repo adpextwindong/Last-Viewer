@@ -204,12 +204,16 @@ module.exports = function () {
             let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
             xs.forEach(o => {
                 obj = o.getTHREEObj();
-                if(o.visible){
-                    o.visible = !o.visible;
+
+                if(obj.visible !== undefined){
+                    obj.visible = !obj.visible;
+                }
+                if(obj.type === "Group"){
+                    obj.children[0].visible = !obj.children[0].visible;
                 }
             });
 
-            this.__manager_flush_change();
+            this.__manager_flush_change(true);
         },
 
         // CRITICAL EVENT LAYER
@@ -266,6 +270,15 @@ module.exports = function () {
 
             this.__manager_flush_change(true);
         },
+
+        getIndexOfLowestVert(mesh, axis){
+            let verts = mesh.geometry.attributes.position.array;
+            let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
+
+            let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
+            let min = Math.min(...filtered_verts);
+            return verts.indexOf(min);
+        }
 
     };
 };
