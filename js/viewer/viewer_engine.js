@@ -48,9 +48,7 @@ module.exports = function () {
             
             //THREEJS HELPERS
             var axesHelper = new THREE.AxesHelper( 1000 );
-            this.scene.add( axesHelper );
-            // var helper = new THREE.CameraHelper( this.camera );
-            // this.scene.add( helper );
+            this.scene.add( axesHelper );   
 
             this.__setupLighting(target_element);
 
@@ -73,17 +71,14 @@ module.exports = function () {
             //
             // Object Picking Events
             //
+
+            //TODO REFACTOR Picking should be done with GPU if landmark lines/points are to be supported
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
 
-            //TODO this should be added/removed based on the current context of mouse interactions.
-            //The currently added function & options should be stashed so the event listener can be appropriately remvoed
-            //https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener#Matching_event_listeners_for_removal
 
-            //TODO contextmenu is the right click event...
+            //These bindings should be seperated from Mobile client bindings.
             this.__state_current_mouse_handler = function(e){
-                //TODO right click handling
-                //We might have to hack around the current trackball controls impl
                 this.__state_mouse_handle_click_event = e;
             }.bind(this);
             this.renderer.domElement.addEventListener('click', this.__state_current_mouse_handler);
@@ -105,18 +100,18 @@ module.exports = function () {
             window.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
             window.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
           
-            //TODO Touch stuff needs to be tested on mobile
-            window.addEventListener('touchstart', function(event) {
-              // prevent the window from scrolling
-              event.preventDefault();
-              this.pickHelper.setPickPosition(event.touches[0]);
-            }.bind(this), {passive: false});
+            // //TODO Touch stuff needs to be tested on mobile
+            // window.addEventListener('touchstart', function(event) {
+            //   // prevent the window from scrolling
+            //   event.preventDefault();
+            //   this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+            // }.bind(this), {passive: false});
           
-            window.addEventListener('touchmove', function(event) {
-                this.pickHelper.setPickPosition(event.touches[0]);
-            }.bind(this));
+            // window.addEventListener('touchmove', function(event) {
+            //     this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+            // }.bind(this));
           
-            window.addEventListener('touchend', this.pickHelper.clearPickPosition.bind(this.pickHelper));
+            // window.addEventListener('touchend', this.pickHelper.clearPickPosition.bind(this.pickHelper));
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.

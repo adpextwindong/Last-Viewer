@@ -52,6 +52,7 @@ module.exports = class LoadGraph{
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
+    //TODO refactor This needs to be decoupled from the current loader
     startLoadOBJS(obj_loader){
         this.load_state = "PENDING";
 
