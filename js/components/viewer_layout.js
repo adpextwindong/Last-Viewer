@@ -126,6 +126,7 @@ module.exports = {
 
     methods: {
         launchViewer(target_element, processed_loadGraphList) {
+            //TODO 2020 01 15 fix landmark code 
             this.__grabLandmarks(processed_loadGraphList);
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
