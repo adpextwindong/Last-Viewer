@@ -124,6 +124,11 @@ var app = new Vue({
         AppState : null,
     },
     methods : {
+        WebGLAvailible(){
+            return window.WebGLRenderingContext !== undefined;
+        },
+
+
         async loadViewer (scan_paths, insole_paths) {
             let loadGraphList = [];
 
