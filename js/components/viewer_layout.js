@@ -124,6 +124,12 @@ module.exports = {
         });
     },
 
+    //This is a hack around the parent owning the element & loadgraph list
+    //but is unable to watch the mounting of the v-if'd layout component.
+    //Once the parent loads, it stashes this function.
+    mounted() {
+        this.$root.launchViewerCallback();
+    },
     methods: {
         launchViewer(target_element, processed_loadGraphList) {
             //TODO 2020 01 15 fix landmark code 

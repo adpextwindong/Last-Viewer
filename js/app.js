@@ -161,7 +161,12 @@ var app = new Vue({
 
             var appScope = this;
             appScope.AppState = AppStates.LOADED;
-            appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadGraphList);
+
+            //This is a hack around v-if rendering and the mounted lifecycle of the viewer component.
+            //If there was any way to wait for the render to complete this could be refactored.
+            this.launchViewerCallback = function(){
+                appScope.$refs.viewerInstance.launchViewer(appScope.$el, loadGraphList);
+            };
         }
     },
 
