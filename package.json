@@ -10,7 +10,8 @@
     "three-trackballcontrols": "^0.0.8",
     "vue": "^2.6.11",
     "vue-clickaway": "^2.2.2",
-    "vue-context": "^5.0.0"
+    "vue-context": "^5.0.0",
+    "vue-router": "^3.1.5"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
