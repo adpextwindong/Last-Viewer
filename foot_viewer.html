@@ -16,14 +16,13 @@
 		}
 	</style>
 </head>
-<script src="./lib/THREEx.KeyboardState.js"></script>
-<script src="./lib/THREEx.FullScreen.js"></script>
-<script src="./lib/THREEx.WindowResize.js"></script>
+
+<!-- Code split this away -->
+<!-- TODO add a WEBGL check -->
+
 
 
 <body>
-	<!-- TODO add a WEBGL check -->
-	<!-- see app.js for the corresponding vuejs app -->
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<div id="app" v-cloak>
 		<div id="scan_picker" v-if="AppState !== AppStates.LOADED">

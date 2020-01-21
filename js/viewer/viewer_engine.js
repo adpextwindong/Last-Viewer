@@ -1,8 +1,17 @@
 var THREE = require('three');
 var TrackballControls = require('three-trackballcontrols');
 var LIGHTS = require('./lights.js');
+
+var THREEx		= THREEx 		|| {};
+var _THREEX_KEYBOARD = require("../../lib/vendor/THREEx.KeyboardState");
+_THREEX_KEYBOARD(THREEx);
+var _THREEX_RESIZE = require("../../lib/vendor/THREEx.WindowResize");
+_THREEX_RESIZE(THREEx);
+
 var keyboard = new THREEx.KeyboardState();
 const PickHelper = require('./pick_helper.js');
+
+// <!-- TODO add a WEBGL check -->
 
 //CONFIG
 //disable this for now as its slow
