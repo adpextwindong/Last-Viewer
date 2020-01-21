@@ -4,4 +4,4 @@
 /css/style.css
 
 *.map
-bundle.js
+*bundle.js*

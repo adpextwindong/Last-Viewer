@@ -1,16 +1,6 @@
-const Vue = require('../node_modules/vue/dist/vue.js');
-import VueContext from 'vue-context';
+//TODO edit the dist script
 
-Vue.component('VueContext',VueContext);
-Vue.component('viewer', require('./components/viewer_layout.js'));
-Vue.component('landmark_list', require('./components/landmark_list.js'));
-Vue.component('scene_graph_hiearchy', require('./components/scene_graph_hiearchy.js'));
-
-var THREE = require('three');
-var OBJLoader = require('../lib/vendor/three_loader_custom');
-OBJLoader(THREE);
-var LoadGraph = require('./loader/load_graph_helper.js')
-
+var LoadGraph;
 const AppStates = Object.freeze({
     PICKING:   Symbol("picking"),
     LOADING:  	Symbol("loading"),
@@ -25,6 +15,13 @@ const LoadGraphFromObject = (o) => {
     let children = o.overlay_children ? o.overlay_children.map(LoadGraphFromObject) : undefined;
     return new LoadGraph(o.name, o.path, o.type, children, o.config);
 }
+
+Vue.component('viewer', () => import('./components/viewer_layout'));
+//These imports could be moved down and asyncly done from viewer probably
+Vue.component('vue-context', () => import('vue-context'));
+Vue.component('landmark_list', () => import('./components/landmark_list'));
+Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hiearchy'));
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -171,6 +168,12 @@ var app = new Vue({
     created : function() {
         //Initialize AppState
         this.AppState = this.AppStates.PICKING;
+    },
+    mounted : function() {
+        import('../lib/vendor/three_loader_custom').then(OBJLoader => {
+            OBJLoader.default(THREE);
+        });
+        import('./loader/load_graph_helper').then(m => LoadGraph = m.default);
     }
 
 })

@@ -4,7 +4,8 @@ module.exports = {
 	  entry: './js/app.js',
 	  output: {
 		      path: path.resolve(__dirname, '.'),
-		      filename: 'bundle.js'
+		      filename: '[name].bundle.js',
+		  	chunkFilename: '[name].bundle.js',
 			},
 	mode: 'development'
 };

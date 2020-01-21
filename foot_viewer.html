@@ -12,7 +12,6 @@
 			color: white;
 			background-color: #000080;
 			margin: 0px;
-			overflow: hidden;
 		}
 	</style>
 </head>
@@ -62,10 +61,12 @@
 		</div>
 		
 		<!-- VIEWER STATE -->
-		<viewer ref="viewerInstance" v-show="AppState === AppStates.LOADED"></viewer>
+		<viewer ref="viewerInstance" v-if="AppState === AppStates.LOADED"></viewer>
 	</div>
 
 
 </body>
+<script src="../node_modules/vue/dist/vue.js"></script>
+<script src="../node_modules/Three/build/three.js"></script>
 <script src="bundle.js"></script>
 </html>
