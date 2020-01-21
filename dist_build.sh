@@ -18,7 +18,7 @@ mkdir -p deps/Three
 cp node_modules/three/build/* deps/Three
 cp node_modules/vue/dist/* deps/vue
 
-cp -r deps/ dist/deps/
+cp -r deps/ dist/
 cp -r data/ dist/
 cp -r css/ dist/
 cp -r lib/ dist/

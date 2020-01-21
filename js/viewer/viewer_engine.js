@@ -26,6 +26,13 @@ module.exports = function () {
         fire_event_to_component: null,
 
         init: function (target_element, component_event_emitter, processed_loadGraphList) {
+            window.addEventListener("load",function() {
+                setTimeout(function(){
+                    // This hides the address bar:
+                    window.scrollTo(0, 1);
+                }, 0);
+            });
+
             this.fire_event_to_component = component_event_emitter;
 
             //SCENE
@@ -109,18 +116,23 @@ module.exports = function () {
             window.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
             window.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
           
-            // //TODO Touch stuff needs to be tested on mobile
-            // window.addEventListener('touchstart', function(event) {
-            //   // prevent the window from scrolling
-            //   event.preventDefault();
-            //   this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
-            // }.bind(this), {passive: false});
+            //TODO Touch stuff needs to be tested on mobile
+            window.addEventListener('touchstart', function(event) {
+              // prevent the window from scrolling
+              event.preventDefault();
+              this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+            }.bind(this), {passive: false});
           
-            // window.addEventListener('touchmove', function(event) {
-            //     this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
-            // }.bind(this));
+            window.addEventListener('touchmove', function(event) {
+                event.preventDefault();
+                this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+            }.bind(this));
           
-            // window.addEventListener('touchend', this.pickHelper.clearPickPosition.bind(this.pickHelper));
+            window.addEventListener('touchend', function(event){
+                event.preventDefault();
+                // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
+                // this.pickHelper.clearPickPosition.bind(this.pickHelper);
+            });
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.
@@ -156,6 +168,7 @@ module.exports = function () {
             //Picking must happen after rendering
             this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
 
+            //TODO refactor this for touch events as well 1/21/20
             if(this.__state_mouse_handle_click_event){
                 this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
                 this.__state_mouse_handle_click_event = false; //Clears mouse event on handle
