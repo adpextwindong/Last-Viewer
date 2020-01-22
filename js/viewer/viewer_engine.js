@@ -111,12 +111,12 @@ module.exports = function () {
             }.bind(this));
 
             viewer_scope = this;
-            window.addEventListener('mousemove', function (e){
+            this.renderer.domElement.addEventListener('mousemove', function (e){
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
             }.bind(this.pickHelper));
 
-            window.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
-            window.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
+            this.renderer.domElement.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
+            this.renderer.domElement.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
           
             //TODO Touch stuff needs to be tested on mobile
             this.renderer.domElement.addEventListener('touchstart', function(event) {
@@ -158,12 +158,12 @@ module.exports = function () {
         },
 
         __shutdownEngineDomElements : function(){
+            //This function has to defensively call the functions cause the router will call this if someone mounts the viewer_layout without loading
             this.__removeRendererFromPage();
             if(this.lighting){
                 this.lighting.shutdown();
             }
 
-            //TODO call dispose on all the new elements in the viewer engine to have them gc'd.
             if(this.scene){
                 this.scene.dispose();
             }
