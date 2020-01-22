@@ -62,6 +62,9 @@ module.exports = {
     </div>
     `,
 
+    //This is a hack around the router
+    props :  ['loadGraphsGetter'],
+
     //It might be easier for a control object for each component to be generated that contains closures for each thing
     //instead of vbinding everything. Ofc theres no compile time guarentee that the controls match up.
     
@@ -128,7 +131,16 @@ module.exports = {
     //but is unable to watch the mounting of the v-if'd layout component.
     //Once the parent loads, it stashes this function.
     mounted() {
-        this.$root.launchViewerCallback();
+        loadGraphs = this.loadGraphsGetter();
+        if(loadGraphs !== undefined){
+            this.launchViewer(this.$root.$el, loadGraphs);
+        }else{
+            //Force the user back to home if they just refresh on the engine route
+            this.$router.push('/');
+        }
+
+        //TODO hide the nav bar on enter
+        
     },
     methods: {
         launchViewer(target_element, processed_loadGraphList) {
