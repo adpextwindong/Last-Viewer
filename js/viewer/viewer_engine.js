@@ -119,18 +119,18 @@ module.exports = function () {
             window.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
           
             //TODO Touch stuff needs to be tested on mobile
-            window.addEventListener('touchstart', function(event) {
+            this.renderer.domElement.addEventListener('touchstart', function(event) {
               // prevent the window from scrolling
               event.preventDefault();
               this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
             }.bind(this), {passive: false});
           
-            window.addEventListener('touchmove', function(event) {
+            this.renderer.domElement.addEventListener('touchmove', function(event) {
                 event.preventDefault();
                 this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
             }.bind(this));
           
-            window.addEventListener('touchend', function(event){
+            this.renderer.domElement.addEventListener('touchend', function(event){
                 event.preventDefault();
                 // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
                 // this.pickHelper.clearPickPosition.bind(this.pickHelper);
