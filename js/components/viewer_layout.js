@@ -124,6 +124,48 @@ module.exports = {
 
 
     },
+
+   created() {
+           //REFACTOR LANDMARK CODE
+           const applyOnExistingLandmark = (parent_key, viewer_group_name, f) => {
+               if(this.landmarks[parent_key]){
+                   let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
+                   if(ind !== -1){
+                       f(ind);
+                   }
+               }
+           };
+        
+           this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
+               applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
+                   this.landmarks[parent_key][ind].isActive = true;
+                   this.$set(this, "landmark_highlighted", true);
+                   this.landmark_highlighted_name = viewer_group_name + " " + this.landmarks[parent_key][ind].description;
+               });
+           });
+           this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
+               applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
+                   this.landmarks[parent_key][ind].isActive = false;
+                   this.$set(this, "landmark_highlighted", false);
+                   this.landmark_highlighted_name = "";
+               });
+           });
+           this.$on('contextmenu_selected_uuids', function(uuids){
+               console.log("Recieved selected uuids for context menu interaction");
+               console.log(uuids);
+           });
+           this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
+               this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
+               this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
+               this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
+           });
+           this.$on('viewer_context_menu_position', function(context_menu_position_v2){
+               this.context_menu_active = true;
+               this.context_menu_el = document.querySelector('#context_menu');
+               this.context_menu_el.style["left"] = (context_menu_position_v2.x + 20) + "px";
+               this.context_menu_el.style["top"] = (context_menu_position_v2.y - 20) + "px";
+           });
+    },
     methods: {
         launchViewer(target_element, processed_loadGraphList) {
             //TODO 2020 01 15 fix landmark code 
