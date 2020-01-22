@@ -33,8 +33,4 @@ var app = new Vue({
         ],
         base: __dirname,
     }),
-    created : function() {
-    },
-
-
 });
