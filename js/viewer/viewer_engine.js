@@ -24,16 +24,18 @@ module.exports = function () {
         LIGHT_DEBUG: true,
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
+        target_element: null,
 
         init: function (target_element, component_event_emitter, processed_loadGraphList) {
             window.addEventListener("load",function() {
                 setTimeout(function(){
-                    // This hides the address bar:
+                    // This should hide the address bar on mobile.
                     window.scrollTo(0, 1);
                 }, 0);
             });
 
             this.fire_event_to_component = component_event_emitter;
+            this.target_element = target_element;
 
             //SCENE
             this.__processed_loadGraphList = processed_loadGraphList;
@@ -66,7 +68,7 @@ module.exports = function () {
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );   
 
-            this.__setupLighting(target_element);
+            this.__setupLighting();
 
             this.renderer = new THREE.WebGLRenderer( {antialias:config_ANTI_ALIASING, alpha : true});
             this.renderer.setSize( screen_width, screen_height );
@@ -79,7 +81,7 @@ module.exports = function () {
             // EVENTS
             THREEx.ResizeForWidthOffset(this.renderer, this.camera, target_element, this.controls);
 
-            this.__appendRendererToDom(target_element);
+            this.__appendRendererToDom();
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
@@ -139,21 +141,52 @@ module.exports = function () {
         animateLoop: function () 
         { 
             requestAnimationFrame( this.animateLoop.bind(this) );
-            this.__render();		
-            this.__update();
+            if(this.__canvasOnPage){
+                this.__render();		
+                this.__update();
+            }       
         },
 
-        __appendRendererToDom : function (target_element) {
-            target_element.append(this.renderer.domElement);
+        __appendRendererToDom : function () {
+            this.target_element.append(this.renderer.domElement);
+            this.__canvasOnPage = true;
         },
 
-        __setupLighting :function(target_element){
+        __restart: function(){
+            this.__appendRendererToDom();
+            this.lighting.append_gui(this.target_element);
+        },
+
+        __shutdownEngineDomElements : function(){
+            this.__removeRendererFromPage();
+            if(this.lighting){
+                this.lighting.shutdown();
+            }
+
+            //TODO call dispose on all the new elements in the viewer engine to have them gc'd.
+            if(this.scene){
+                this.scene.dispose();
+            }
+            if(this.renderer){
+                this.renderer.dispose();
+            }
+        },
+
+        __removeRendererFromPage : function() {
+            if(this.renderer && this.renderer.domElement){
+                this.target_element.removeChild(this.renderer.domElement);
+            }
+            this.__canvasOnPage = false;
+        },
+
+        __setupLighting :function(){
+            //TODO add a tear down function
             this.lighting = new LIGHTS();
             this.lighting.init();
             this.lighting.lights.forEach(light => this.scene.add(light));
 
             if( this.LIGHT_DEBUG) {
-                this.lighting.setupLightGUI(target_element);
+                this.lighting.setupLightGUI(this.target_element);
             }
         },
         __update: function ()

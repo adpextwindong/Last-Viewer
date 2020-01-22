@@ -161,7 +161,7 @@ export default {
             //TODO stash the loadgraph list
 
             // this.loadGraphViewer(loadGraphList);
-            this.loaderGraphsSetter(loadGraphList);
+            this.loadGraphViewer(loadGraphList);
         },
 
         async loadGraphViewer (loadGraphListRawObject) {

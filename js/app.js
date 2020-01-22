@@ -2,6 +2,7 @@ import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
 import Scan_Selector from './components/scan_selector';
+import Settings_Menu from './components/settings_menu';
 import Viewer from './components/viewer_layout';
 
 //These imports could be moved down and asyncly done from viewer probably
@@ -29,6 +30,7 @@ var app = new Vue({
     router : new VueRouter({
         routes: [
             { path: '/', component: Scan_Selector, props: {loaderGraphsSetter : setInitialLoadGraph}},
+            { path: '/settings', component: Settings_Menu},
             { path: '/engine', component: Viewer, props: {loadGraphsGetter : getInitialLoadGraphs}},
         ],
         base: __dirname,

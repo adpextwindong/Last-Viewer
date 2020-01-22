@@ -20,6 +20,11 @@
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<div id="app" v-cloak>
 		<div v-if="WebGLAvailible()">
+			<!-- Figure out how to hide this with a class or something during the engine page -->	
+			<nav id="router_nav">
+				<router-link to="/">Home</router-link>
+				<router-link to="/settings">Settings Menu</router-link>
+			</nav>
 			<router-view></router-view>
 		</div>
 		<div class="webgl_warning" v-else>

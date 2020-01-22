@@ -46,14 +46,14 @@ module.exports = function() {
         },
 
         setupLightGUI : function (target_element) {
-            lights_gui = new dat.GUI({autoPlace: false, closed:true});
+            this.lights_gui = new dat.GUI({autoPlace: false, closed:true});
 
             this.luminosity_controllers = [];
 
-            this.luminosity_controllers.push(lights_gui.add(this.lights[1], 'intensity', 0.0, 1.0));
-            this.luminosity_controllers.push(lights_gui.add(this.lights[2], 'intensity', 0.0, 1.0));
-            this.luminosity_controllers.push(lights_gui.add(this.lights[3], 'intensity', 0.0, 1.0));
-            this.luminosity_controllers.push(lights_gui.add(this.lights[4], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(this.lights_gui.add(this.lights[1], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(this.lights_gui.add(this.lights[2], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(this.lights_gui.add(this.lights[3], 'intensity', 0.0, 1.0));
+            this.luminosity_controllers.push(this.lights_gui.add(this.lights[4], 'intensity', 0.0, 1.0));
 
             this.luminosity_controllers.forEach((controller, index) => {
                 // console.log("Strapping up the onFinishChange");
@@ -65,11 +65,18 @@ module.exports = function() {
                 });
             });
 
-            lights_gui.add(this.lights[0].color, 'r');
-            lights_gui.add(this.lights[0].color, 'g');
-            lights_gui.add(this.lights[0].color, 'b');
+            this.lights_gui.add(this.lights[0].color, 'r');
+            this.lights_gui.add(this.lights[0].color, 'g');
+            this.lights_gui.add(this.lights[0].color, 'b');
 
-            target_element.appendChild( lights_gui.domElement );
+           this.append_gui(target_element);
+        },
+
+        append_gui : function(target_element){
+            target_element.appendChild( this.lights_gui.domElement );
+        },
+        shutdown : function(){
+            this.lights_gui.domElement.remove();
         }
     }
 }
