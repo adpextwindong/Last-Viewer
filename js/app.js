@@ -1,5 +1,8 @@
 import VueRouter from 'vue-router';
+import VueTranslate from 'vue-translate-plugin';
 Vue.use(VueRouter);
+Vue.use(VueTranslate);
+
 
 import Scan_Selector from './components/scan_selector';
 import Settings_Menu from './components/settings_menu';
@@ -35,4 +38,7 @@ var app = new Vue({
         ],
         base: __dirname,
     }),
+    created : function(){
+        this.$translate.setLang('en');
+    },
 });

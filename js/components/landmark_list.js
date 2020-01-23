@@ -1,4 +1,13 @@
 module.exports = {
+    //TODO locales
+    locales : {
+        en: {
+
+        },
+        jp: {
+
+        },
+    },
     template : `
         <ul>
             <li v-for="landmark in landmark_group">

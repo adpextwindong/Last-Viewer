@@ -12,6 +12,16 @@ const zip = (arr, ...arrs) => {
 
 module.exports = {
     mixins: [ vueclickaway.mixin ],
+    //TODO locales
+    locales : {
+        en: {
+
+        },
+        jp: {
+
+        },
+    },
+    
     template : `
 
     <div id="data_display_wrapper" class="wrapper">
@@ -37,7 +47,8 @@ module.exports = {
             </vue-context>
         </div>
 
-        <!-- Everything above this should be absolute position UI elements, everything else should go itno the display wrapper-->
+        <!-- Everything above this should be absolute position UI elements, everything else should go into the display wrapper-->
+        
         <div id="data_display" class="wrapper_open" >
             <button type="button" v-on:click="returnToHome()">Return to home</button>
             <button type="button" v-on:click="resetCamera()">Reset Camera</button>

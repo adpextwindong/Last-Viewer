@@ -9,11 +9,20 @@ const LoadGraphFromObject = (o) => {
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export default {
+    //TODO locales
+    locales : {
+        en: {
+            "Scans avalible for viewing" : "Scans avalible for viewing"
+        },
+        jp: {
+            "Scans avalible for viewing" : "あるスカン"
+        },
+    },
     template : `
     <div class="scan_picker">
         <div v-if="loading===false">
             <ul >
-                <span>Scans avalible for viewing:</span>
+                <span>{{ t('Scans avalible for viewing') }}:</span>
                 <li v-for="scan in scans">
                     <input type="checkbox" :id="scan" :value="scan.path" v-model="selectedScans">
                     <label for="scan">{{scan.path}}</label>
