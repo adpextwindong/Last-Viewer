@@ -31,7 +31,7 @@ module.exports = {
         <div id="landmark_nametag_wrapper">
             <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
         </div>
-        <div v-on-clickaway="away" id="context_menu">
+        <div v-on-clickaway="hideContextMenu" id="context_menu">
             <p @contextmenu.prevent="$refs.menu.open">
                 Right click on me
             </p>
@@ -72,7 +72,7 @@ module.exports = {
             
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
-        <div id="wrapper_closer" v-on:click="toggleMenu()">
+        <div id="wrapper_closer" v-on:click="toggleDisplayMenu()">
             
         </div>
     </div>
@@ -150,7 +150,10 @@ module.exports = {
                    }
                }
            };
-        
+           
+            // 
+            //PRESENTATION STYLING AND CONTENT EVENT HANDLERS
+            // 
            this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
                applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
                    this.landmarks[parent_key][ind].isActive = true;
@@ -217,13 +220,14 @@ module.exports = {
                 toggleVisibilityUUID : function(uuid){
                     appViewer.manager_toggleVisibility(uuid);
                 },
+                //Used for children components to trigger appViewer manager_removeUUID
                 emitRemoveUUIDRequest: function(uuid){
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
             };
 
             //Stashing elements to avoid dom traversals later
-            // this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
+            this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
             this.menu_display_wrapper_el = document.querySelector("#data_display_wrapper");
             this.menu_wrapper_closer_el = document.querySelector("#wrapper_closer");
         },
@@ -277,12 +281,13 @@ module.exports = {
         returnToHome () {
             this.$router.push('/');
         },
-        toggleMenu(){
+        
+        toggleDisplayMenu(){
             this.menu_display_wrapper_el.classList.toggle("closed");
             this.menu_wrapper_closer_el.classList.toggle("closed");
         },
 
-        away: function() {
+        hideContextMenu: function() {
             if(this.context_menu_active){
                 this.context_menu_active = false;
                 this.context_menu_el.style["left"] = -10000 + "px";
