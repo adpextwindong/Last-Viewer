@@ -1,4 +1,13 @@
 module.exports = {
+    locales : {
+        en: {
+
+        },
+        jp: {
+            'Toggle Visibility': 'TOGGLE VISIBILITY !TODO',
+            'Remove from scene': 'REMOVE FROM SCENE !TODO'
+        },
+    },
     template : `
     <div>
         <div v-for="graph_repr in scene_graph_representation">
@@ -6,8 +15,8 @@ module.exports = {
             <span>Type : {{ graph_repr.type }} </span>
             <span>UUID : {{ graph_repr.scene_uuid }} </span>
             <span>Visibility : {{ graph_repr.visibility }} </span>
-            <button type="button" v-on:click="engine_interface.toggleVisibilityUUID(graph_repr.scene_uuid)">Toggle Visibility</button>
-            <button type="button" v-on:click="engine_interface.emitRemoveUUIDRequest(graph_repr.scene_uuid)">Remove from scene</button>
+            <button type="button" v-on:click="engine_interface.toggleVisibilityUUID(graph_repr.scene_uuid)">{{t('Toggle Visibility')}}</button>
+            <button type="button" v-on:click="engine_interface.emitRemoveUUIDRequest(graph_repr.scene_uuid)">{{t('Remove from scene')}}</button>
 
             <scene_graph_hiearchy v-if="graph_repr.overlay_children !== undefined"
                 v-bind:scene_graph_representation="graph_repr.overlay_children"
@@ -19,7 +28,3 @@ module.exports = {
     props: ['scene_graph_representation', 'engine_interface'],
     name: 'scene_graph_hiearchy',
 }
-
-// <div>
-// {{ JSON.stringify(scene_graph_representation) }}
-// </div>

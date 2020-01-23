@@ -12,10 +12,15 @@ export default {
     //TODO locales
     locales : {
         en: {
-            "Scans avalible for viewing" : "Scans avalible for viewing"
+            "Scans avalible for viewing" : "Scans avalible for viewing",
+            "Insoles avalible for viewing": "Insoles avalible for viewing",
         },
         jp: {
-            "Scans avalible for viewing" : "あるスカン"
+            "Scans avalible for viewing" : "あるスカン",
+            "Insoles avalible for viewing": "あるインソール",
+            'Load selected scans': "LOAD !TODO",
+            'now loading': "now loading !TODO",
+            'Overlay Scene Graph Viewer' : "overlay viewer !TODO"
         },
     },
     template : `
@@ -27,24 +32,24 @@ export default {
                     <input type="checkbox" :id="scan" :value="scan.path" v-model="selectedScans">
                     <label for="scan">{{scan.path}}</label>
                 </li>
-                <span>Insoles avalible for viewing:</span>
+                <span>{{ t('Insoles avalible for viewing') }}:</span>
                 <li v-for="sole in insoles">
                     <input type="checkbox" :id="sole" :value="sole.path" v-model="selectedInsoles">
                     <label for="sole">{{sole.path}}</label>
                 </li>
                 <!-- There should be some validation on this end that confirms a scan has been selected -->
-                <button type="button" v-on:click="loadViewer(selectedScans, selectedInsoles)">Load selected scans</button>
+                <button type="button" v-on:click="loadViewer(selectedScans, selectedInsoles)">{{ t('Load selected scans') }}</button>
             </ul>
 
             <div>
-                <span>Overlay Scene Graph Viewer:</span>
+                <span>{{t('Overlay Scene Graph Viewer')}}:</span>
                 <li v-for="scheme in existing_load_schemes">
                     <button type="button" v-on:click="loadGraphViewer(scheme)">{{scheme}}</button>
                 </li>						
             </div>
         </div>
         <div v-else class="loading_screen">
-            now loading...
+            {{t('now loading')}}...
         </div>
 
     </div>

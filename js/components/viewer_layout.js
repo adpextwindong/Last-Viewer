@@ -18,10 +18,13 @@ module.exports = {
 
         },
         jp: {
-
+            'Hide all landmarks': 'HIDE LANDMARKS !TODO',
+            'Return to home':'HOME BUTTON !TODO',
+            'Reset Camera': 'RESET CAMERA !TODO'
         },
     },
-    
+
+    //TODO landmark_hightlighted_name needs a translation handling
     template : `
 
     <div id="data_display_wrapper" class="wrapper">
@@ -50,8 +53,8 @@ module.exports = {
         <!-- Everything above this should be absolute position UI elements, everything else should go into the display wrapper-->
         
         <div id="data_display" class="wrapper_open" >
-            <button type="button" v-on:click="returnToHome()">Return to home</button>
-            <button type="button" v-on:click="resetCamera()">Reset Camera</button>
+            <button type="button" v-on:click="returnToHome()">{{t('Return to home')}}</button>
+            <button type="button" v-on:click="resetCamera()">{{t('Reset Camera')}}</button>
 
             <scene_graph_hiearchy
             v-bind:scene_graph_representation="scene_graph_representation"
@@ -64,7 +67,7 @@ module.exports = {
                         v-bind:landmark_group="landmark_group"
                         v-bind:key=index></landmark_list>
                 </div>
-                <button type="button" v-on:click="hideLandmarks()">Hide all landmarks</button>
+                <button type="button" v-on:click="hideLandmarks()">{{t('Hide all landmarks')}}</button>
             </div>
             
         </div>

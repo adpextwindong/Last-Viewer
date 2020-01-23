@@ -5,7 +5,7 @@ module.exports = {
 
         },
         jp: {
-
+            //TODO landmark translation and clean up of landmark names
         },
     },
     template : `

@@ -5,21 +5,28 @@ module.exports = {
 
         },
         jp: {
-
+            'English': '英語',
+            'Japanese': '日本語',
+            'Select language locale': 'Select !TODO'
         },
     },
-    template: `<div>
+    template: `<div id="settings_menu">
         menu interface for storing settings into localStorage etc...
 
         <div>
-            <input type="radio" id="en" name="locale" value="en"
-                checked v-on:click="setLocale('en')">
-            <label for="en">English</label>
-        </div>
-      
-        <div>
-            <input type="radio" id="jp" name="locale" value="jp" v-on:click="setLocale('jp')">
-            <label for="jp">Japanese</label>
+            <span>
+                {{t('Select language locale')}}
+            </span>
+            <div>
+                <input type="radio" id="en" name="locale" value="en"
+                    checked v-on:click="setLocale('en')">
+                <label for="en">{{t('English')}}</label>
+            </div>
+        
+            <div>
+                <input type="radio" id="jp" name="locale" value="jp" v-on:click="setLocale('jp')">
+                <label for="jp">{{t('Japanese')}}</label>
+            </div>
         </div>
     </div>`,
     methods : {
@@ -31,4 +38,5 @@ module.exports = {
         }
     }
     //TODO set the locale via routing too maybe.
+    //TODO local storage of setting. Make sure the app on mount fetches any language setting if no routing language is set.
 }
