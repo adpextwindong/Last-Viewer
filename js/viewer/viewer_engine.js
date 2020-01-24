@@ -11,8 +11,6 @@ _THREEX_RESIZE(THREEx);
 var keyboard = new THREEx.KeyboardState();
 const PickHelper = require('./pick_helper.js');
 
-// <!-- TODO add a WEBGL check -->
-
 const CONFIG = require("../config");
 
 module.exports = function () {
@@ -65,7 +63,11 @@ module.exports = function () {
 
             this.__setupLighting();
 
-            this.renderer = new THREE.WebGLRenderer( {antialias: CONFIG.ANTI_ALIASING, alpha : true});
+            // this.ground_grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+            // this.scene.add( this.ground_grid );
+
+
+            this.renderer = new THREE.WebGLRenderer( {antialias: CONFIG.ANTI_ALIASING, alpha : CONFIG.ALPHA});
             this.renderer.setSize( screen_width, screen_height );
            
             //THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
@@ -175,7 +177,6 @@ module.exports = function () {
         },
 
         __setupLighting :function(){
-            //TODO add a tear down function
             this.lighting = new LIGHTS();
             this.lighting.init();
             this.lighting.lights.forEach(light => this.scene.add(light));

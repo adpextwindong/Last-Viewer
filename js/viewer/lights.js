@@ -6,9 +6,6 @@ const CONFIG = require('../config');
 module.exports = function() {
     return {
         init: function () {
-            //TODO check localstorage for stored versions, fallback to config otherwise
-
-            //TODO unhardcode these positions and read from localstorage or something
             let storage = window.localStorage;
             let xs = [1,2,3,4];
 
@@ -29,7 +26,7 @@ module.exports = function() {
             });
 
             this.lights = [
-            new THREE.AmbientLight( CONFIG.AMBIENT_LIGHT_COLOR ), // soft white light
+            new THREE.AmbientLight( CONFIG.AMBIENT_LIGHT_COLOR ),
             new THREE.DirectionalLight( 0xffffff, luminosity_values[1]),
             new THREE.DirectionalLight( 0xffffff, luminosity_values[2]),
             new THREE.DirectionalLight( 0xffffff, luminosity_values[3]),
@@ -40,17 +37,7 @@ module.exports = function() {
             this.lights[2].position.set( 0, 0, -1000);
             this.lights[3].position.set( 0, -1000, 0);
             this.lights[4].position.set( 0, 1000, 0);
-            //todo finish seting up the light positions
         },
-
-        // defaults : function() {
-        //     let storage = window.localStorage;
-        //     let xs = [1,2,3,4];
-        //     xs.forEach(x => {
-        //         let propertyName = "viewer_light" + x + "_luminosity";
-        //         storage.setItem(propertyName,"0.5");
-        //     });
-        // },
 
         setupLightGUI : function (target_element) {
             this.lights_gui = new dat.GUI({autoPlace: false, closed:true});

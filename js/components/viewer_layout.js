@@ -103,13 +103,11 @@ module.exports = {
     // called when the route that renders this component is about to
     // be navigated away from.
     // has access to `this` component instance.
-        //TODO get rid of the debug menu
         //and hide the canvas
         // appViewer.__shutdown_still_warm = true;
         appViewer.__shutdownEngineDomElements();
         delete appViewer;
         appViewer = new Viewer();
-        //TODO hide the nav bar on enter
         nav = document.querySelector("#router_nav");
         nav.classList.remove("hide_me");
         next();

@@ -3,6 +3,7 @@ module.exports = {
     ///ENGINE
     ///
     ANTI_ALIASING : false,
+    ALPHA : true,
     //Zoom out Distance
     MAX_DISTANCE : 1000,
     LIGHT_DEBUG : true,
