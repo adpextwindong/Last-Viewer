@@ -1,16 +1,3 @@
-//TODO convert the existing localstorage related code to serialize to a file
-//This should just be a simple utility for fetching from that file
-//Load from config or save localStorage version should be offered from the setting page.
-// {
-
-//     lights :{
-
-//     }
-//     engine :{
-
-//     }
-// }
-
 module.exports = {
     ///
     ///ENGINE
