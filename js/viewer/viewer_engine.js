@@ -13,15 +13,10 @@ const PickHelper = require('./pick_helper.js');
 
 // <!-- TODO add a WEBGL check -->
 
-//CONFIG
-//disable this for now as its slow
-const config_ANTI_ALIASING = false;
-//Limit zoom out distance
-const config_MAX_DISTANCE = 1000;
+const CONFIG = require("../config/config.js");
 
 module.exports = function () {
     return {
-        LIGHT_DEBUG: true,
         //function to emit event to the containing Vue component
         fire_event_to_component: null,
         target_element: null,
@@ -70,13 +65,13 @@ module.exports = function () {
 
             this.__setupLighting();
 
-            this.renderer = new THREE.WebGLRenderer( {antialias:config_ANTI_ALIASING, alpha : true});
+            this.renderer = new THREE.WebGLRenderer( {antialias: CONFIG.ANTI_ALIASING, alpha : true});
             this.renderer.setSize( screen_width, screen_height );
            
             //THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
             // CONTROLS
             this.controls = new TrackballControls( this.camera, this.renderer.domElement );
-            this.controls.maxDistance = config_MAX_DISTANCE;
+            this.controls.maxDistance = CONFIG.MAX_DISTANCE;
             
             // EVENTS
             THREEx.ResizeForWidthOffset(this.renderer, this.camera, target_element, this.controls);
@@ -185,7 +180,7 @@ module.exports = function () {
             this.lighting.init();
             this.lighting.lights.forEach(light => this.scene.add(light));
 
-            if( this.LIGHT_DEBUG) {
+            if( CONFIG.LIGHT_DEBUG) {
                 this.lighting.setupLightGUI(this.target_element);
             }
         },
@@ -225,7 +220,10 @@ module.exports = function () {
             //Position the foot objs across the X axis in a distributed manner.
             for(let i = 0; i < this.objs.length; i++){
                 this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
-                this.objs[i].rotation.set(-90*Math.PI/180, 0, -90*Math.PI/180);
+                
+                this.objs[i].rotation.set(CONFIG.DEFAULT_ROTATION_X,
+                    CONFIG.DEFAULT_ROTATION_Y,
+                    CONFIG.DEFAULT_ROTATION_Z);
             }
         },
         

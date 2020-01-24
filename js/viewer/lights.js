@@ -80,3 +80,5 @@ module.exports = function() {
         }
     }
 }
+
+//TODO spit out json for all these values so we can update the config.js file

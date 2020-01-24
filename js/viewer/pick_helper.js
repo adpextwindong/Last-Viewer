@@ -1,7 +1,6 @@
 var THREE = require('three');
 
-const SELECTION_COLOR = 0xFFA500;
-const PICKING_COLOR = 0xFF0000;
+const CONFIG = require("../config/config")
 
 module.exports = class PickHelper {
     constructor() {
@@ -48,7 +47,7 @@ module.exports = class PickHelper {
                 //append picked object to selection and stash color
                 this.selection.push({"obj": this.pickedObject, "original_color" : this.pickedObjectSavedColor});
                 if(this.pickedObject.material.emissive){
-                    this.pickedObject.material.emissive.setHex(SELECTION_COLOR);
+                    this.pickedObject.material.emissive.setHex(CONFIG.SELECTION_COLOR);
                 }
                 //TODO we need to flush a selection change to the model in the layout
             }else{
@@ -106,7 +105,7 @@ module.exports = class PickHelper {
         
         if(!this.InSelection(this.pickedObject)){
             if(this.pickedObject.material.emissive){
-                this.pickedObject.material.emissive.setHex(PICKING_COLOR);
+                this.pickedObject.material.emissive.setHex(CONFIG.PICKING_COLOR);
             }
 
         }
