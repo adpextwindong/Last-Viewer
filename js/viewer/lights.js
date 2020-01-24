@@ -1,9 +1,13 @@
 const THREE = require('three');
 const dat = require('dat.gui');
 
+const CONFIG = require('../config');
+
 module.exports = function() {
     return {
         init: function () {
+            //TODO check localstorage for stored versions, fallback to config otherwise
+
             //TODO unhardcode these positions and read from localstorage or something
             let storage = window.localStorage;
             let xs = [1,2,3,4];
@@ -15,14 +19,17 @@ module.exports = function() {
 
                 if(storage_value !== undefined && isNaN(parseFloat(storage_value)) !== true ){
                     luminosity_values[x] = parseFloat(storage_value);
+                    console.log("Using localstorage for light "+x);
                 }else{
                     //default on failure
-                    luminosity_values[x] = 0.5;
+                    console.log("Falling back to CONFIG "+propertyName);
+                    luminosity_values[x] = CONFIG[propertyName];
+                    console.log(CONFIG[propertyName]);
                 }
             });
 
             this.lights = [
-            new THREE.AmbientLight( 0x404040 ), // soft white light
+            new THREE.AmbientLight( CONFIG.AMBIENT_LIGHT_COLOR ), // soft white light
             new THREE.DirectionalLight( 0xffffff, luminosity_values[1]),
             new THREE.DirectionalLight( 0xffffff, luminosity_values[2]),
             new THREE.DirectionalLight( 0xffffff, luminosity_values[3]),
@@ -36,14 +43,14 @@ module.exports = function() {
             //todo finish seting up the light positions
         },
 
-        defaults : function() {
-            let storage = window.localStorage;
-            let xs = [1,2,3,4];
-            xs.forEach(x => {
-                let propertyName = "viewer_light" + x + "_luminosity";
-                storage.setItem(propertyName,"0.5");
-            });
-        },
+        // defaults : function() {
+        //     let storage = window.localStorage;
+        //     let xs = [1,2,3,4];
+        //     xs.forEach(x => {
+        //         let propertyName = "viewer_light" + x + "_luminosity";
+        //         storage.setItem(propertyName,"0.5");
+        //     });
+        // },
 
         setupLightGUI : function (target_element) {
             this.lights_gui = new dat.GUI({autoPlace: false, closed:true});

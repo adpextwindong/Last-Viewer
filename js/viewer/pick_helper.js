@@ -1,6 +1,6 @@
 var THREE = require('three');
 
-const CONFIG = require("../config/config")
+const CONFIG = require("../config")
 
 module.exports = class PickHelper {
     constructor() {

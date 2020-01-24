@@ -13,7 +13,7 @@ const PickHelper = require('./pick_helper.js');
 
 // <!-- TODO add a WEBGL check -->
 
-const CONFIG = require("../config/config.js");
+const CONFIG = require("../config");
 
 module.exports = function () {
     return {

@@ -7,7 +7,8 @@ module.exports = {
         jp: {
             'English': '英語',
             'Japanese': '日本語',
-            'Select language locale': 'Select !TODO'
+            'Select language locale': 'Select !TODO',
+            'Clear localStorage': 'Clear localStorage !TODO',
         },
     },
     template: `<div id="settings_menu">
@@ -28,6 +29,10 @@ module.exports = {
                 <label for="jp">{{t('Japanese')}}</label>
             </div>
         </div>
+
+        <div>
+            <button type="button" v-on:click="clearLocalStorage()">{{t('Clear localStorage')}}</button>
+        </div>
     </div>`,
     methods : {
         setLocale : function(locale){
@@ -35,7 +40,12 @@ module.exports = {
                 console.log("Setting locale");
                 this.$translate.setLang(locale);
             }
+        },
+        clearLocalStorage : function(){
+            let ls = window.localStorage;
+            ls.clear();
         }
+
     }
     //TODO set the locale via routing too maybe.
     //TODO local storage of setting. Make sure the app on mount fetches any language setting if no routing language is set.
