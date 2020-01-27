@@ -131,3 +131,10 @@ canvas {
     left: -10000px;
     top: -10000px;
 }
+
+#drop_zone{
+    min-width: 200px;
+    min-height: 200px;
+    border: 3px solid #888;
+    padding: 10px;
+}

@@ -47,6 +47,10 @@ export default {
                     <button type="button" v-on:click="loadGraphViewer(scheme)">{{scheme}}</button>
                 </li>						
             </div>
+
+            <div id="drop_zone" @drop.prevent="fileDropHandler" @dragover.prevent>
+                Drag and drop one or more files here.
+            </div>
         </div>
         <div v-else class="loading_screen">
             {{t('now loading')}}...
@@ -60,6 +64,16 @@ export default {
         import('../../lib/vendor/three_loader_custom').then(OBJLoader => {
             OBJLoader.default(THREE);
         });
+
+        //TODO remove these when not necessary
+        window.addEventListener("dragover",function(e){
+            e = e || event;
+            e.preventDefault();
+          },false);
+          window.addEventListener("drop",function(e){
+            e = e || event;
+            e.preventDefault();
+          },false);
     },
     //We need some sort of handle to loadViewer or loadGraphViewer and the router
     data() {
@@ -194,6 +208,10 @@ export default {
                 loadGraphList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
             }
 
+            this.stitchAndStartEngine(loadGraphList);
+        },
+
+        stitchAndStartEngine(loadGraphList){
             loadGraphList.forEach(g => {
                 g.stitchSceneGraph();
                 g.applyConfig();
@@ -202,7 +220,41 @@ export default {
             this.loading = false;
             this.loaderGraphsSetter(loadGraphList);
             this.$router.push('engine');
-        }
+        },
+        async fileDropHandler(ev) {
+            console.log('File(s) dropped');
+          
+            //TODO file validation and error handling
 
+            // Prevent default behavior (Prevent file from being opened)
+            ev.preventDefault();
+
+            var loader = new THREE.OBJLoader();
+            let obj_promises = [];
+            
+            if (ev.dataTransfer.items) {
+              // Use DataTransferItemList interface to access the file(s)
+              for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+                // If dropped items aren't files, reject them
+                if (ev.dataTransfer.items[i].kind === 'file') {
+                  var file = ev.dataTransfer.items[i].getAsFile();
+                  console.log(file);
+                  console.log('... file[' + i + '].name = ' + file.name);
+                  obj_promises.push({name: file.name, text_p: file.text()});
+                }
+              }
+            }
+            
+            this.loading = true;
+            this.$forceUpdate();
+            await sleep(1);
+
+            const texts = await Promise.all(obj_promises.map(o => o.text_p));
+            const response_objects = texts.map(txt => loader.parse(txt));
+            const loadGraphList = response_objects.map((o,i) => new LoadGraph(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));
+            console.log("parsed all");
+
+            this.stitchAndStartEngine(loadGraphList);
+          }
     }
 }

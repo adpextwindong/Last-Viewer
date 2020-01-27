@@ -30,7 +30,7 @@ const OBJ_TYPES = [
 
 //This might have to be renamed to LoadTree
 module.exports = class LoadGraph{
-    constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined){
+    constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined, response_object=undefined){
         this.name = name;
         this.path = path;
         this.type = type;
@@ -48,6 +48,10 @@ module.exports = class LoadGraph{
         
         if(parent){
             this.parent = parent;
+        }
+
+        if(response_object){
+            this.response_object = response_object;
         }
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
