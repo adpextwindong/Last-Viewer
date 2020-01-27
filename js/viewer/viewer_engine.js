@@ -222,7 +222,7 @@ module.exports = function () {
             }
 
             if(this.__state_mouse_handle_contextmenu_event){
-                this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true)
+                this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true, true);
                 //TODO context menu handling
                 //We should add handling for a context enum that can handle different context situations and obj interactions.
                 this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));

@@ -22,42 +22,48 @@ module.exports = class PickHelper {
       }
     }
 
-    handle_click_selection(mouse_event, shift_key){
+    handle_click_selection(mouse_event, shift_key, right_click=false){
 
         let skip_adding = false;
-        if(!shift_key){
-            //Reset colors and clear selection
-            if(this.selection.length){
-                let removed = this.selection.splice(0, this.selection.length);
-                removed.forEach(tupple => {
-                    let {obj, original_color} = tupple;
+
+        if(right_click && this.InSelection(this.pickedObject)){
+            //do nothing
+        }else{
+
+            if(!shift_key){
+                //Reset colors and clear selection
+                if(this.selection.length){
+                    let removed = this.selection.splice(0, this.selection.length);
+                    removed.forEach(tupple => {
+                        let {obj, original_color} = tupple;
+                        if(obj && obj.material.emissive){
+                            obj.material.emissive.setHex(original_color);
+                            if(this.pickedObject === obj){
+                                this.pickedObjectSavedColor = original_color;
+                                skip_adding = true;
+                            }
+                        }
+                    });    
+                }
+            }
+
+            if(this.pickedObject && !skip_adding){
+                if(!this.InSelection(this.pickedObject)){
+                    //append picked object to selection and stash color
+                    this.selection.push({"obj": this.pickedObject, "original_color" : this.pickedObjectSavedColor});
+                    if(this.pickedObject.material.emissive){
+                        this.pickedObject.material.emissive.setHex(CONFIG.SELECTION_COLOR);
+                    }
+                    //TODO we need to flush a selection change to the model in the layout
+                }else{
+                    let ind = this.selection.map(tupple => tupple.obj).indexOf(this.pickedObject);
+                    let {obj, original_color} = this.selection.splice(ind, 1)[0];
                     if(obj && obj.material.emissive){
                         obj.material.emissive.setHex(original_color);
-                        if(this.pickedObject === obj){
-                            this.pickedObjectSavedColor = original_color;
-                            skip_adding = true;
-                        }
+                        this.pickedObjectSavedColor = original_color;
                     }
-                });    
-            }
-        }
-
-        if(this.pickedObject && !skip_adding){
-            if(!this.InSelection(this.pickedObject)){
-                //append picked object to selection and stash color
-                this.selection.push({"obj": this.pickedObject, "original_color" : this.pickedObjectSavedColor});
-                if(this.pickedObject.material.emissive){
-                    this.pickedObject.material.emissive.setHex(CONFIG.SELECTION_COLOR);
                 }
-                //TODO we need to flush a selection change to the model in the layout
-            }else{
-                let ind = this.selection.map(tupple => tupple.obj).indexOf(this.pickedObject);
-                let {obj, original_color} = this.selection.splice(ind, 1)[0];
-                if(obj && obj.material.emissive){
-                    obj.material.emissive.setHex(original_color);
-                    this.pickedObjectSavedColor = original_color;
-                }
-            }
+            }               
         }
     }
     pick(normalizedPosition, scene, camera) {
