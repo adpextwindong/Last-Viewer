@@ -13,6 +13,9 @@ const PickHelper = require('./pick_helper.js');
 
 const CONFIG = require("../config");
 
+const LAYERS_SCANS = 1;
+const LAYERS_LANDMARKS = 2;
+
 module.exports = function () {
     return {
         //function to emit event to the containing Vue component
@@ -34,7 +37,15 @@ module.exports = function () {
             this.__processed_loadGraphList = processed_loadGraphList;
             this.objs = processed_loadGraphList.map(g => g.response_object.obj);
             this.scene = new THREE.Scene();
-            this.objs.forEach(o => this.scene.add( o ));
+            this.objs.forEach(o => {
+                this.scene.add( o );
+            });
+
+            let allMeshs = this.objs.flatMap(o => o.children);
+            // allMeshs.forEach(o => o.layers.enable(0));
+            allMeshs.filter(o => !o.name.includes("landmark")).forEach(o => o.layers.set(LAYERS_SCANS));
+            allMeshs.filter(o => o.name.includes("landmark")).forEach(o => o.layers.set(LAYERS_LANDMARKS));
+
             this.__manager_init();
             
             // CAMERA
@@ -50,6 +61,10 @@ module.exports = function () {
             this.scene.add(this.camera);
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
+            this.camera.layers.enable(0);
+            this.camera.layers.enable(1);
+            this.camera.layers.enable(2);
+            
 
             //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
             if(processed_loadGraphList.every(g => g.config === undefined)){
@@ -179,7 +194,10 @@ module.exports = function () {
         __setupLighting :function(){
             this.lighting = new LIGHTS();
             this.lighting.init();
-            this.lighting.lights.forEach(light => this.scene.add(light));
+            this.lighting.lights.forEach(light => {
+                light.layers.enable(0);
+                this.scene.add(light)
+            });
 
             if( CONFIG.LIGHT_DEBUG) {
                 this.lighting.setupLightGUI(this.target_element);
@@ -234,14 +252,7 @@ module.exports = function () {
         },
 
         hideLandmarks : function() {
-            this.objs.forEach(o => {
-                o.children.forEach(c => {
-                    //name is as defined by obj file Im pretty sure.
-                    if(c.name !== "foot" && c instanceof THREE.Mesh){
-                        c.visible = !c.visible;
-                    }
-                });
-            });
+            this.camera.layers.toggle(LAYERS_LANDMARKS);
         },
 
         //
