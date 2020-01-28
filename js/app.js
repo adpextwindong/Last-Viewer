@@ -13,6 +13,8 @@ Vue.component('vue-context', () => import('vue-context'));
 Vue.component('landmark_list', () => import('./components/landmark_list'));
 Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hiearchy'));
 
+const CONFIG = require("./config");
+
 //TODO we might need VueX at this rate this is really dirty
 var initialLoadGraphs;
 let setInitialLoadGraph = function(graphs) {
@@ -39,6 +41,11 @@ var app = new Vue({
         base: __dirname,
     }),
     created : function(){
-        this.$translate.setLang('en');
+        let locale = window.localStorage.getItem("locale");
+        if(locale){
+            this.$translate.setLang(locale);
+        }else{
+            this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
+        }
     },
 });

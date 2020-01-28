@@ -16,12 +16,12 @@ module.exports = function() {
 
                 if(storage_value !== undefined && isNaN(parseFloat(storage_value)) !== true ){
                     luminosity_values[x] = parseFloat(storage_value);
-                    console.log("Using localstorage for light "+x);
+                    // console.log("Using localstorage for light "+x);
                 }else{
                     //default on failure
-                    console.log("Falling back to CONFIG "+propertyName);
+                    // console.log("Falling back to CONFIG "+propertyName);
                     luminosity_values[x] = CONFIG[propertyName];
-                    console.log(CONFIG[propertyName]);
+                    // console.log(CONFIG[propertyName]);
                 }
             });
 

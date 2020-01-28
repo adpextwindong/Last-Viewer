@@ -1,3 +1,5 @@
+const CONFIG = require("../config");
+
 module.exports = {
     //TODO locales
     locales : {
@@ -20,12 +22,15 @@ module.exports = {
             </span>
             <div>
                 <input type="radio" id="en" name="locale" value="en"
-                    checked v-on:click="setLocale('en')">
+                    :checked="isCurrentLocal('en')"
+                    v-on:click="setLocale('en')">
                 <label for="en">{{t('English')}}</label>
             </div>
         
             <div>
-                <input type="radio" id="jp" name="locale" value="jp" v-on:click="setLocale('jp')">
+                <input type="radio" id="jp" name="locale" value="jp"
+                    :checked="isCurrentLocal('jp')"
+                    v-on:click="setLocale('jp')">
                 <label for="jp">{{t('Japanese')}}</label>
             </div>
         </div>
@@ -35,6 +40,14 @@ module.exports = {
         </div>
     </div>`,
     methods : {
+        isCurrentLocal : function(locale){
+            let stored = window.localStorage.getItem("locale");
+            if(stored === null){
+                this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
+                window.localStorage.setItem("locale", locale);
+            }
+            return locale === window.localStorage.getItem("locale");
+        },
         setLocale : function(locale){
             if(locale === "en" || locale === "jp"){
                 console.log("Setting locale");
@@ -49,6 +62,14 @@ module.exports = {
             ls.clear();
         }
 
+    },
+    created(){
+        let locale = window.localStorage.getItem("locale");
+        if(locale){
+            this.$translate.setLang(locale);
+        }else{
+            this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
+        }
     }
     //TODO set the locale via routing too maybe.
     //TODO local storage of setting. Make sure the app on mount fetches any language setting if no routing language is set.

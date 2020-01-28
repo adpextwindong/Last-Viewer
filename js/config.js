@@ -1,5 +1,10 @@
 module.exports = {
     ///
+    /// APP
+    ///
+    DEFAULT_LOCALE : "en",
+    
+    ///
     ///ENGINE
     ///
     ANTI_ALIASING : false,
