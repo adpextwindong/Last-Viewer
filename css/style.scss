@@ -39,8 +39,9 @@ canvas {
 #data_display {
     /* Critical layout */
     position: absolute;
-    height: 100%;
+    height: 98%;
     display: flex;
+    flex: 1 1 1px;
     flex-direction: column;
     overflow-y: scroll;
     /* TODO custom overflow-y styling */
