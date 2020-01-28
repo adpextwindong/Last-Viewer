@@ -1,9 +1,10 @@
 module.exports = {
+    //TODO make this a utility that parses a json file at runtime so we dont have to recompile.
     ///
     /// APP
     ///
     DEFAULT_LOCALE : "en",
-    
+    DEBUG : false,
     ///
     ///ENGINE
     ///
@@ -11,11 +12,14 @@ module.exports = {
     ALPHA : true,
     //Zoom out Distance
     MAX_DISTANCE : 1000,
-    LIGHT_DEBUG : true,
+    LIGHT_DEBUG : false,
     //OBJ orrientation
     DEFAULT_ROTATION_X : -90*Math.PI/180,
     DEFAULT_ROTATION_Y : 0,
     DEFAULT_ROTATION_Z : -90*Math.PI/180,
+
+    //Mouse interaction features
+    CONTEXT_MENU_ENABLED : false,
 
     ///
     /// PICK HELPER

@@ -118,12 +118,17 @@ module.exports = function () {
                     x: e.clientX,
                     y: e.clientY,
                 };
-                this.fire_event_to_component("viewer_context_menu_position", vector);
+                if(CONFIG.CONTEXT_MENU_ENABLED){
+                    this.fire_event_to_component("viewer_context_menu_position", vector);
+                }
                 this.__state_mouse_handle_contextmenu_event = e;
             }.bind(this));
 
             viewer_scope = this;
             this.renderer.domElement.addEventListener('mousemove', function (e){
+                //TODO add a flag to the contextmenu handler to check for a mouse move of a certain distance?
+                //The right click drag for moving shouldn't open a context menu
+
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
             }.bind(this.pickHelper));
 

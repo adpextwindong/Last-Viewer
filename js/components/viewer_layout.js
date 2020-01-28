@@ -10,6 +10,8 @@ const zip = (arr, ...arrs) => {
     return arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
 }
 
+const CONFIG = require("../config");
+
 module.exports = {
     mixins: [ vueclickaway.mixin ],
     //TODO locales
@@ -56,7 +58,8 @@ module.exports = {
             <button type="button" v-on:click="returnToHome()">{{t('Return to home')}}</button>
             <button type="button" v-on:click="resetCamera()">{{t('Reset Camera')}}</button>
 
-            <scene_graph_hiearchy
+            
+            <scene_graph_hiearchy v-if="config.DEBUG"
             v-bind:scene_graph_representation="scene_graph_representation"
             v-bind:engine_interface="engine_interface"
             />
@@ -83,7 +86,11 @@ module.exports = {
 
     //It might be easier for a control object for each component to be generated that contains closures for each thing
     //instead of vbinding everything. Ofc theres no compile time guarentee that the controls match up.
-    
+    computed : {
+        config(){
+            return CONFIG
+        }
+    },
     data() {
         return {
             //Refactor for multi objs
