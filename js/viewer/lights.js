@@ -70,7 +70,9 @@ module.exports = function() {
             target_element.appendChild( this.lights_gui.domElement );
         },
         shutdown : function(){
-            this.lights_gui.domElement.remove();
+            if(CONFIG.LIGHT_DEBUG){
+                this.lights_gui.domElement.remove();
+            }
         }
     }
 }

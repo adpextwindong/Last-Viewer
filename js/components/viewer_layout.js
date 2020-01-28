@@ -22,7 +22,8 @@ module.exports = {
         jp: {
             'Hide all landmarks': 'HIDE LANDMARKS !TODO',
             'Return to home':'HOME BUTTON !TODO',
-            'Reset Camera': 'RESET CAMERA !TODO'
+            'Reset Camera': 'RESET CAMERA !TODO',
+            'Top View': 'Top View !TODO'
         },
     },
 
@@ -55,23 +56,26 @@ module.exports = {
         <!-- Everything above this should be absolute position UI elements, everything else should go into the display wrapper-->
         
         <div id="data_display" class="wrapper_open" >
-            <button type="button" v-on:click="returnToHome()">{{t('Return to home')}}</button>
+            <button type="button"
+                v-if="config.DEBUG"
+                v-on:click="returnToHome()">{{t('Return to home')}}</button>
             <button type="button" v-on:click="resetCamera()">{{t('Reset Camera')}}</button>
 
-            
+            <div id="view_controls">
+                <button type="button" v-on:click="view_top()">{{t('Top View')}}</button>
+            </div>
+
             <scene_graph_hiearchy v-if="config.DEBUG"
             v-bind:scene_graph_representation="scene_graph_representation"
             v-bind:engine_interface="engine_interface"
             />
 
-            <div>
-                <div v-if="landmark_list_visible === true">
-                    <landmark_list v-for="(landmark_group,key,index) in landmarks"
-                        v-bind:landmark_group="landmark_group"
-                        v-bind:key=index></landmark_list>
-                </div>
-                <button type="button" v-on:click="hideLandmarks()">{{t('Hide all landmarks')}}</button>
+            <div v-if="landmark_list_visible === true">
+                <landmark_list v-for="(landmark_group,key,index) in landmarks"
+                    v-bind:landmark_group="landmark_group"
+                    v-bind:key=index></landmark_list>
             </div>
+            <button type="button" v-on:click="hideLandmarks()">{{t('Hide all landmarks')}}</button>
             
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
@@ -113,7 +117,9 @@ module.exports = {
         //and hide the canvas
         // appViewer.__shutdown_still_warm = true;
         appViewer.__shutdownEngineDomElements();
-        delete appViewer;
+        appViewer = undefined;
+        
+        // delete appViewer;
         appViewer = new Viewer();
         nav = document.querySelector("#router_nav");
         nav.classList.remove("hide_me");
@@ -275,6 +281,10 @@ module.exports = {
         //These functions just expose the Viewer Engine's external interface to the VueJS component at compilation time.
         resetCamera () {
             appViewer.resetCamera();
+        },
+
+        view_top(){
+            appViewer.view_TOP();
         },
 
         //Presentation controlling functions

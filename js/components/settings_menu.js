@@ -35,7 +35,7 @@ module.exports = {
             </div>
         </div>
 
-        <div>
+        <div v-if="config.DEBUG">
             <button type="button" v-on:click="clearLocalStorage()">{{t('Clear localStorage')}}</button>
         </div>
     </div>`,
@@ -60,8 +60,14 @@ module.exports = {
         clearLocalStorage : function(){
             let ls = window.localStorage;
             ls.clear();
+            console.log("local storage cleared");
         }
 
+    },
+    computed : {
+        config(){
+            return CONFIG
+        }
     },
     created(){
         let locale = window.localStorage.getItem("locale");
