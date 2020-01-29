@@ -65,6 +65,14 @@ export default {
             OBJLoader.default(THREE);
         });
 
+        if(REQUEST_METADATA !== undefined){
+            //We're being passed an ID from php
+            console.log(REQUEST_METADATA);
+            this.fetchScanForViewer(REQUEST_METADATA);
+        }else{
+            console.log("Request metadata not found, falling back to old loader");
+        }
+
         //TODO remove these when not necessary
         window.addEventListener("dragover",function(e){
             e = e || event;
@@ -176,6 +184,39 @@ export default {
         }
     },
     methods : {
+        async fetchScanForViewer(metadata){
+            let {IIS_id, IIS_signature, IIS_date, key} = metadata;
+            let base_url = new URL("https://jp.infoot.net/itouch/service/get_converted_file.php");
+            
+            base_url.searchParams.set('key',key);
+            base_url.searchParams.set('IIS_id',IIS_id);
+            base_url.searchParams.set('IIS_signature',IIS_signature);
+            base_url.searchParams.set('IIS_date',IIS_date);
+
+            base_url.searchParams.set('type', 'obj');
+            base_url.searchParams.set('polygon_size', '2');
+            base_url.searchParams.set('digit', '3');
+
+            base_url.href += "&marker";
+            base_url.href += "&rotation";
+
+            console.log(base_url);
+            let url_left = new URL(base_url.href);
+
+            url_left.href+='&lr=l';
+
+            let url_right = new URL(base_url.href);
+            url_right.href+='&lr=r';
+
+            // console.log(url_left);
+            // console.log(url_right);
+            
+            let loadGraphList = [new LoadGraph("Left", url_left.href, "FOOT"),
+                                    new LoadGraph("Right", url_right.href, "FOOT")];
+
+            this.loadGraphViewer(loadGraphList);
+
+        },
         async loadViewer (scan_paths, insole_paths) {
             let loadGraphList = [];
 
