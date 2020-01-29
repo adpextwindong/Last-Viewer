@@ -6,6 +6,9 @@ const LoadGraphFromObject = (o) => {
     return new LoadGraph(o.name, o.path, o.type, children, o.config);
 }
 
+var OBJLoader = require('../../lib/vendor/three_loader_custom');
+OBJLoader(THREE);
+
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export default {
@@ -61,11 +64,7 @@ export default {
     props: ['loaderGraphsSetter'],
     name: 'scan_selector',
     mounted : function() {
-        import('../../lib/vendor/three_loader_custom').then(OBJLoader => {
-            OBJLoader.default(THREE);
-        });
-
-        if(REQUEST_METADATA !== undefined){
+        if(typeof REQUEST_METADATA !== "undefined"){
             //We're being passed an ID from php
             console.log(REQUEST_METADATA);
             this.fetchScanForViewer(REQUEST_METADATA);
@@ -77,11 +76,11 @@ export default {
         window.addEventListener("dragover",function(e){
             e = e || event;
             e.preventDefault();
-          },false);
-          window.addEventListener("drop",function(e){
+        },false);
+        window.addEventListener("drop",function(e){
             e = e || event;
             e.preventDefault();
-          },false);
+        },false);
     },
     //We need some sort of handle to loadViewer or loadGraphViewer and the router
     data() {
