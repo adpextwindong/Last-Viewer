@@ -21,20 +21,20 @@ module.exports = {
         },
         jp: {
             'Hide all landmarks': 'HIDE LANDMARKS !TODO',
-            'Return to home':'HOME BUTTON !TODO',
+            'Return to Home Page':'HOME BUTTON !TODO',
             'Reset Camera': 'RESET CAMERA !TODO',
             'Top View': 'Top View !TODO'
         },
     },
 
-    //TODO landmark_hightlighted_name needs a translation handling
     template : `
 
     <div id="data_display_wrapper" class="wrapper">
         <div id="landmark_nametag_wrapper">
             <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
         </div>
-        <div v-on-clickaway="hideContextMenu" id="context_menu">
+        
+        <!-- <div v-on-clickaway="hideContextMenu" id="context_menu">
             <p @contextmenu.prevent="$refs.menu.open">
                 Right click on me
             </p>
@@ -51,14 +51,14 @@ module.exports = {
                     </a>
                 </li>
             </vue-context>
-        </div>
+        </div> -->
 
         <!-- Everything above this should be absolute position UI elements, everything else should go into the display wrapper-->
         
         <div id="data_display" class="wrapper_open" >
             <button type="button"
                 v-if="config.DEBUG"
-                v-on:click="returnToHome()">{{t('Return to home')}}</button>
+                v-on:click="returnToHome()">{{t('Return to Home Page')}}</button>
             <button type="button" v-on:click="resetCamera()">{{t('Reset Camera')}}</button>
 
             <div id="view_controls">
@@ -152,7 +152,6 @@ module.exports = {
     },
 
    created() {
-           //REFACTOR LANDMARK CODE
            const applyOnExistingLandmark = (parent_key, viewer_group_name, f) => {
                if(this.landmarks[parent_key]){
                    let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
@@ -199,7 +198,6 @@ module.exports = {
     },
     methods: {
         launchViewer(target_element, processed_loadGraphList) {
-            //TODO 2020 01 15 fix landmark code 
             this.__grabLandmarks(processed_loadGraphList);
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
@@ -259,7 +257,7 @@ module.exports = {
 
 
             //TODO figure out what we should do with the "This file was created by FileConverter" description.
-            
+            //Should this translation be done at load time or at the presentation template level
             //landmarks schema
             zip(evens,odds).forEach(ind => {
                 let lm = {

@@ -4,7 +4,7 @@ module.exports = {
     /// APP
     ///
     DEFAULT_LOCALE : "en",
-    DEBUG : false,
+    DEBUG : true,
     ///
     ///ENGINE
     ///

@@ -15,14 +15,15 @@ export default {
     //TODO locales
     locales : {
         en: {
-            "Scans avalible for viewing" : "Scans avalible for viewing",
-            "Insoles avalible for viewing": "Insoles avalible for viewing",
         },
         jp: {
-            "Scans avalible for viewing" : "あるスカン",
-            "Insoles avalible for viewing": "あるインソール",
+            "Scans avalible for viewing" : "!TODO",
+            "Insoles avalible for viewing": "!TODO",
             'Load selected scans': "LOAD !TODO",
             'now loading': "now loading !TODO",
+
+            'Drag and drop one or more files here.': "!TODO",
+            //Debug
             'Overlay Scene Graph Viewer' : "overlay viewer !TODO"
         },
     },
@@ -52,7 +53,7 @@ export default {
             </div>
 
             <div id="drop_zone" @drop.prevent="fileDropHandler" @dragover.prevent>
-                Drag and drop one or more files here.
+                {{t('Drag and drop one or more files here.')}}
             </div>
         </div>
         <div v-else class="loading_screen">
@@ -294,8 +295,6 @@ export default {
             console.log("parsed all");
 
             this.stitchAndStartEngine(loadGraphList);
-
-            //TODO add a history of these files??
           }
     }
 }

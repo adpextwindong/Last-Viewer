@@ -10,12 +10,12 @@ module.exports = {
             'English': '英語',
             'Japanese': '日本語',
             'Select language locale': 'Select !TODO',
+
+            //Debug interface
             'Clear localStorage': 'Clear localStorage !TODO',
         },
     },
     template: `<div id="settings_menu">
-        menu interface for storing settings into localStorage etc...
-
         <div>
             <span>
                 {{t('Select language locale')}}
