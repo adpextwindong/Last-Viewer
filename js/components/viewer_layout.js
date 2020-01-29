@@ -169,7 +169,9 @@ module.exports = {
                applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
                    this.landmarks[parent_key][ind].isActive = true;
                    this.$set(this, "landmark_highlighted", true);
-                   this.landmark_highlighted_name = viewer_group_name + " " + this.landmarks[parent_key][ind].description;
+
+                   let group_name = CONFIG.DEBUG ? viewer_group_name : "";
+                   this.landmark_highlighted_name = group_name + " " + this.t(this.landmarks[parent_key][ind].description);
                });
            });
            this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
@@ -255,13 +257,19 @@ module.exports = {
             
             //slice(2) in this case drops the leading "# " and "g " line markers in the obj format
 
+
+            //TODO figure out what we should do with the "This file was created by FileConverter" description.
+            
             //landmarks schema
             zip(evens,odds).forEach(ind => {
-                this.landmarks[parent_key].push({
-                            'description': ind[0] ? ind[0].slice(2) : "",
-                            'group_name': ind[1] ? ind[1].slice(2) : "",
-                            'isActive': false
-                        })
+                let lm = {
+                    'description': ind[0] ? ind[0].slice(2).trim() : "",
+                    'group_name': ind[1] ? ind[1].slice(2).trim() : "",
+                    'isActive': false
+                };
+                // console.log(lm.description);
+                // console.log(lm.group_name);
+                this.landmarks[parent_key].push(lm);
             });   
         },
         __grabLandmarks(processed_loadGraphList){
