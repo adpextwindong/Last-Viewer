@@ -52,7 +52,6 @@ module.exports = {
             if(locale === "en" || locale === "jp"){
                 console.log("Setting locale");
                 this.$translate.setLang(locale);
-                //TODO have this locale prop get fetched on app mount or something
                 let ls = window.localStorage;
                 ls.setItem("locale", locale);
             }
@@ -78,5 +77,4 @@ module.exports = {
         }
     }
     //TODO set the locale via routing too maybe.
-    //TODO local storage of setting. Make sure the app on mount fetches any language setting if no routing language is set.
 }

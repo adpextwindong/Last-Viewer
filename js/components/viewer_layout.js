@@ -180,8 +180,8 @@ module.exports = {
                });
            });
            this.$on('contextmenu_selected_uuids', function(uuids){
-               console.log("Recieved selected uuids for context menu interaction");
-               console.log(uuids);
+            //    console.log("Recieved selected uuids for context menu interaction");
+            //    console.log(uuids);
            });
            this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
                this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");

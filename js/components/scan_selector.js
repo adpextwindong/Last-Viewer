@@ -227,9 +227,6 @@ export default {
                 loadGraphList.push(new LoadGraph( "insole" + index , path, "INSOLE"));
             })
 
-            //TODO stash the loadgraph list
-
-            // this.loadGraphViewer(loadGraphList);
             this.loadGraphViewer(loadGraphList);
         },
 
@@ -262,6 +259,8 @@ export default {
             this.loaderGraphsSetter(loadGraphList);
             this.$router.push('engine');
         },
+
+        //Drag and drop load handler
         async fileDropHandler(ev) {
             console.log('File(s) dropped');
           
@@ -296,6 +295,8 @@ export default {
             console.log("parsed all");
 
             this.stitchAndStartEngine(loadGraphList);
+
+            //TODO add a history of these files??
           }
     }
 }
