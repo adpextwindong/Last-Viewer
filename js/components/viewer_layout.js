@@ -20,10 +20,10 @@ module.exports = {
 
         },
         jp: {
-            'Hide all landmarks': 'HIDE LANDMARKS !TODO',
-            'Return to Home Page':'HOME BUTTON !TODO',
-            'Reset Camera': 'RESET CAMERA !TODO',
-            'Top View': 'Top View !TODO'
+            'Hide all landmarks': '全てのランドマークを非表示',
+            'Return to home':'ホームに戻る',
+            'Reset Camera': 'カメラをリセット',
+            'Top View': '上からのビュー'
         },
     },
 

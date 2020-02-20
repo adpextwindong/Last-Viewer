@@ -9,10 +9,8 @@ module.exports = {
         jp: {
             'English': '英語',
             'Japanese': '日本語',
-            'Select language locale': 'Select !TODO',
-
-            //Debug interface
-            'Clear localStorage': 'Clear localStorage !TODO',
+            'Select language locale': '言語選択',
+            'Clear localStorage': 'ローカルストレージをクリア',
         },
     },
     template: `<div id="settings_menu">

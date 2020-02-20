@@ -5,8 +5,8 @@ module.exports = {
 
         },
         jp: {
-            'Toggle Visibility': 'TOGGLE VISIBILITY !TODO',
-            'Remove from scene': 'REMOVE FROM SCENE !TODO'
+            'Toggle Visibility': '表示／非表示',
+            'Remove from scene': '画面から削除'
         },
     },
     template : `

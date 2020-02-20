@@ -17,14 +17,15 @@ export default {
         en: {
         },
         jp: {
-            "Scans avalible for viewing" : "!TODO",
-            "Insoles avalible for viewing": "!TODO",
-            'Load selected scans': "LOAD !TODO",
-            'now loading': "now loading !TODO",
+            "Scans avalible for viewing" : "計測データ",
+            "Insoles avalible for viewing": "インソール",
+            'Load selected scans': "選択したデータを読み込み",
+            'now loading': "読込中",
+
+            //Debug
+            'Overlay Scene Graph Viewer' : "重ねて表示",
 
             'Drag and drop one or more files here.': "!TODO",
-            //Debug
-            'Overlay Scene Graph Viewer' : "overlay viewer !TODO"
         },
     },
     template : `
