@@ -21,8 +21,9 @@
   "license": "ISC",
   "private": true,
   "devDependencies": {
+    "npx": "^10.2.2",
     "sass": "^1.25.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   }
 }
