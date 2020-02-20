@@ -1,3 +1,8 @@
+Install Node.js v12.x:
+For Ubuntu
+    `curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -`
+    `sudo apt-get install -y nodejs`
+
 Current requirements:
 Vuejs
 Node.js
@@ -10,7 +15,8 @@ Installing package.json dependencies
 `npm install`
 
 Running the viewer locally
-`python -m http.server`
+`python -m http.server` for python 3
+`python -m SimpleHTTPServer` for python 2
 
 Build process:
 
