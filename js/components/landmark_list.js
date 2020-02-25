@@ -66,10 +66,9 @@ module.exports = {
             'LM37' : '足裏2（踏みつけ内）',
             'LM38' : '足裏3（踏みつけ外）',
 
-            //CHECK THESE
-            'Toe #1 touched point' : '母指接点 ?CHECK',
-            'Landing point' : '接地点 ?CHECK',
-            'Landing point2' : '!TODO',
+            'Toe #1 touched point' : '母指接点',
+            'Landing point' : '接地点',
+            'Landing point2' : '接地点',
         },
     },
     template : `
