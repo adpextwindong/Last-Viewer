@@ -3,5 +3,6 @@
 
 /css/style.css
 
+.vagrant/
 *.map
 *bundle.js*
