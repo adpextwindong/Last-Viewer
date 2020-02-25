@@ -51,25 +51,25 @@ module.exports = {
             'Inside ball point' : '足囲内側',
             'Outside ball point' : '足囲外側',
             
+            'LM27' : 'IV！丁-！中点足軸時の足長点',
+            'LM20' : 'かかと幅点1（内）',
+            'LM21' : 'かかと幅点2（外）',
+            'LM22' : '最長点（つま先）',
+            'LM25' : '足囲局',
+            'LM26' : 'インステップ囲高（足長の50%）',
+            
+            'LM32' : '第2指中足骨頭足軸時の足長点',
+            'LM33' : '足高点（足長の50%以外）',
+            'LM34' : '踵角度点上',
+            'LM35' : '踵角度点下',
+            'LM36' : '足裏1（踵辺り)',
+            'LM37' : '足裏2（踏みつけ内）',
+            'LM38' : '足裏3（踏みつけ外）',
+
+            //CHECK THESE
             'Toe #1 touched point' : '母指接点 ?CHECK',
             'Landing point' : '接地点 ?CHECK',
-
             'Landing point2' : '!TODO',
-            
-            'LM20' : 'かかと幅点1(内）',
-            'LM21' : '!TODO',
-            'LM22' : '!TODO',
-            'LM25' : '!TODO',
-            'LM26' : '!TODO',
-            'LM27' : '!TODO',
-            'LM32' : '!TODO',
-            'LM33' : '!TODO',
-            'LM34' : '!TODO',
-            'LM35' : '!TODO',
-            'LM36' : '!TODO',
-            'LM37' : '!TODO',
-            'LM38' : '!TODO',
-
         },
     },
     template : `
