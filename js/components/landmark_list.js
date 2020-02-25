@@ -2,7 +2,19 @@ module.exports = {
     //TODO locales
     locales : {
         en: {
-
+            'LM20' : 'Medial point of Heel Breadth',
+            'LM21' : 'Lateral point of Heel Breadth',
+            'LM22' : 'Farthest point from Pternion',
+            'LM25' : 'Highest point of Ballgirth Circ',
+            'LM26' : 'Highest point of Instep Circ',
+            'LM27' : 'Foot length point Pternion-CP axis',
+            'LM32' : 'Foot length point Pternion-#2 Metatarsal head axis',
+            'LM33' : 'Highest point of Instep without the case of 50% of foot length',
+            'LM34' : 'Upper point of heel angle',
+            'LM35' : 'Lower point of heel angle',
+            'LM36' : 'Foot bottom Point 1(around Heel bone)',
+            'LM37' : 'Foot bottom Point 2',
+            'LM38' : 'Foot bottom Point 3',
         },
         jp: {
             //TODO landmark translation and clean up of landmark names
@@ -36,15 +48,15 @@ module.exports = {
             'Top of head of #1 Metatarsal' : '第1中足骨頭最高点',
             'Tuberosity of 5th metatarsalis' : '第5中足骨粗面',
             'Upper point of the heel' : '踵骨上部点',
+            'Inside ball point' : '足囲内側',
+            'Outside ball point' : '足囲外側',
             
-            'Inside ball point' : '!TODO',
             'Toe #1 touched point' : '母指接点 ?CHECK',
             'Landing point' : '接地点 ?CHECK',
 
             'Landing point2' : '!TODO',
-            'Outside ball point' : '!TODO', //Most Lateral point of BallGirth ??
             
-            'LM20' : '!TODO',
+            'LM20' : 'かかと幅点1(内）',
             'LM21' : '!TODO',
             'LM22' : '!TODO',
             'LM25' : '!TODO',
