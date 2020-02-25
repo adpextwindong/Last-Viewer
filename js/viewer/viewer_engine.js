@@ -263,7 +263,8 @@ module.exports = function () {
             this.camera.lookAt(new THREE.Vector3(0,0,0));
 
             //TODO this obliterates the controls. Maybe reinit them or something.
-            this.controls = new TrackballControls( this.camera, this.renderer.domElement );
+            // this.controls = undefined;
+            // this.controls = new TrackballControls( this.camera, this.renderer.domElement );
 
             //Camera rotation should be preserved
             console.log("hopefully its looking top down.");
