@@ -9,6 +9,7 @@ Node.js
 Node.npm Package Manager (NPM)
 Webpack (installable through NPM)
 SASS for SCSS (installable through NPM)
+`npm -g install sass`
 NPM packages listed in package.json
 
 Installing package.json dependencies
