@@ -152,6 +152,11 @@ module.exports = function () {
                 // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
                 // this.pickHelper.clearPickPosition.bind(this.pickHelper);
             });
+
+
+            //HOTFIX SECTION
+            //AxesHelper 
+            this.___HOTFIX_axesHelperVisibility();
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.
@@ -279,18 +284,36 @@ module.exports = function () {
         //All functions should call __manager_flush_change() to propagate a scene graph representation model change
         //in the Layout level.
         //
+
+        ___HOTFIX_axesHelperVisibility: function(){
+            // The axes helper has an issue with being invisible on the first draw for some reason.
+            // Don't know why threejs will draw it after a visibility toggle so hopefully this hotfix is enough for now.
+            const toggleAll = () => {
+                this.objs.map(o => o.uuid).forEach(uuid => this.manager_toggleVisibility(uuid));
+            }
+
+            toggleAll();
+            this.__render();
+            toggleAll();
+            this.__render();
+        },
         manager_toggleVisibility : function(uuid){
             let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
-            xs.forEach(o => {
+            const toggleSelfAndFirstChild = o => {
                 obj = o.getTHREEObj();
 
                 if(obj.visible !== undefined){
                     obj.visible = !obj.visible;
                 }
                 if(obj.type === "Group"){
+                    //TODO BUGFIX This line triggers the axes helper to be visible after a toggle for some reason.
                     obj.children[0].visible = !obj.children[0].visible;
+                    console.log("Toggling visibilty of ");
+                    console.log(obj.children[0]);
                 }
-            });
+            };
+
+            xs.forEach(toggleSelfAndFirstChild);
 
             this.__manager_flush_change(true);
         },
