@@ -262,17 +262,12 @@ module.exports = function () {
         },
 
         view_TOP: function(){
-            //Get current center, based on the right click panning around
+            // //Get current center, based on the right click panning around
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
             this.camera.position.set(0,dist,0);
+            
             this.camera.lookAt(new THREE.Vector3(0,0,0));
-
-            //TODO this obliterates the controls. Maybe reinit them or something.
-            // this.controls = undefined;
-            // this.controls = new TrackballControls( this.camera, this.renderer.domElement );
-
-            //Camera rotation should be preserved
-            console.log("hopefully its looking top down.");
+            this.camera.up = new THREE.Vector3(0,0,1);
         },
 
         hideLandmarks : function() {
