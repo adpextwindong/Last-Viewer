@@ -24,6 +24,7 @@ module.exports = {
             'Return to home':'ホームに戻る',
             'Reset Camera': 'カメラをリセット',
             'Top View': '上からのビュー'
+            //TODO view translations
         },
     },
 
@@ -63,6 +64,10 @@ module.exports = {
 
             <div id="view_controls">
                 <button type="button" v-on:click="view_top()">{{t('Top View')}}</button>
+                <button type="button" v-on:click="view_left()">{{t('Left View')}}</button>
+                <button type="button" v-on:click="view_right()">{{t('Right View')}}</button>
+                <button type="button" v-on:click="view_toe_end()">{{t('Toe End View')}}</button>
+                <button type="button" v-on:click="view_heel_end()">{{t('Heel End View')}}</button>
             </div>
 
             <scene_graph_hiearchy v-if="config.DEBUG"
@@ -292,6 +297,23 @@ module.exports = {
         view_top(){
             appViewer.view_TOP();
         },
+
+        view_left(){
+            appViewer.view_LEFT();
+        },
+
+        view_right(){
+            appViewer.view_RIGHT();
+        },
+
+        view_toe_end(){
+            appViewer.view_TOE_END();
+        },
+
+        view_heel_end(){
+            appViewer.view_HEEL_END();
+        },
+
 
         //Presentation controlling functions
         hideLandmarks () {

@@ -261,7 +261,7 @@ module.exports = function () {
             this.controls.reset();    
         },
 
-        view_TOP: function(){
+        view_RIGHT: function(){
             // //Get current center, based on the right click panning around
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
             this.camera.position.set(0,dist,0);
@@ -269,6 +269,41 @@ module.exports = function () {
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(0,0,1);
         },
+
+        view_LEFT: function(){
+            // //Get current center, based on the right click panning around
+            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+            this.camera.position.set(0,-dist,0);
+            
+            this.camera.lookAt(new THREE.Vector3(0,0,0));
+            this.camera.up = new THREE.Vector3(0,0,1);
+        },
+
+        view_TOE_END: function(){
+            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+            this.camera.position.set(dist,0,0);
+            
+            this.camera.lookAt(new THREE.Vector3(0,0,0));
+            this.camera.up = new THREE.Vector3(0,0,1);
+        },
+
+        view_HEEL_END: function(){
+            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+            this.camera.position.set(-dist,0,0);
+            
+            this.camera.lookAt(new THREE.Vector3(0,0,0));
+            this.camera.up = new THREE.Vector3(0,0,1);
+        },
+
+        view_TOP: function(){
+            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+            this.camera.position.set(0,0,dist);
+            
+            this.camera.lookAt(new THREE.Vector3(0,0,0));
+            this.camera.up = new THREE.Vector3(1,0,0);
+        },
+
+        
 
         hideLandmarks : function() {
             this.camera.layers.toggle(LAYERS_LANDMARKS);
