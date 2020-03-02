@@ -12,6 +12,7 @@ var keyboard = new THREEx.KeyboardState();
 const PickHelper = require('./pick_helper.js');
 
 const CONFIG = require("../config");
+const MOBILE_UTILS = require('./mobile_utils.js');
 
 const LAYERS_SCANS = 1;
 const LAYERS_LANDMARKS = 2;
@@ -23,12 +24,8 @@ module.exports = function () {
         target_element: null,
 
         init: function (target_element, component_event_emitter, processed_loadGraphList) {
-            window.addEventListener("load",function() {
-                setTimeout(function(){
-                    // This should hide the address bar on mobile.
-                    window.scrollTo(0, 1);
-                }, 0);
-            });
+
+            MOBILE_UTILS.hideAddressBarOnMobile();
 
             this.fire_event_to_component = component_event_emitter;
             this.target_element = target_element;
