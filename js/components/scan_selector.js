@@ -185,6 +185,9 @@ export default {
         }
     },
     methods : {
+        // This function is ran by the mounted lifecycle method of this component automatically if theres a metadata global object.
+        // This will be the entry point for looking at files from the website.
+        // The rest of the methods are utilities for testing/development.
         async fetchScanForViewer(metadata){
             let {IIS_id, IIS_signature, IIS_date, key} = metadata;
             let base_url = new URL("https://jp.infoot.net/itouch/service/get_converted_file.php");

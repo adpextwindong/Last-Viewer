@@ -258,6 +258,9 @@ module.exports = function () {
             this.controls.reset();    
         },
 
+        //TODO verify that this behavior is good enough
+        //TODO add a bottom view.
+
         view_RIGHT: function(){
             // //Get current center, based on the right click panning around
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
