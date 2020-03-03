@@ -240,6 +240,11 @@ module.exports = {
                 emitRemoveUUIDRequest: function(uuid){
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
+
+                //TODO add xml data to UUID interface for drag/drop data.
+                addDimensionData : function(uuid, feet_dimensions){
+                    appViewer.manager_addDimensionData(uuid, feet_dimensions);
+                }
             };
 
             //Stashing elements to avoid dom traversals later

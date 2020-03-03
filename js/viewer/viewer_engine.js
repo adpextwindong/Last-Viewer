@@ -41,7 +41,21 @@ module.exports = function () {
             let allMeshs = this.objs.flatMap(o => o.children);
             // allMeshs.forEach(o => o.layers.enable(0));
             allMeshs.filter(o => !o.name.includes("landmark")).forEach(o => o.layers.set(LAYERS_SCANS));
-            allMeshs.filter(o => o.name.includes("landmark")).forEach(o => o.layers.set(LAYERS_LANDMARKS));
+
+            let allLandmarkMeshes = allMeshs.filter(o => o.name.includes("landmark"));
+            allLandmarkMeshes.forEach(o => o.layers.set(LAYERS_LANDMARKS));
+
+            let landmark_dict = {};
+            allLandmarkMeshes.forEach(mesh => {
+                let lm_ind = mesh.name.split("landmark_")[1];
+                landmark_dict[lm_ind] = mesh;
+            });
+            console.log(landmark_dict);
+
+            //This will need a major refactor for now as it relies on checking the parent uuid to see who it belongs to.
+            this.__scene_landmarks = landmark_dict;
+
+            
 
             this.__manager_init();
             
@@ -326,6 +340,63 @@ module.exports = function () {
             this.__render();
             toggleAll();
             this.__render();
+        },
+        manager_addDimensionData(uuid, feet_dimensions){
+            //TODO process the parsed dimensions for measurement meshes
+            // we can generate and add to the mesh group
+
+            // At first we should try the Pternion to "Foot length point Pternion-CP axis" lm0 lm27 axis along the bottom of the foot
+
+            let {left, right} = feet_dimensions;
+            
+            let mesh = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid))[0].response_object.obj;
+
+            console.log("right here");
+
+            //TODO grab associated landmarks, check if lm0 lm27 exist, 
+            
+            //Returns the coordinates of the landmark's tip
+            const getLandmarkPoint = (mesh) =>{
+                let float_32_array = mesh.geometry.attributes.position.array;
+
+                //18 faces get laid out in an array with the last 3 refering to the 5th point, the tip.
+                // f 1// 3// 2//
+                // f 1// 4// 3//
+                // f 1// 5// 4//
+                // f 1// 2// 5//
+                // f 2// 3// 4//
+                // f 2// 4// 5//
+
+                let ind = 17*3;
+                return [float_32_array[0], float_32_array[1], float_32_array[2]];
+            };
+
+            //TODO refactor scene landmarks to be indexed by uuid then lm#
+            if("0" in this.__scene_landmarks && "27" in this.__scene_landmarks){
+                console.log(this.__scene_landmarks["0"]);
+                console.log(this.__scene_landmarks["27"]);
+
+                let pt_mesh = this.__scene_landmarks["0"];
+                let foot_length_cp_mesh = this.__scene_landmarks["27"];
+
+                // console.log(getLandmarkPoint(pt_mesh));
+                // console.log(getLandmarkPoint(foot_length_cp_mesh));
+
+                let points = [];
+                points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
+                points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
+
+                let material = new THREE.LineBasicMaterial({
+                    color: 0xffa500
+                });
+                let geometry = new THREE.BufferGeometry().setFromPoints(points);
+                let line = new THREE.Line(geometry, material);
+
+                //TODO Fix this
+                line.layers.set(LAYERS_LANDMARKS);
+                mesh.add(line);
+
+            }
         },
         manager_toggleVisibility : function(uuid){
             let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
