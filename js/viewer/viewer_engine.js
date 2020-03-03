@@ -349,12 +349,11 @@ module.exports = function () {
 
             let {left, right} = feet_dimensions;
             
+            //TODO make a search scene for uuid function
             let mesh = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid))[0].response_object.obj;
 
             console.log("right here");
 
-            //TODO grab associated landmarks, check if lm0 lm27 exist, 
-            
             //Returns the coordinates of the landmark's tip
             const getLandmarkPoint = (mesh) =>{
                 let float_32_array = mesh.geometry.attributes.position.array;
@@ -380,7 +379,7 @@ module.exports = function () {
                 points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
                 points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
                 
-                //TODO The pt mesh point needs to be projected down onto the same Y axis plane as the
+                //TODO The pt mesh point needs to be projected down onto the same Y axis plane as the flcp point
 
                 let material = new THREE.LineBasicMaterial({
                     color: 0xffa500

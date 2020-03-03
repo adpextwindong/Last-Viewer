@@ -260,6 +260,11 @@ export default {
             });
 
             this.loading = false;
+            // TODO refactor this so that the loadGraphlist maintains uuid indexes for everything in a straightforward table.
+            // Everything in threejs iirc is given a uuid once on load time and traversing the table everytime to lookup a uuid is wasteful.
+            // Not that the tree is huge currently but caching the uuids in a dict would be O(1) access.
+
+            // Landmarks also need to be stored alongside too I guess.
             this.loaderGraphsSetter(loadGraphList);
             this.$router.push('engine');
         },
