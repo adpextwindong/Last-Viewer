@@ -373,18 +373,14 @@ module.exports = function () {
 
             //TODO refactor scene landmarks to be indexed by uuid then lm#
             if("0" in this.__scene_landmarks && "27" in this.__scene_landmarks){
-                console.log(this.__scene_landmarks["0"]);
-                console.log(this.__scene_landmarks["27"]);
-
                 let pt_mesh = this.__scene_landmarks["0"];
                 let foot_length_cp_mesh = this.__scene_landmarks["27"];
-
-                // console.log(getLandmarkPoint(pt_mesh));
-                // console.log(getLandmarkPoint(foot_length_cp_mesh));
 
                 let points = [];
                 points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
                 points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
+                
+                //TODO The pt mesh point needs to be projected down onto the same Y axis plane as the
 
                 let material = new THREE.LineBasicMaterial({
                     color: 0xffa500
@@ -392,7 +388,7 @@ module.exports = function () {
                 let geometry = new THREE.BufferGeometry().setFromPoints(points);
                 let line = new THREE.Line(geometry, material);
 
-                //TODO Fix this
+                //TODO add a lines layer
                 line.layers.set(LAYERS_LANDMARKS);
                 mesh.add(line);
 
