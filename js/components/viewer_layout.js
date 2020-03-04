@@ -91,7 +91,7 @@ module.exports = {
     `,
 
     //This is a hack around the router
-    props :  ['loadGraphsGetter'],
+    props :  ['loadTreesGetter'],
 
     //It might be easier for a control object for each component to be generated that contains closures for each thing
     //instead of vbinding everything. Ofc theres no compile time guarentee that the controls match up.
@@ -131,19 +131,19 @@ module.exports = {
         next();
     },
 
-    //This is a hack around the parent owning the element & loadgraph list
+    //This is a hack around the parent owning the element & loadTree list
     //but is unable to watch the mounting of the v-if'd layout component.
     //Once the parent loads, it stashes this function.
     mounted() {
         //TODO refactor
-        //We need some sort of flush flag when the router goes elsewhere and comes back with a new loadgraph
+        //We need some sort of flush flag when the router goes elsewhere and comes back with a new loadTree
         //If they go to the settings menu or something it shouldnt flush a warm scene in the background.
-        loadGraphs = this.loadGraphsGetter();
-        if(loadGraphs !== undefined){
+        loadTrees = this.loadTreesGetter();
+        if(loadTrees !== undefined){
             nav = document.querySelector("#router_nav");
             nav.classList.add("hide_me");
 
-            this.launchViewer(this.$root.$el, loadGraphs);
+            this.launchViewer(this.$root.$el, loadTrees);
             // if(appViewer.__shutdown_still_warm){
             //     //scrap the old stuff
                 
@@ -202,8 +202,9 @@ module.exports = {
            });
     },
     methods: {
-        launchViewer(target_element, processed_loadGraphList) {
-            this.__grabLandmarks(processed_loadGraphList);
+        launchViewer(target_element, processed_loadTreeList) {
+            //TODO RESOURCE REFACTOR 3/4/20
+            this.__grabLandmarks(processed_loadTreeList);
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
             let viewer_component_event_handle = function (event_name, ...args){
@@ -211,16 +212,16 @@ module.exports = {
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
             };
 
-            appViewer.init(target_element, viewer_component_event_handle, processed_loadGraphList);
+            appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList);
 
             //EVENTS
-            this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
+            this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
 
             //CRITICAL EVENT LAYER
-            //This is the event handler that queries the loadGraphList for updates on the scene graph model.
+            //This is the event handler that queries the loadTreeList for updates on the scene graph model.
             this.$on('viewer_scene_graph_change', function(){
                 console.log("Scene Graph change recieved");
-                this.$set(this, 'scene_graph_representation', processed_loadGraphList.map(g=> g.buildGraphRepresentationModel()));
+                this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
             });
 
             this.$on('scene_graph_component_remove_uuid_request', function(uuid){
@@ -253,6 +254,8 @@ module.exports = {
             this.menu_wrapper_closer_el = document.querySelector("#wrapper_closer");
         },
 
+
+        //TODO RESOURCE REFACTOR 3/4/20
         __initLandmarkTexts(parent_key, text){
             this.$set(this.landmarks, parent_key, []);
             //Parses the obj textfile for the landmark descriptions and group names.
@@ -277,20 +280,27 @@ module.exports = {
                 };
                 // console.log(lm.description);
                 // console.log(lm.group_name);
+
+
                 this.landmarks[parent_key].push(lm);
             });   
         },
-        __grabLandmarks(processed_loadGraphList){
-            const addLandmarks = graph => {
-                let {text, obj} = graph.response_object;
+        
+        
+        //TODO RESOURCE REFACTOR 3/4/20
+        __grabLandmarks(processed_loadTreeList){
+            const addLandmarks = tree_node => {
+                let {text, obj} = tree_node.response_object;
                 this.__initLandmarkTexts(obj["name"],text);
-                if(graph.overlay_children){
-                    graph.overlay_children.forEach(child => {
+                
+                if(tree_node.overlay_children){
+                    tree_node.overlay_children.forEach(child => {
                         addLandmarks(child);
                     })
                 }
             }
-            processed_loadGraphList.forEach(g => addLandmarks(g));
+
+            processed_loadTreeList.forEach(t => addLandmarks(t));
         },
 
         //Engine controls for the data display control panel.

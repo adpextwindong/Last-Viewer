@@ -29,11 +29,24 @@ module.exports = function () {
 
             this.fire_event_to_component = component_event_emitter;
             this.target_element = target_element;
-
+            
             //SCENE
-            this.__processed_loadGraphList = processed_loadGraphList;
-            this.objs = processed_loadGraphList.map(g => g.response_object.obj);
             this.scene = new THREE.Scene();
+
+
+            /////
+            /////   REFACTOR
+            /////
+            
+
+            //TODO RESOURCE REFACTOR 3/4/20
+            this.__processed_loadGraphList = processed_loadGraphList;
+
+
+            //TODO RESOURCE REFACTOR 3/4/20
+            this.objs = processed_loadGraphList.map(g => g.response_object.obj);
+
+            //TODO RESOURCE REFACTOR 3/4/20
             this.objs.forEach(o => {
                 this.scene.add( o );
             });
@@ -55,10 +68,19 @@ module.exports = function () {
             //This will need a major refactor for now as it relies on checking the parent uuid to see who it belongs to.
             this.__scene_landmarks = landmark_dict;
 
-            
-
             this.__manager_init();
-            
+
+            //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
+            if(processed_loadGraphList.every(g => g.config === undefined)){
+                console.log("defaulting positions and rotations")
+                this.__setDefaultOrientations();
+            }
+
+            /////
+            /////   REFACTOR
+            /////
+
+
             // CAMERA
             screen_height = window.innerWidth;
             screen_width  = window.innerHeight;
@@ -77,11 +99,7 @@ module.exports = function () {
             this.camera.layers.enable(2);
             
 
-            //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
-            if(processed_loadGraphList.every(g => g.config === undefined)){
-                console.log("defaulting positions and rotations")
-                this.__setDefaultOrientations();
-            }
+
             
             //THREEJS HELPERS
             var axesHelper = new THREE.AxesHelper( 1000 );
@@ -96,27 +114,35 @@ module.exports = function () {
             this.renderer = new THREE.WebGLRenderer( {antialias: CONFIG.ANTI_ALIASING, alpha : CONFIG.ALPHA});
             this.renderer.setSize( screen_width, screen_height );
            
-            //THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
             // CONTROLS
             this.controls = new TrackballControls( this.camera, this.renderer.domElement );
             this.controls.maxDistance = CONFIG.MAX_DISTANCE;
             
+            // 
             // EVENTS
+            //
             THREEx.ResizeForWidthOffset(this.renderer, this.camera, target_element, this.controls);
 
             this.__appendRendererToDom();
             //Trigger resize so the canvas is laid out correctly on the first viewing of the page.
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
-
-            //
-            // Object Picking Events
-            //
-
+            
             //TODO REFACTOR Picking should be done with GPU if landmark lines/points are to be supported
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
+            this.__bindMouseEngineEvents();
 
+            //
+            //HOTFIX SECTION
+            //
+            //AxesHelper 
+            this.___HOTFIX_axesHelperVisibility();
+        },
+
+        __bindMouseEngineEvents: function()
+        {
+            // Binds engine events such as click handlers for the mouse leftclick and context menu, mouse position
 
             //These bindings should be seperated from Mobile client bindings.
             this.__state_current_mouse_handler = function(e){
@@ -163,11 +189,6 @@ module.exports = function () {
                 // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
                 // this.pickHelper.clearPickPosition.bind(this.pickHelper);
             });
-
-
-            //HOTFIX SECTION
-            //AxesHelper 
-            this.___HOTFIX_axesHelperVisibility();
         },
 
         //TODO change this RAF architecture to not redraw unless a change in the scene happens.
@@ -251,6 +272,7 @@ module.exports = function () {
             }
         },
 
+        //TODO RESOURCE REFACTOR 3/4/20
         __setDefaultOrientations: function(){
             let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
                 o.children[0].geometry.computeBoundingBox();
@@ -258,6 +280,22 @@ module.exports = function () {
             }).map(v => v.x));
 
             //Position the foot objs across the X axis in a distributed manner.
+
+            // TODO Refactor candidate
+
+            // let max_mesh_width = Math.max.apply(Math, this.manager.mapOverTopObjs(o =>{
+            //     o.children[0].geometry.computeBoundingBox();
+            //     return o.children[0].geometry.boundingBox.getSize();
+            // }).map(v => v.x));
+
+            // this.manager.forEachTopObjs((obj, index, array) => {
+            //     obj.position.set(((-max_mesh_width* array.length)/2) + index*max_mesh_width, -50, -50);
+                
+            //     obj.rotation.set(CONFIG.DEFAULT_ROTATION_X,
+            //         CONFIG.DEFAULT_ROTATION_Y,
+            //         CONFIG.DEFAULT_ROTATION_Z);
+            // });
+
             for(let i = 0; i < this.objs.length; i++){
                 this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
                 
@@ -350,6 +388,7 @@ module.exports = function () {
             let {left, right} = feet_dimensions;
             
             //TODO make a search scene for uuid function
+            //TODO RESOURCE REFACTOR 3/4/20
             let mesh = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid))[0].response_object.obj;
 
             console.log("right here");
@@ -389,11 +428,14 @@ module.exports = function () {
 
                 //TODO add a lines layer
                 line.layers.set(LAYERS_LANDMARKS);
+
+                //TODO RESOURCE REFACTOR 3/4/20
                 mesh.add(line);
 
             }
         },
         manager_toggleVisibility : function(uuid){
+            //TODO RESOURCE REFACTOR 3/4/20
             let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
             const toggleSelfAndFirstChild = o => {
                 obj = o.getTHREEObj();
@@ -438,6 +480,7 @@ module.exports = function () {
 
             //Some Groups don't have a visibility option
 
+            //TODO RESOURCE REFACTOR 3/4/20
             this.__processed_loadGraphList.forEach(g => bind_engine_watchers(g));
 
             //On removal we should stash the obj into a lookup table with the paths so they can be hotswapped back in potentially.
@@ -446,6 +489,7 @@ module.exports = function () {
             //This would of course require a menu interface for selecting a new scan.
         },
 
+        //TODO RESOURCE REFACTOR 3/4/20
         manager_removeUUID : function(uuid){
             const isTopLevelObj = uuid => this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
             
@@ -454,6 +498,7 @@ module.exports = function () {
                 this.scene.remove(removed[0]);
             }
 
+            //TODO RESOURCE REFACTOR 3/4/20
             let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
             xs.forEach(o => {
                 this.scene.remove(o.getTHREEObj());

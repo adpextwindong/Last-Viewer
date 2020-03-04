@@ -16,12 +16,12 @@ Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hie
 const CONFIG = require("./config");
 
 //TODO we might need VueX at this rate this is really dirty
-var initialLoadGraphs;
-let setInitialLoadGraph = function(graphs) {
-    initialLoadGraphs = graphs;
+var initialLoadTrees;
+let setInitialLoadTrees = function(trees) {
+    initialLoadTrees = trees;
 }
-let getInitialLoadGraphs = function(graphs) {
-    return initialLoadGraphs;
+let getInitialLoadTrees = function(trees) {
+    return initialLoadTrees;
 }
 
 var app = new Vue({
@@ -34,9 +34,9 @@ var app = new Vue({
     },
     router : new VueRouter({
         routes: [
-            { path: '/', component: Scan_Selector, props: {loaderGraphsSetter : setInitialLoadGraph}},
+            { path: '/', component: Scan_Selector, props: {loaderTreesSetter : setInitialLoadTrees}},
             { path: '/settings', component: Settings_Menu},
-            { path: '/engine', component: Viewer, props: {loadGraphsGetter : getInitialLoadGraphs}},
+            { path: '/engine', component: Viewer, props: {loadTreesGetter : getInitialLoadTrees}},
         ],
         base: __dirname,
     }),

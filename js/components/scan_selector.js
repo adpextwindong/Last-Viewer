@@ -1,9 +1,9 @@
-const LoadGraph = require('../loader/load_graph_helper');
+const LoadTree = require('../loader/load_tree_helper');
 
 //Careful theres no validation on this
-const LoadGraphFromObject = (o) => {
-    let children = o.overlay_children ? o.overlay_children.map(LoadGraphFromObject) : undefined;
-    return new LoadGraph(o.name, o.path, o.type, children, o.config);
+const LoadTreeFromObject = (o) => {
+    let children = o.overlay_children ? o.overlay_children.map(LoadTreeFromObject) : undefined;
+    return new LoadTree(o.name, o.path, o.type, children, o.config);
 }
 
 var OBJLoader = require('../../lib/vendor/three_loader_custom');
@@ -49,7 +49,7 @@ export default {
             <div>
                 <span>{{t('Overlay Scene Graph Viewer')}}:</span>
                 <li v-for="scheme in existing_load_schemes">
-                    <button type="button" v-on:click="loadGraphViewer(scheme)">{{scheme}}</button>
+                    <button type="button" v-on:click="LoadTreeViewer(scheme)">{{scheme}}</button>
                 </li>						
             </div>
 
@@ -63,7 +63,7 @@ export default {
 
     </div>
     `,
-    props: ['loaderGraphsSetter'],
+    props: ['loaderTreesSetter'],
     name: 'scan_selector',
     mounted : function() {
         if(typeof REQUEST_METADATA !== "undefined"){
@@ -84,7 +84,7 @@ export default {
             e.preventDefault();
         },false);
     },
-    //We need some sort of handle to loadViewer or loadGraphViewer and the router
+    //We need some sort of handle to loadViewer or LoadTreeViewer and the router
     data() {
         return {
         //TODO make this actually point to fetched scans
@@ -215,27 +215,27 @@ export default {
             // console.log(url_left);
             // console.log(url_right);
             
-            let loadGraphList = [new LoadGraph("Left", url_left.href, "FOOT"),
-                                    new LoadGraph("Right", url_right.href, "FOOT")];
+            let LoadTreeList = [new LoadTree("Left", url_left.href, "FOOT"),
+                                    new LoadTree("Right", url_right.href, "FOOT")];
 
-            this.loadGraphViewer(loadGraphList);
+            this.LoadTreeViewer(LoadTreeList);
 
         },
         async loadViewer (scan_paths, insole_paths) {
-            let loadGraphList = [];
+            let LoadTreeList = [];
 
             scan_paths.forEach((path, index) => {
-                loadGraphList.push(new LoadGraph( "foot" + index , path, "FOOT"));
+                LoadTreeList.push(new LoadTree( "foot" + index , path, "FOOT"));
             })
             insole_paths.forEach((path, index) => {
-                loadGraphList.push(new LoadGraph( "insole" + index , path, "INSOLE"));
+                LoadTreeList.push(new LoadTree( "insole" + index , path, "INSOLE"));
             })
 
-            this.loadGraphViewer(loadGraphList);
+            this.LoadTreeViewer(LoadTreeList);
         },
 
-        async loadGraphViewer (loadGraphListRawObject) {
-            let loadGraphList = loadGraphListRawObject.map(LoadGraphFromObject);
+        async LoadTreeViewer (LoadTreeListRawObject) {
+            let LoadTreeList = LoadTreeListRawObject.map(LoadTreeFromObject);
 
             console.log("now loading...");
             this.loading = true;
@@ -244,28 +244,29 @@ export default {
             //TODO this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial
             var loader = new THREE.OBJLoader();
             
-            loadGraphList.forEach(loadGraph => loadGraph.startLoadOBJS(loader));
-            while(loadGraphList.some(g => g.notLoaded())){
+            LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));
+            while(LoadTreeList.some(g => g.notLoaded())){
                 await sleep(100);
-                loadGraphList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
+                LoadTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
             }
 
-            this.stitchAndStartEngine(loadGraphList);
+            this.stitchAndStartEngine(LoadTreeList);
         },
 
-        stitchAndStartEngine(loadGraphList){
-            loadGraphList.forEach(g => {
+        stitchAndStartEngine(LoadTreeList){
+            LoadTreeList.forEach(g => {
                 g.stitchSceneGraph();
                 g.applyConfig();
             });
 
             this.loading = false;
-            // TODO refactor this so that the loadGraphlist maintains uuid indexes for everything in a straightforward table.
+            //TODO RESOURCE REFACTOR 3/4/20
+            // TODO refactor this so that the LoadTreelist maintains uuid indexes for everything in a straightforward table.
             // Everything in threejs iirc is given a uuid once on load time and traversing the table everytime to lookup a uuid is wasteful.
             // Not that the tree is huge currently but caching the uuids in a dict would be O(1) access.
 
             // Landmarks also need to be stored alongside too I guess.
-            this.loaderGraphsSetter(loadGraphList);
+            this.loaderTreesSetter(LoadTreeList);
             this.$router.push('engine');
         },
 
@@ -300,10 +301,10 @@ export default {
 
             const texts = await Promise.all(obj_promises.map(o => o.text_p));
             const response_objects = texts.map(txt => loader.parse(txt));
-            const loadGraphList = response_objects.map((o,i) => new LoadGraph(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));
+            const LoadTreeList = response_objects.map((o,i) => new LoadTree(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));
             console.log("parsed all");
 
-            this.stitchAndStartEngine(loadGraphList);
+            this.stitchAndStartEngine(LoadTreeList);
           }
     }
 }
