@@ -36,5 +36,8 @@ module.exports = {
     viewer_light4_luminosity : 0.5,
 
     AMBIENT_LIGHT_COLOR : 0x404040,
+
+    LAYERS_SCANS : 1,
+    LAYERS_LANDMARKS : 2
     
 }

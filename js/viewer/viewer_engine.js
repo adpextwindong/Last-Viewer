@@ -1,7 +1,5 @@
 var THREE = require('three');
 var TrackballControls = require('three-trackballcontrols');
-var LIGHTS = require('./lights.js');
-
 var THREEx		= THREEx 		|| {};
 var _THREEX_KEYBOARD = require("../../lib/vendor/THREEx.KeyboardState");
 _THREEX_KEYBOARD(THREEx);
@@ -9,14 +7,13 @@ var _THREEX_RESIZE = require("../../lib/vendor/THREEx.WindowResize");
 _THREEX_RESIZE(THREEx);
 
 var keyboard = new THREEx.KeyboardState();
-const PickHelper = require('./pick_helper.js');
 
-const CONFIG = require("../config");
-const MOBILE_UTILS = require('./mobile_utils.js');
-
-const LAYERS_SCANS = 1;
-const LAYERS_LANDMARKS = 2;
-
+const CONFIG = require("../config"),
+      MOBILE_UTILS = require('./mobile_utils.js'),
+      LIGHTS = require('./lights.js'),
+      PickHelper = require('./pick_helper.js'),
+      ResourceManager = require("./resource_manager");
+   
 module.exports = function () {
     return {
         //function to emit event to the containing Vue component
@@ -33,54 +30,8 @@ module.exports = function () {
             //SCENE
             this.scene = new THREE.Scene();
 
-
-            /////
-            /////   REFACTOR
-            /////
+            this.manager = new ResourceManager(this.scene, processed_loadGraphList);
             
-
-            //TODO RESOURCE REFACTOR 3/4/20
-            this.__processed_loadGraphList = processed_loadGraphList;
-
-
-            //TODO RESOURCE REFACTOR 3/4/20
-            this.objs = processed_loadGraphList.map(g => g.response_object.obj);
-
-            //TODO RESOURCE REFACTOR 3/4/20
-            this.objs.forEach(o => {
-                this.scene.add( o );
-            });
-
-            let allMeshs = this.objs.flatMap(o => o.children);
-            // allMeshs.forEach(o => o.layers.enable(0));
-            allMeshs.filter(o => !o.name.includes("landmark")).forEach(o => o.layers.set(LAYERS_SCANS));
-
-            let allLandmarkMeshes = allMeshs.filter(o => o.name.includes("landmark"));
-            allLandmarkMeshes.forEach(o => o.layers.set(LAYERS_LANDMARKS));
-
-            let landmark_dict = {};
-            allLandmarkMeshes.forEach(mesh => {
-                let lm_ind = mesh.name.split("landmark_")[1];
-                landmark_dict[lm_ind] = mesh;
-            });
-            console.log(landmark_dict);
-
-            //This will need a major refactor for now as it relies on checking the parent uuid to see who it belongs to.
-            this.__scene_landmarks = landmark_dict;
-
-            this.__manager_init();
-
-            //if there are no configs on the top levels then we'll default to spreading them out in a distributed fashion
-            if(processed_loadGraphList.every(g => g.config === undefined)){
-                console.log("defaulting positions and rotations")
-                this.__setDefaultOrientations();
-            }
-
-            /////
-            /////   REFACTOR
-            /////
-
-
             // CAMERA
             screen_height = window.innerWidth;
             screen_width  = window.innerHeight;
@@ -95,11 +46,8 @@ module.exports = function () {
             this.camera.position.set(0, 0, 500);
             this.camera.lookAt(this.scene.position);
             this.camera.layers.enable(0);
-            this.camera.layers.enable(1);
-            this.camera.layers.enable(2);
-            
-
-
+            this.camera.layers.enable(CONFIG.LAYERS_SCANS);
+            this.camera.layers.enable(CONFIG.LAYERS_LANDMARKS);
             
             //THREEJS HELPERS
             var axesHelper = new THREE.AxesHelper( 1000 );
@@ -272,38 +220,7 @@ module.exports = function () {
             }
         },
 
-        //TODO RESOURCE REFACTOR 3/4/20
-        __setDefaultOrientations: function(){
-            let max_mesh_width = Math.max.apply(Math, this.objs.map(o =>{
-                o.children[0].geometry.computeBoundingBox();
-                return o.children[0].geometry.boundingBox.getSize();
-            }).map(v => v.x));
 
-            //Position the foot objs across the X axis in a distributed manner.
-
-            // TODO Refactor candidate
-
-            // let max_mesh_width = Math.max.apply(Math, this.manager.mapOverTopObjs(o =>{
-            //     o.children[0].geometry.computeBoundingBox();
-            //     return o.children[0].geometry.boundingBox.getSize();
-            // }).map(v => v.x));
-
-            // this.manager.forEachTopObjs((obj, index, array) => {
-            //     obj.position.set(((-max_mesh_width* array.length)/2) + index*max_mesh_width, -50, -50);
-                
-            //     obj.rotation.set(CONFIG.DEFAULT_ROTATION_X,
-            //         CONFIG.DEFAULT_ROTATION_Y,
-            //         CONFIG.DEFAULT_ROTATION_Z);
-            // });
-
-            for(let i = 0; i < this.objs.length; i++){
-                this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
-                
-                this.objs[i].rotation.set(CONFIG.DEFAULT_ROTATION_X,
-                    CONFIG.DEFAULT_ROTATION_Y,
-                    CONFIG.DEFAULT_ROTATION_Z);
-            }
-        },
         
         //External facing functions for controling the scene from the viewer layout Vue component.
         resetCamera: function (){
@@ -358,7 +275,7 @@ module.exports = function () {
         
 
         hideLandmarks : function() {
-            this.camera.layers.toggle(LAYERS_LANDMARKS);
+            this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
         },
 
         //
@@ -371,7 +288,7 @@ module.exports = function () {
             // The axes helper has an issue with being invisible on the first draw for some reason.
             // Don't know why threejs will draw it after a visibility toggle so hopefully this hotfix is enough for now.
             const toggleAll = () => {
-                this.objs.map(o => o.uuid).forEach(uuid => this.manager_toggleVisibility(uuid));
+                this.manager.mapOverTopObjs(o => this.manager.toggleVisibility(o.uuid));
             }
 
             toggleAll();
@@ -379,139 +296,18 @@ module.exports = function () {
             toggleAll();
             this.__render();
         },
-        manager_addDimensionData(uuid, feet_dimensions){
-            //TODO process the parsed dimensions for measurement meshes
-            // we can generate and add to the mesh group
 
-            // At first we should try the Pternion to "Foot length point Pternion-CP axis" lm0 lm27 axis along the bottom of the foot
 
-            let {left, right} = feet_dimensions;
-            
-            //TODO make a search scene for uuid function
-            //TODO RESOURCE REFACTOR 3/4/20
-            let mesh = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid))[0].response_object.obj;
-
-            console.log("right here");
-
-            //Returns the coordinates of the landmark's tip
-            const getLandmarkPoint = (mesh) =>{
-                let float_32_array = mesh.geometry.attributes.position.array;
-
-                //18 faces get laid out in an array with the last 3 refering to the 5th point, the tip.
-                // f 1// 3// 2//
-                // f 1// 4// 3//
-                // f 1// 5// 4//
-                // f 1// 2// 5//
-                // f 2// 3// 4//
-                // f 2// 4// 5//
-
-                let ind = 17*3;
-                return [float_32_array[0], float_32_array[1], float_32_array[2]];
-            };
-
-            //TODO refactor scene landmarks to be indexed by uuid then lm#
-            if("0" in this.__scene_landmarks && "27" in this.__scene_landmarks){
-                let pt_mesh = this.__scene_landmarks["0"];
-                let foot_length_cp_mesh = this.__scene_landmarks["27"];
-
-                let points = [];
-                points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
-                points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
-                
-                //TODO The pt mesh point needs to be projected down onto the same Y axis plane as the flcp point
-
-                let material = new THREE.LineBasicMaterial({
-                    color: 0xffa500
-                });
-                let geometry = new THREE.BufferGeometry().setFromPoints(points);
-                let line = new THREE.Line(geometry, material);
-
-                //TODO add a lines layer
-                line.layers.set(LAYERS_LANDMARKS);
-
-                //TODO RESOURCE REFACTOR 3/4/20
-                mesh.add(line);
-
-            }
-        },
-        manager_toggleVisibility : function(uuid){
-            //TODO RESOURCE REFACTOR 3/4/20
-            let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
-            const toggleSelfAndFirstChild = o => {
-                obj = o.getTHREEObj();
-
-                if(obj.visible !== undefined){
-                    obj.visible = !obj.visible;
-                }
-                if(obj.type === "Group"){
-                    //TODO BUGFIX This line triggers the axes helper to be visible after a toggle for some reason.
-                    obj.children[0].visible = !obj.children[0].visible;
-                    console.log("Toggling visibilty of ");
-                    console.log(obj.children[0]);
-                }
-            };
-
-            xs.forEach(toggleSelfAndFirstChild);
-
-            this.__manager_flush_change(true);
-        },
+        // TODO RESOURCE REFACTOR 3/4/20 not sure how to handle the flushing interface
 
         // CRITICAL EVENT LAYER
         // This handles telling the viewer layout to query for a new version of the scene graph model.
         __manager_flush_change : function(force=false){
             //Setters applied to managed items can set the flush flag to true
-            if(force || this.manager_flush_flag){
+            if(force || this.manager.flush_flag){
                 this.fire_event_to_component('viewer_scene_graph_change');
-                this.manager_flush_flag = false;
+                this.manager.flush_flag = false;
             }
-        },
-        __manager_init : function(){
-            this.manager_flush_flag = false;
-
-            //Set up setters that notify the engine about property changes that the scene_graph_hiearchy component wants to show
-            let engineScope = this;
-            const bind_engine_watchers = function(g) {
-                Object.defineProperty(g.response_object.obj, 'visible', {
-                    set: function(v){
-                        engineScope.manager_flush_flag = true;
-                    }
-                });
-            }
-
-            //Some Groups don't have a visibility option
-
-            //TODO RESOURCE REFACTOR 3/4/20
-            this.__processed_loadGraphList.forEach(g => bind_engine_watchers(g));
-
-            //On removal we should stash the obj into a lookup table with the paths so they can be hotswapped back in potentially.
-            //Now we just need a loading interface for the engine that add new graph/objs on the fly
-            //Then a right click interface that goes to the nearest parent instanceOf THREE.group and appends the desired thing
-            //This would of course require a menu interface for selecting a new scan.
-        },
-
-        //TODO RESOURCE REFACTOR 3/4/20
-        manager_removeUUID : function(uuid){
-            const isTopLevelObj = uuid => this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
-            
-            if(isTopLevelObj(uuid)){
-                let removed = this.objs.splice(this.objs.map(o => o.uuid).indexOf(uuid) ,1);
-                this.scene.remove(removed[0]);
-            }
-
-            //TODO RESOURCE REFACTOR 3/4/20
-            let xs = this.__processed_loadGraphList.flatMap(g => g.traverseForUUID(uuid));
-            xs.forEach(o => {
-                this.scene.remove(o.getTHREEObj());
-                if(o.parent){
-                    o.parent.getTHREEObj().remove(o.getTHREEObj());
-                    o.parent.removeChild(o);
-                }else{
-                    //Apparently its the top of the tree or something
-                    this.__processed_loadGraphList.splice(this.__processed_loadGraphList.indexOf(o), 1);
-                }
-            })
-
-            this.__manager_flush_change(true);
         },
 
         getIndexOfLowestVert(mesh, axis){

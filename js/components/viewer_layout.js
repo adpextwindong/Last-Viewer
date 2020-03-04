@@ -225,7 +225,7 @@ module.exports = {
             });
 
             this.$on('scene_graph_component_remove_uuid_request', function(uuid){
-                appViewer.manager_removeUUID(uuid);
+                appViewer.manager.removeUUID(uuid);
             });
 
             //TODO Refactor RAF loop
@@ -235,16 +235,16 @@ module.exports = {
             //Engine interface for controller components
             this.engine_interface = {
                 toggleVisibilityUUID : function(uuid){
-                    appViewer.manager_toggleVisibility(uuid);
+                    appViewer.manager.toggleVisibility(uuid);
                 },
-                //Used for children components to trigger appViewer manager_removeUUID
+                //Used for children components to trigger appViewer manager.removeUUID
                 emitRemoveUUIDRequest: function(uuid){
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
 
                 //TODO add xml data to UUID interface for drag/drop data.
                 addDimensionData : function(uuid, feet_dimensions){
-                    appViewer.manager_addDimensionData(uuid, feet_dimensions);
+                    appViewer.manager.addDimensionData(uuid, feet_dimensions);
                 }
             };
 
