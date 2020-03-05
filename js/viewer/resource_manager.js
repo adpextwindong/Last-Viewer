@@ -162,8 +162,9 @@ class ResourceManager {
             points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
             points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
             
-            //TODO The pt mesh point needs to be projected down onto the same Y axis plane as the flcp point
-
+            //Project PT point onto same Z plane as flcp point
+            points[0].setZ(points[1].z);
+            
             let material = new THREE.LineBasicMaterial({
                 color: 0xffa500
             });
