@@ -3,6 +3,15 @@
 
 const CONFIG = require("../config");
 
+function getValueOfLowestVert(mesh, axis){
+    let verts = mesh.geometry.attributes.position.array;
+    let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
+
+    let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
+    let min = Math.min(...filtered_verts);
+    return verts[verts.indexOf(min)];
+}
+
 class ResourceManager {
     constructor(scene, processed_loadTreeList){
         this.scene_ref = scene;
@@ -61,7 +70,7 @@ class ResourceManager {
         });
 
         if(processed_loadTreeList.every(g => g.config === undefined)){
-            console.log("defaulting positions and rotations")
+            console.log("defaulting positions and rotations");
             this.__setDefaultOrientations();
         }
 
@@ -163,8 +172,15 @@ class ResourceManager {
             points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
             
             //Project PT point onto same Z plane as flcp point
-            points[0].setZ(points[1].z);
+
+            //This could probably be adjusted to the lowest point along the mesh.
+            let val = getValueOfLowestVert(mesh.children[0], "Z");
+            // points[0].setZ(points[1].z);
+            points[0].setZ(val);
+            points[1].setZ(val);
             
+            //TODO now make the line be pickable/hoverable
+
             let material = new THREE.LineBasicMaterial({
                 color: 0xffa500
             });
