@@ -155,8 +155,8 @@ class ResourceManager {
 
         //TODO refactor scene landmarks to be indexed by uuid then lm#
         if("0" in this.scene_landmarks[mesh.uuid] && "27" in this.scene_landmarks[mesh.uuid]){
-            let pt_mesh = this.__scene_landmarks[mesh.uuid]["0"];
-            let foot_length_cp_mesh = this.__scene_landmarks[mesh.uuid]["27"];
+            let pt_mesh = this.scene_landmarks[mesh.uuid]["0"];
+            let foot_length_cp_mesh = this.scene_landmarks[mesh.uuid]["27"];
 
             let points = [];
             points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
