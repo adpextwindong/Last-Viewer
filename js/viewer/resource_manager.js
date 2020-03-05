@@ -171,7 +171,7 @@ class ResourceManager {
             let line = new THREE.Line(geometry, material);
 
             //TODO add a lines layer
-            line.layers.set(LAYERS_LANDMARKS);
+            line.layers.set(CONFIG.LAYERS_LANDMARKS);
 
             //TODO RESOURCE REFACTOR 3/4/20
             mesh.add(line);
