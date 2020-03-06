@@ -69,10 +69,14 @@ class ResourceManager {
             this.scene_landmark_by_uuids[mesh.uuid] = mesh;
         });
 
-        if(processed_loadTreeList.every(g => g.config === undefined)){
-            console.log("defaulting positions and rotations");
-            this.__setDefaultOrientations();
-        }
+        //TODO 3/5/20 Theres a bug with the plane code in addDimension and rotations. Not sure whats up yet
+
+        //Probably should just debug print out the mesh and the planehelper or something, the 3 coplanar points or something.
+
+        // if(processed_loadTreeList.every(g => g.config === undefined)){
+        //     console.log("defaulting positions and rotations");
+        //     this.__setDefaultOrientations();
+        // }
 
 
         
@@ -196,6 +200,87 @@ class ResourceManager {
 
             this.scene_uuids[line.uuid] = line;
 
+        }
+
+
+        //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane
+        //https://jsfiddle.net/8uxw667m/4/
+
+        if("25" in this.scene_landmarks[mesh.uuid] &&
+                "28" in this.scene_landmarks[mesh.uuid] &&
+                "29" in this.scene_landmarks[mesh.uuid]){
+            console.log("Time to make a plane.");
+
+            mesh.updateMatrixWorld(true);
+
+            let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
+            let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
+            let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
+
+            highest_point_ball_girth = highest_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+            most_medial_point_ball_girth = most_medial_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+            most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+
+            let intersection_plane = new THREE.Plane();
+        
+            intersection_plane.setFromCoplanarPoints(highest_point_ball_girth, 
+                                                        most_medial_point_ball_girth,
+                                                        most_lateral_point_ball_girth);
+
+            let plane_helper = new THREE.PlaneHelper(intersection_plane, 1000, 0xffc0cb);
+                        
+            mesh.add(plane_helper);
+
+            if(mesh instanceof THREE.Group){
+                let obj = mesh.children[0];
+
+                var a = new THREE.Vector3(),
+                    b = new THREE.Vector3(),
+                    c = new THREE.Vector3();
+
+                var lineAB = new THREE.Line3(),
+                    lineBC = new THREE.Line3(),
+                    lineCA = new THREE.Line3();
+
+                var pointsOfIntersection = new THREE.Geometry();
+                var pointOfIntersection = new THREE.Vector3();
+
+                let setPointOfIntersection = function(line, plane){
+                    let tempVec = new THREE.Vector3();
+                    pointOfIntersection = plane.intersectLine(line,tempVec);
+                    if(pointOfIntersection){
+                        pointsOfIntersection.vertices.push(tempVec.clone());
+                    }
+                };
+                let geometry = (new THREE.Geometry()).fromBufferGeometry(obj.geometry);
+                geometry.faces.forEach(function(face){
+                    obj.localToWorld(a.copy(geometry.vertices[face.a]));
+                    obj.localToWorld(b.copy(geometry.vertices[face.b]));
+                    obj.localToWorld(c.copy(geometry.vertices[face.c]));
+
+                    lineAB = new THREE.Line3(a, b);
+                    lineBC = new THREE.Line3(b, c);
+                    lineCA = new THREE.Line3(c, a);
+
+                    setPointOfIntersection(lineAB, intersection_plane);
+                    setPointOfIntersection(lineBC, intersection_plane);
+                    setPointOfIntersection(lineCA, intersection_plane);
+                });
+
+                var pointsMaterial = new THREE.PointsMaterial({
+                    size: .5,
+                    color: "blue"
+                  });
+
+                var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
+                // this.scene_ref.add(points);
+                // 0x9932CC
+                // 0xffa500
+                var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
+                var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
+                this.scene_ref.add( line );
+            }
+            
         }
     }
 
