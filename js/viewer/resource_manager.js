@@ -229,10 +229,7 @@ class ResourceManager {
                 intersection_plane.setFromCoplanarPoints(highest_point_ball_girth, 
                                                             most_medial_point_ball_girth,
                                                             most_lateral_point_ball_girth);
-
-                // let plane_helper = new THREE.PlaneHelper(intersection_plane, 1000, 0xffc0cb);
-                // this.scene_ref.add(plane_helper);
-                
+               
                 if(mesh instanceof THREE.Group){
                     let obj = mesh.children[0];
 
@@ -276,15 +273,10 @@ class ResourceManager {
 
                     var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
                     
-                    // 0x9932CC
-                    // 0xffa500
-                    console.log("REEE");
-                    console.log(pointsOfIntersection);
                     var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
                     var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
                     
                     mesh.add( line );
-                    // this.scene_ref.add( line );
                 }
                 
             }
