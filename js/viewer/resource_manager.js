@@ -12,6 +12,13 @@ function getValueOfLowestVert(mesh, axis){
     return verts[verts.indexOf(min)];
 }
 
+//Returns the coordinates of the landmark's tip
+function getLandmarkPoint(landmark_mesh){
+    let float_32_array = landmark_mesh.geometry.attributes.position.array;
+
+    return [float_32_array[0], float_32_array[1], float_32_array[2]];
+};
+
 class ResourceManager {
     constructor(scene, processed_loadTreeList){
         this.scene_ref = scene;
@@ -43,7 +50,7 @@ class ResourceManager {
 
         this.objs.forEach(o => {
             this.scene_ref.add( o );
-
+            
             this.scene_uuids[o.uuid] = o;
             bind_engine_watchers(o);
         });
@@ -150,21 +157,7 @@ class ResourceManager {
 
         console.log("right here");
 
-        //Returns the coordinates of the landmark's tip
-        const getLandmarkPoint = (mesh) =>{
-            let float_32_array = mesh.geometry.attributes.position.array;
 
-            //18 faces get laid out in an array with the last 3 refering to the 5th point, the tip.
-            // f 1// 3// 2//
-            // f 1// 4// 3//
-            // f 1// 5// 4//
-            // f 1// 2// 5//
-            // f 2// 3// 4//
-            // f 2// 4// 5//
-
-            let ind = 17*3;
-            return [float_32_array[0], float_32_array[1], float_32_array[2]];
-        };
 
         //TODO refactor scene landmarks to be indexed by uuid then lm#
         if("0" in this.scene_landmarks[mesh.uuid] && "27" in this.scene_landmarks[mesh.uuid]){
