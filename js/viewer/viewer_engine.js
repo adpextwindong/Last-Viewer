@@ -80,12 +80,14 @@ module.exports = function () {
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
             this.__bindMouseEngineEvents();
-
+          
             //
             //HOTFIX SECTION
             //
             //AxesHelper 
             this.___HOTFIX_axesHelperVisibility();
+
+            //First render is performed by appViewer.animateLoop(); in viewer_layout
         },
 
         __bindMouseEngineEvents: function()

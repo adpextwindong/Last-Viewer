@@ -31,6 +31,8 @@ module.exports = {
     props: ['scene_graph_representation', 'engine_interface'],
     name: 'scene_graph_hiearchy',
     methods : {
+
+        //TODO handling should be moved elsewhere, its convient for debugging to do it drag&drop like this for now.
         //Handles parsing of an xml file for foot dimensions
         async xmlDataHandler(ev, scene_uuid){
             console.log('File(s) dropped');
@@ -67,7 +69,7 @@ module.exports = {
                     // console.log(leftDimensions);
                     // console.log(rightDimensions);
                     
-                    this.engine_interface.addDimensionData(scene_uuid, {left: leftDimensions, right: rightDimensions});
+                    this.engine_interface.addFootDimensionData(scene_uuid, {left: leftDimensions, right: rightDimensions});
                 });
 
             }

@@ -243,8 +243,8 @@ module.exports = {
                 }.bind(this),
 
                 //TODO add xml data to UUID interface for drag/drop data.
-                addDimensionData : function(uuid, feet_dimensions){
-                    appViewer.manager.addDimensionData(uuid, feet_dimensions);
+                addFootDimensionData : function(uuid, feet_dimensions){
+                    appViewer.manager.addFootDimensionData(uuid, feet_dimensions);
                 }
             };
 
