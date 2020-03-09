@@ -90,8 +90,8 @@ class ResourceManager {
 
         if(processed_loadTreeList.every(g => g.config === undefined)){
             //Distributed Positions
-            console.log("defaulting positions");
-            this.__setDefaultPositions();
+            // console.log("defaulting positions");
+            // this.__setDefaultPositions();
             //Rotations
             // console.log("defaulting rotations");
             // this.__setDefaultOrientations();
@@ -218,37 +218,20 @@ class ResourceManager {
                 let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
                 let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
 
-                // highest_point_ball_girth = highest_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-                // most_medial_point_ball_girth = most_medial_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-                // most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-
-                //Rotation Fix
-                let quat = new THREE.Quaternion();
-                mesh.getWorldQuaternion(quat);
+                mesh.updateMatrixWorld(true);
+                highest_point_ball_girth = highest_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+                most_medial_point_ball_girth = most_medial_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+                most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyMatrix4(mesh.matrixWorld);
             
-                // console.log("Applying quat fix");
-                // highest_point_ball_girth = highest_point_ball_girth.applyQuaternion(quat);
-                // most_medial_point_ball_girth = most_medial_point_ball_girth.applyQuaternion(quat);
-                // most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyQuaternion(quat);
-
-
-
                 let intersection_plane = new THREE.Plane();
-                let inverted_matrix = new THREE.Matrix4();
-                inverted_matrix.copy(mesh.matrixWorld);
-                inverted_matrix.getInverse(inverted_matrix);
                 
                 intersection_plane.setFromCoplanarPoints(highest_point_ball_girth, 
                                                             most_medial_point_ball_girth,
                                                             most_lateral_point_ball_girth);
 
-                // intersection_plane.applyMatrix4(mesh.matrixWorld);
-                // intersection_plane.applyMatrix4(inverted_matrix);
-
                 let plane_helper = new THREE.PlaneHelper(intersection_plane, 1000, 0xffc0cb);
-                // plane_helper.applyMatrix4(inverted_matrix);
-                // this.scene_ref.add(plane_helper);
-
+                this.scene_ref.add(plane_helper);
+                
                 if(mesh instanceof THREE.Group){
                     let obj = mesh.children[0];
 
@@ -298,6 +281,7 @@ class ResourceManager {
                     console.log(pointsOfIntersection);
                     var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
                     var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
+                    
                     mesh.add( line );
                     // this.scene_ref.add( line );
                 }
