@@ -89,12 +89,13 @@ class ResourceManager {
         //Probably should just debug print out the mesh and the planehelper or something, the 3 coplanar points or something.
 
         if(processed_loadTreeList.every(g => g.config === undefined)){
-            //Distributed Positions
-            // console.log("defaulting positions");
-            // this.__setDefaultPositions();
-            //Rotations
-            // console.log("defaulting rotations");
-            // this.__setDefaultOrientations();
+            // Distributed Positions
+            console.log("defaulting positions");
+            this.__setDefaultPositions();
+            // Rotations
+            console.log("defaulting rotations");
+            this.__setDefaultOrientations();
+
         }
 
 
@@ -229,8 +230,8 @@ class ResourceManager {
                                                             most_medial_point_ball_girth,
                                                             most_lateral_point_ball_girth);
 
-                let plane_helper = new THREE.PlaneHelper(intersection_plane, 1000, 0xffc0cb);
-                this.scene_ref.add(plane_helper);
+                // let plane_helper = new THREE.PlaneHelper(intersection_plane, 1000, 0xffc0cb);
+                // this.scene_ref.add(plane_helper);
                 
                 if(mesh instanceof THREE.Group){
                     let obj = mesh.children[0];
