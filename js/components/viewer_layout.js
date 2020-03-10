@@ -105,6 +105,9 @@ module.exports = {
             //Refactor for multi objs
             landmarks : {},
 
+            //TODO Vuex refactor context menus to make this more declarative
+            //If we had a feature like landmark highlighting for contextual measurments (Ball girth length, circumference, etc)
+            //Menus like the side detail menu might want to hide things.
             landmark_highlighted : false,
             landmark_highlighted_name : "",
             landmark_list_visible : true,
