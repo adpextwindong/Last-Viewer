@@ -84,10 +84,7 @@ class ResourceManager {
         this.objs.forEach(o => {
             this.addMeasurementDataMeshes(o.uuid);
         });
-        //TODO 3/5/20 Theres a bug with the plane code in addDimension and rotations. Not sure whats up yet
-
-        //Probably should just debug print out the mesh and the planehelper or something, the 3 coplanar points or something.
-
+        
         if(processed_loadTreeList.every(g => g.config === undefined)){
             // Distributed Positions
             console.log("defaulting positions");
@@ -147,7 +144,6 @@ class ResourceManager {
                 obj.visible = !obj.visible;
             }
             if(obj.type === "Group"){
-                //TODO BUGFIX This line triggers the axes helper to be visible after a toggle for some reason.
                 obj.children[0].visible = !obj.children[0].visible;
                 console.log("Toggling visibilty of ");
                 console.log(obj.children[0]);
@@ -161,12 +157,9 @@ class ResourceManager {
 
     addFootDimensionData(uuid, feet_dimensions){
         let {left, right} = feet_dimensions;
-        //TODO add UI divs for feet dimensions on hover, etc.
+        //TODO REFACTOR VUEX add UI divs for feet dimensions on hover, etc.
     }
     addMeasurementDataMeshes(uuid){
-        //TODO process the parsed dimensions for measurement meshes
-        // we can generate and add to the mesh group
-        
         let mesh = this.scene_uuids[uuid];
 
         //Foot Length procedure using Pternion and Foot Length point Pternion-CP axis landmarks
@@ -313,7 +306,6 @@ class ResourceManager {
             }
         })
 
-        //TODO add caching for later reuse.
         this.flush_flag = true;
     }
 }

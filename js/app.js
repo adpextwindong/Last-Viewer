@@ -15,7 +15,7 @@ Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hie
 
 const CONFIG = require("./config");
 
-//TODO we might need VueX at this rate this is really dirty
+//TODO REFACTOR VUEX (this is really dirty)
 var initialLoadTrees;
 let setInitialLoadTrees = function(trees) {
     initialLoadTrees = trees;

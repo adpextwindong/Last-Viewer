@@ -1,5 +1,5 @@
 module.exports = {
-    //TODO make this a utility that parses a json file at runtime so we dont have to recompile.
+    //TODO REFACTOR RUNTIME CONFIGURATION (make this a utility that parses a json file at runtime so we dont have to recompile.)
     ///
     /// APP
     ///

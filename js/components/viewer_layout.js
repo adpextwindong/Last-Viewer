@@ -14,7 +14,7 @@ const CONFIG = require("../config");
 
 module.exports = {
     mixins: [ vueclickaway.mixin ],
-    //TODO locales
+  
     locales : {
         en: {
 
@@ -24,7 +24,7 @@ module.exports = {
             'Return to home':'ホームに戻る',
             'Reset Camera': 'カメラをリセット',
             'Top View': '上からのビュー'
-            //TODO view translations
+            //TODO REMAINING VIEW TRANSLATIONS
         },
     },
 
@@ -102,10 +102,11 @@ module.exports = {
     },
     data() {
         return {
-            //Refactor for multi objs
+            
             landmarks : {},
 
-            //TODO Vuex refactor context menus to make this more declarative
+            //TODO REFACTOR VUEX context menus to make this more declarative
+            //Refactor for multi objs
             //If we had a feature like landmark highlighting for contextual measurments (Ball girth length, circumference, etc)
             //Menus like the side detail menu might want to hide things.
             landmark_highlighted : false,
@@ -197,6 +198,10 @@ module.exports = {
                this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
                this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
            });
+
+
+
+           //POSITIONING
            this.$on('viewer_context_menu_position', function(context_menu_position_v2){
                this.context_menu_active = true;
                this.context_menu_el = document.querySelector('#context_menu');
@@ -206,7 +211,6 @@ module.exports = {
     },
     methods: {
         launchViewer(target_element, processed_loadTreeList) {
-            //TODO RESOURCE REFACTOR 3/4/20
             this.__grabLandmarks(processed_loadTreeList);
             let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
@@ -245,7 +249,6 @@ module.exports = {
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
 
-                //TODO add xml data to UUID interface for drag/drop data.
                 addFootDimensionData : function(uuid, feet_dimensions){
                     appViewer.manager.addFootDimensionData(uuid, feet_dimensions);
                 }
@@ -257,8 +260,6 @@ module.exports = {
             this.menu_wrapper_closer_el = document.querySelector("#wrapper_closer");
         },
 
-
-        //TODO RESOURCE REFACTOR 3/4/20
         __initLandmarkTexts(parent_key, text){
             this.$set(this.landmarks, parent_key, []);
             //Parses the obj textfile for the landmark descriptions and group names.
@@ -281,16 +282,16 @@ module.exports = {
                     'group_name': ind[1] ? ind[1].slice(2).trim() : "",
                     'isActive': false
                 };
-                // console.log(lm.description);
-                // console.log(lm.group_name);
+                console.log(lm.description);
+                console.log(lm.group_name);
 
+                //LM44, 45 & 46 have no descriptions still.
+                //TODO maybe make a lookup table for these.
 
                 this.landmarks[parent_key].push(lm);
             });   
         },
-        
-        
-        //TODO RESOURCE REFACTOR 3/4/20
+                       
         __grabLandmarks(processed_loadTreeList){
             const addLandmarks = tree_node => {
                 let {text, obj} = tree_node.response_object;

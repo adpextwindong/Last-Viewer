@@ -76,7 +76,7 @@ module.exports = function () {
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
             
-            //TODO REFACTOR Picking should be done with GPU if landmark lines/points are to be supported
+            //TODO REFACTOR GPU PICKING
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
             this.__bindMouseEngineEvents();

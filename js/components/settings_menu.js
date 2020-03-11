@@ -1,7 +1,6 @@
 const CONFIG = require("../config");
 
 module.exports = {
-    //TODO locales
     locales : {
         en: {
 
@@ -74,5 +73,4 @@ module.exports = {
             this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
         }
     }
-    //TODO set the locale via routing too maybe.
 }

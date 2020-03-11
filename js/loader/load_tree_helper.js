@@ -55,7 +55,7 @@ module.exports = class LoadTree{
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
-    //TODO refactor This needs to be decoupled from the current loader
+    //WISHLIST refactor This needs to be decoupled from the current loader
     startLoadOBJS(obj_loader){
         this.load_state = "PENDING";
 
@@ -116,7 +116,7 @@ module.exports = class LoadTree{
                 let obj = this.response_object.obj;
 
                 console.log("Applying key and value "+ key + " "+ value);
-                //TODO this should be done in a more safer manner with checks to prevent throwing exceptions on bad configs
+                
                 if(key === "position"){
                     let {x,y,z} = value;
                     obj.position.set(x,y,z);
@@ -150,10 +150,9 @@ module.exports = class LoadTree{
                 scene_uuid: this.response_object.obj.uuid,
                 //Engine managed variables with data change events
 
-                //TODO refactor this
                 visibility: this.response_object.obj.visible ? this.response_object.obj.visible : 
                         (this.response_object.obj.children && this.response_object.obj.children[0] ? this.response_object.obj.children[0].visible : undefined)
-                //This is a disgusting ternate that could be replaced with a lambda.
+                //This is a disgusting ternary that could be replaced with a lambda.
                 //A Group with a foot mesh and landmarks will not have its own visible field so we need to use the foot mesh's instead.   
             },
             ...this.overlay_children && {
@@ -163,9 +162,8 @@ module.exports = class LoadTree{
         
     }
 
-    //Pre order Tree Traversal for uuid or something too????
+    //Pre order Tree Traversal for uuid
     //Can return empty list representing no uuid in tree
-    //TODO testing on a deep tree would help
     //This list interface is awkward because of the children case potentially returning the uuid
     //across multiple children due to the lack of ownership semantics/invariants.
     traverseForUUID(target_uuid){

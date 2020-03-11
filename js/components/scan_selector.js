@@ -12,7 +12,6 @@ OBJLoader(THREE);
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export default {
-    //TODO locales
     locales : {
         en: {
         },
@@ -74,7 +73,7 @@ export default {
             console.log("Request metadata not found, falling back to old loader");
         }
 
-        //TODO remove these when not necessary
+        //Drag and drop interface will remain for debug purposes.
         window.addEventListener("dragover",function(e){
             e = e || event;
             e.preventDefault();
@@ -84,10 +83,10 @@ export default {
             e.preventDefault();
         },false);
     },
-    //We need some sort of handle to loadViewer or LoadTreeViewer and the router
+    
     data() {
         return {
-        //TODO make this actually point to fetched scans
+        //For now this list is for debugging/development testing purposes.
             scans: [
                 { path: './data/foot1.obj' },
                 { path: './data/foot2.obj' },
@@ -241,7 +240,7 @@ export default {
             this.loading = true;
             await sleep(1);
 
-            //TODO this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial
+            //TODO REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
             var loader = new THREE.OBJLoader();
             
             LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));
@@ -260,12 +259,6 @@ export default {
             });
 
             this.loading = false;
-            //TODO RESOURCE REFACTOR 3/4/20
-            // TODO refactor this so that the LoadTreelist maintains uuid indexes for everything in a straightforward table.
-            // Everything in threejs iirc is given a uuid once on load time and traversing the table everytime to lookup a uuid is wasteful.
-            // Not that the tree is huge currently but caching the uuids in a dict would be O(1) access.
-
-            // Landmarks also need to be stored alongside too I guess.
             this.loaderTreesSetter(LoadTreeList);
             this.$router.push('engine');
         },
@@ -274,7 +267,7 @@ export default {
         async fileDropHandler(ev) {
             console.log('File(s) dropped');
           
-            //TODO file validation and error handling
+            //WISHLIST file validation and error handling
 
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();
@@ -287,7 +280,8 @@ export default {
               for (var i = 0; i < ev.dataTransfer.items.length; i++) {
                 // If dropped items aren't files, reject them
                 if (ev.dataTransfer.items[i].kind === 'file') {
-                  var file = ev.dataTransfer.items[i].getAsFile();
+                  
+                    var file = ev.dataTransfer.items[i].getAsFile();
                   console.log(file);
                   console.log('... file[' + i + '].name = ' + file.name);
                   obj_promises.push({name: file.name, text_p: file.text()});

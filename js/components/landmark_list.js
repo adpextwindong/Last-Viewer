@@ -1,5 +1,4 @@
 module.exports = {
-    //TODO locales
     locales : {
         en: {
             'LM20' : 'Medial point of Heel Breadth',
@@ -17,7 +16,6 @@ module.exports = {
             'LM38' : 'Foot bottom Point 3',
         },
         jp: {
-            //TODO landmark translation and clean up of landmark names
             'Arch1' : '土踏まず点1',
             'Arch2' : '土踏まず点2',
             'Cuneiform point' : '楔状骨',
