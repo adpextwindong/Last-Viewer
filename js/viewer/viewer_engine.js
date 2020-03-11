@@ -299,10 +299,7 @@ module.exports = function () {
             toggleAll();
             this.__render();
         },
-
-
-        // TODO RESOURCE REFACTOR 3/4/20 not sure how to handle the flushing interface
-
+      
         // CRITICAL EVENT LAYER
         // This handles telling the viewer layout to query for a new version of the scene graph model.
         __manager_flush_change : function(force=false){
