@@ -269,6 +269,7 @@ class ResourceManager {
                     var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
                     var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
                     
+                    line.layers.enable(CONFIG.LAYERS_MEASUREMENT_LINES);
                     mesh.add( line );
                 }
                 

@@ -48,6 +48,7 @@ module.exports = function () {
             this.camera.layers.enable(0);
             this.camera.layers.enable(CONFIG.LAYERS_SCANS);
             this.camera.layers.enable(CONFIG.LAYERS_LANDMARKS);
+            this.camera.layers.enable(CONFIG.LAYERS_MEASUREMENT_LINES);
             
             //THREEJS HELPERS
             var axesHelper = new THREE.AxesHelper( 1000 );

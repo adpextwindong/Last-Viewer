@@ -38,6 +38,7 @@ module.exports = {
     AMBIENT_LIGHT_COLOR : 0x404040,
 
     LAYERS_SCANS : 1,
-    LAYERS_LANDMARKS : 2
+    LAYERS_LANDMARKS : 2,
+    LAYERS_MEASUREMENT_LINES : 3
     
 }
