@@ -20,6 +20,7 @@ mkdir -p deps/Three
 cp node_modules/three/build/* deps/Three
 cp node_modules/vue/dist/* deps/vue
 cp node_modules/vue-router/dist/* deps/vue-router
+cp vue.min.js deps/vue/vue.min.js
 
 cp -r deps/ dist/
 cp -r data/ dist/
