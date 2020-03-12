@@ -54,6 +54,9 @@ module.exports = function () {
             var axesHelper = new THREE.AxesHelper( 1000 );
             this.scene.add( axesHelper );   
 
+            // var cameraHelper = new THREE.CameraHelper( this.camera );
+            // this.scene.add( cameraHelper );
+
             this.__setupLighting();
 
             // this.ground_grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );

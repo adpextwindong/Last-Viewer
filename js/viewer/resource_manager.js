@@ -234,14 +234,14 @@ class ResourceManager {
                         lineBC = new THREE.Line3(),
                         lineCA = new THREE.Line3();
 
-                    var pointsOfIntersection = new THREE.Geometry();
-                    var pointOfIntersection = new THREE.Vector3();
+                    var pointsOfIntersection = [];
 
+                    var pointOfIntersection = new THREE.Vector3();
                     let setPointOfIntersection = function(line, plane){
                         let tempVec = new THREE.Vector3();
                         pointOfIntersection = plane.intersectLine(line,tempVec);
                         if(pointOfIntersection){
-                            pointsOfIntersection.vertices.push(tempVec.clone());
+                            pointsOfIntersection.push(tempVec.clone());
                         }
                     };
                     let geometry = (new THREE.Geometry()).fromBufferGeometry(obj.geometry);
@@ -264,12 +264,14 @@ class ResourceManager {
                         color: "blue"
                     });
 
-                    var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
                     
+                    // var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
                     var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
-                    var line = new THREE.LineSegments( pointsOfIntersection, lineMaterial );
+                    var buffGem = new THREE.BufferGeometry().setFromPoints(pointsOfIntersection);
+                    var line = new THREE.LineSegments( buffGem, lineMaterial );
                     
                     line.layers.enable(CONFIG.LAYERS_MEASUREMENT_LINES);
+                    // console.log("Adding lines layer, hope it works");
                     mesh.add( line );
                 }
                 
