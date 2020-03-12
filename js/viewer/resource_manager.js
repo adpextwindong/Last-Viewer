@@ -55,7 +55,6 @@ class ResourceManager {
             
             this.scene_uuids[o.uuid] = o;
             bind_engine_watchers(o);
-            //TODO add a layer to toggle visibility of line measurements
         });
 
         
@@ -186,7 +185,6 @@ class ResourceManager {
                 let geometry = new THREE.BufferGeometry().setFromPoints(points);
                 let line = new THREE.Line(geometry, material);
 
-                //TODO add a lines layer
                 line.layers.set(CONFIG.LAYERS_LANDMARKS);
                 
                 mesh.add(line);

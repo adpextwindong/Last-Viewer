@@ -135,11 +135,11 @@ module.exports = {
         next();
     },
 
+    //TODO REFACTOR VUEX
     //This is a hack around the parent owning the element & loadTree list
     //but is unable to watch the mounting of the v-if'd layout component.
     //Once the parent loads, it stashes this function.
     mounted() {
-        //TODO refactor
         //We need some sort of flush flag when the router goes elsewhere and comes back with a new loadTree
         //If they go to the settings menu or something it shouldnt flush a warm scene in the background.
         loadTrees = this.loadTreesGetter();
@@ -267,8 +267,8 @@ module.exports = {
             //# Pternion     -> Evens
             //g landmark_0   -> Odds
             let xs = text.split('\n').filter(s => s[0] === '#' || s[0] === 'g');//.slice(2);
-            let evens = xs.filter((s, ind) => ind % 2 === 0);
-            let odds = xs.filter((s, ind) => ind % 2 === 1);
+            let evens = xs.filter((s, line_index) => line_index % 2 === 0);
+            let odds = xs.filter((s, line_index) => line_index % 2 === 1);
             
             //slice(2) in this case drops the leading "# " and "g " line markers in the obj format
 
