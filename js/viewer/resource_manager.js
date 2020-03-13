@@ -204,21 +204,49 @@ class ResourceManager {
     }
 
     __addLineToMeshAndRegister(mesh, landmark_a, landmark_b, project_down_onto_axis = undefined){
+        //Returns the created line reference for future editing by the handler. Things like mesh material etc.
         let line = this.__LineBetweenLandmarks(mesh, landmark_a, landmark_b, project_down_onto_axis);
         mesh.add(line);
         this.scene_uuids[line.uuid] = line;
-    }
 
-    __addFootLengthPternionCPAxis_Line(mesh){
-        //Foot Length procedure using Pternion and Foot Length point Pternion-CP axis landmarks
-        this.__addLineToMeshAndRegister(mesh, 0, 27, "Z");
-    }
-
-    __addHeelBreadth_Line(mesh){
-        this.__addLineToMeshAndRegister(mesh, 20, 21, "Z");
+        return line;
     }
 
     __addBallGirthCircumference_Line(mesh){
+        let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
+        let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
+        let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
+
+        this.__addCircumferenceLineFromCutPlane(mesh, highest_point_ball_girth, most_medial_point_ball_girth, most_lateral_point_ball_girth);
+    }
+
+    __addHeelGirthCircumference(mesh){
+        // LM44 LM1 (interpolate 3rd point for plane from colinear points) Heel Girth Circumference
+        const midPointBetweenTwoPoints = (point_a, point_b) => {
+            let v_ab = new THREE.Vector3(
+                point_b.x - point_a.x,
+                point_b.y - point_a.y,
+                point_b.z - point_a.z
+            );
+            v_ab.multiplyScalar(0.5);
+
+            return new THREE.Vector3(
+                point_a.x + v_ab.x,
+                point_a.y + v_ab.y,
+                point_a.z + v_ab.z);
+        }
+
+        let pternion_point = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid][1]));
+        let junction_point = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid][44]));
+        let coplanar_point = midPointBetweenTwoPoints(pternion_point, junction_point);
+        //Arbitrary distance away from the center line axis of the foot to get a coplanar point (instead of having a point along the pt junction axis) 
+        coplanar_point.setY(mid_point.y + 50);
+
+        
+        this.__addCircumferenceLineFromCutPlane(mesh, pternion_point, junction_point, coplanar_point);
+    }
+
+    __addCircumferenceLineFromCutPlane(mesh, point_a, point_b, point_c){
         //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane
         //https://jsfiddle.net/8uxw667m/4/
 
@@ -228,22 +256,18 @@ class ResourceManager {
         //Creates a plane from the three landmarks and intersects mesh geometry faces with the plane to find the circumference points.
         //Intersected points are put into a geometry object and a LineSegments 
 
+        let p_a = new THREE.Vector3().copy(point_a),
+            p_b = new THREE.Vector3().copy(point_b),
+            p_c = new THREE.Vector3().copy(point_c);
+            
         mesh.updateMatrixWorld(true);
-
-        let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
-        let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
-        let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
-
-        mesh.updateMatrixWorld(true);
-        highest_point_ball_girth = highest_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-        most_medial_point_ball_girth = most_medial_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-        most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+        p_a = p_a.applyMatrix4(mesh.matrixWorld);
+        p_b = p_b.applyMatrix4(mesh.matrixWorld);
+        p_c = p_c.applyMatrix4(mesh.matrixWorld);
     
         let intersection_plane = new THREE.Plane();
         
-        intersection_plane.setFromCoplanarPoints(highest_point_ball_girth, 
-                                                    most_medial_point_ball_girth,
-                                                    most_lateral_point_ball_girth);
+        intersection_plane.setFromCoplanarPoints(p_a, p_b, p_c);
        
         if(mesh instanceof THREE.Group){
             let obj = mesh.children[0];
@@ -312,7 +336,7 @@ class ResourceManager {
                 //0 Pternion
                 //
                 console.log("Adding foot length pternion cp axis line");
-                this.__addFootLengthPternionCPAxis_Line(mesh);
+                this.__addLineToMeshAndRegister(mesh, 0, 27, "Z");
             }
             
             if(landmarkNumbersInScene(25, 28, 29)){
@@ -320,17 +344,29 @@ class ResourceManager {
                 this.__addBallGirthCircumference_Line(mesh);
             }
 
-            //TODO LM21 LM20 Heel Breadth
             if(landmarkNumbersInScene(20,21)){
-                //drop line to bottom of the foot
                 console.log("Adding heel breadth line");
-                this.__addHeelBreadth_Line(mesh);
-
+                this.__addLineToMeshAndRegister(mesh, 20, 21, "Z");
             }
-            // LM44 LM1 (interpolate 3rd point for plane from colinear points) Heel Girth Circumference
 
-            // LM28 LM20 MT & Medial Heelbreadth line forms medial Toe Angle Base Line
-            // LM29 LM21 Lateral side of Toe Angle Base Line
+            if(landmarkNumbersInScene(20,28)){
+                console.log("Adding MT & Medial Heelbreadth Toe Angle Base Line");
+                this.__addLineToMeshAndRegister(mesh, 20, 28);
+            }
+
+            if(landmarkNumbersInScene(21,29)){
+                console.log("Adding MT & Lateral Heelbreadth Toe Angle Base Line");
+                this.__addLineToMeshAndRegister(mesh, 21, 29);
+            }
+
+            if(landmarkNumbersInScene(1,44)){
+                console.log("Adding Heel Girth circumference line");
+                this.__addHeelGirthCircumference(mesh);
+            }
+            //TODO consider adding functionality to extend past to a certain distance for stuff like Toe Angle Base Lines
+
+
+
 
         }
     }
