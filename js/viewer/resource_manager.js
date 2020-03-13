@@ -159,25 +159,35 @@ class ResourceManager {
         //TODO REFACTOR VUEX add UI divs for feet dimensions on hover, etc.
     }
 
-    __addFootLengthPternionCPAxis_Line(mesh){
-        //Foot Length procedure using Pternion and Foot Length point Pternion-CP axis landmarks
-        let pt_mesh = this.scene_landmarks[mesh.uuid]["0"];
-        let foot_length_cp_mesh = this.scene_landmarks[mesh.uuid]["27"];
+    __LineBetweenLandmarks(mesh, lm_number_a, lm_number_b, project_down_onto_axis = undefined){
+        let landmark_a = this.scene_landmarks[mesh.uuid][lm_number_a];
+        let landmark_b = this.scene_landmarks[mesh.uuid][lm_number_b];
 
         let points = [];
-        points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
-        points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
-        
-        //Project PT point onto same Z plane as flcp point
-        let val = getValueOfLowestVert(mesh.children[0], "Z");
-        points[0].setZ(val);
-        points[1].setZ(val);
-        
-        //TODO now make the line be pickable/hoverable
-        //figure out how to make the lines fat for CPU picking...
-        //Otherwise GPU picking will be necessary.
+        points.push(new THREE.Vector3(...getLandmarkPoint(landmark_a)));
+        points.push(new THREE.Vector3(...getLandmarkPoint(landmark_b)));
+
+        //TODO this might need to be refactored or something
+        if(project_down_onto_axis !== undefined &&
+            (project_down_onto_axis === "X" || project_down_onto_axis === "Y" || project_down_onto_axis === "Z")){
+            
+            if(project_down_onto_axis === "X"){
+                let val = getValueOfLowestVert(mesh.children[0], "X");
+                points[0].setX(val);
+                points[1].setX(val);
+            }else if(project_down_onto_axis === "Y"){
+                let val = getValueOfLowestVert(mesh.children[0], "Y");
+                points[0].setY(val);
+                points[1].setY(val);
+            }else {
+                let val = getValueOfLowestVert(mesh.children[0], "Z");
+                points[0].setZ(val);
+                points[1].setZ(val);
+            }
+        }
 
         let material = new THREE.LineBasicMaterial({
+            //TODO Make this a constant
             color: 0xffa500,
             linewidth : 4
         });
@@ -185,10 +195,27 @@ class ResourceManager {
         let line = new THREE.Line(geometry, material);
 
         line.layers.set(CONFIG.LAYERS_LANDMARKS);
-        
-        mesh.add(line);
 
+        //TODO now make the line be pickable/hoverable
+        //figure out how to make the lines fat for CPU picking...
+        //Otherwise GPU picking will be necessary.
+
+        return line;
+    }
+
+    __addLineToMeshAndRegister(mesh, landmark_a, landmark_b, project_down_onto_axis = undefined){
+        let line = this.__LineBetweenLandmarks(mesh, landmark_a, landmark_b, project_down_onto_axis);
+        mesh.add(line);
         this.scene_uuids[line.uuid] = line;
+    }
+
+    __addFootLengthPternionCPAxis_Line(mesh){
+        //Foot Length procedure using Pternion and Foot Length point Pternion-CP axis landmarks
+        this.__addLineToMeshAndRegister(mesh, 0, 27, "Z");
+    }
+
+    __addHeelBreadth_Line(mesh){
+        this.__addLineToMeshAndRegister(mesh, 20, 21, "Z");
     }
 
     __addBallGirthCircumference_Line(mesh){
@@ -293,8 +320,18 @@ class ResourceManager {
                 this.__addBallGirthCircumference_Line(mesh);
             }
 
-                
+            //TODO LM21 LM20 Heel Breadth
+            if(landmarkNumbersInScene(20,21)){
+                //drop line to bottom of the foot
+                console.log("Adding heel breadth line");
+                this.__addHeelBreadth_Line(mesh);
+
             }
+            // LM44 LM1 (interpolate 3rd point for plane from colinear points) Heel Girth Circumference
+
+            // LM28 LM20 MT & Medial Heelbreadth line forms medial Toe Angle Base Line
+            // LM29 LM21 Lateral side of Toe Angle Base Line
+
         }
     }
 
