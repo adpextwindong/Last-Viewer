@@ -81,7 +81,7 @@ class ResourceManager {
         });
 
         this.objs.forEach(o => {
-            this.addMeasurementDataMeshes(o.uuid);
+            this.__addMeasurementDataMeshes(o.uuid);
         });
         
         if(processed_loadTreeList.every(g => g.config === undefined)){
@@ -158,120 +158,141 @@ class ResourceManager {
         let {left, right} = feet_dimensions;
         //TODO REFACTOR VUEX add UI divs for feet dimensions on hover, etc.
     }
-    addMeasurementDataMeshes(uuid){
+
+    __addFootLengthPternionCPAxis_Line(mesh){
+        //Foot Length procedure using Pternion and Foot Length point Pternion-CP axis landmarks
+        let pt_mesh = this.scene_landmarks[mesh.uuid]["0"];
+        let foot_length_cp_mesh = this.scene_landmarks[mesh.uuid]["27"];
+
+        let points = [];
+        points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
+        points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
+        
+        //Project PT point onto same Z plane as flcp point
+        let val = getValueOfLowestVert(mesh.children[0], "Z");
+        points[0].setZ(val);
+        points[1].setZ(val);
+        
+        //TODO now make the line be pickable/hoverable
+        //figure out how to make the lines fat for CPU picking...
+        //Otherwise GPU picking will be necessary.
+
+        let material = new THREE.LineBasicMaterial({
+            color: 0xffa500,
+            linewidth : 4
+        });
+        let geometry = new THREE.BufferGeometry().setFromPoints(points);
+        let line = new THREE.Line(geometry, material);
+
+        line.layers.set(CONFIG.LAYERS_LANDMARKS);
+        
+        mesh.add(line);
+
+        this.scene_uuids[line.uuid] = line;
+    }
+
+    __addBallGirthCircumference_Line(mesh){
+        //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane
+        //https://jsfiddle.net/8uxw667m/4/
+
+        //
+        //Ball Girth Circumference using Highest Point Ball Girth, Most Medial Point Ball Girth, Most Lateral Point Ball Girth landmarks.
+        // 
+        //Creates a plane from the three landmarks and intersects mesh geometry faces with the plane to find the circumference points.
+        //Intersected points are put into a geometry object and a LineSegments 
+
+        mesh.updateMatrixWorld(true);
+
+        let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
+        let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
+        let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
+
+        mesh.updateMatrixWorld(true);
+        highest_point_ball_girth = highest_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+        most_medial_point_ball_girth = most_medial_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+        most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+    
+        let intersection_plane = new THREE.Plane();
+        
+        intersection_plane.setFromCoplanarPoints(highest_point_ball_girth, 
+                                                    most_medial_point_ball_girth,
+                                                    most_lateral_point_ball_girth);
+       
+        if(mesh instanceof THREE.Group){
+            let obj = mesh.children[0];
+
+            var a = new THREE.Vector3(),
+                b = new THREE.Vector3(),
+                c = new THREE.Vector3();
+
+            var lineAB = new THREE.Line3(),
+                lineBC = new THREE.Line3(),
+                lineCA = new THREE.Line3();
+
+            var pointsOfIntersection = [];
+
+            var pointOfIntersection = new THREE.Vector3();
+            let setPointOfIntersection = function(line, plane){
+                let tempVec = new THREE.Vector3();
+                pointOfIntersection = plane.intersectLine(line,tempVec);
+                if(pointOfIntersection){
+                    pointsOfIntersection.push(tempVec.clone());
+                }
+            };
+            let geometry = (new THREE.Geometry()).fromBufferGeometry(obj.geometry);
+            geometry.faces.forEach(function(face){
+                obj.localToWorld(a.copy(geometry.vertices[face.a]));
+                obj.localToWorld(b.copy(geometry.vertices[face.b]));
+                obj.localToWorld(c.copy(geometry.vertices[face.c]));
+
+                lineAB = new THREE.Line3(a, b);
+                lineBC = new THREE.Line3(b, c);
+                lineCA = new THREE.Line3(c, a);
+
+                setPointOfIntersection(lineAB, intersection_plane);
+                setPointOfIntersection(lineBC, intersection_plane);
+                setPointOfIntersection(lineCA, intersection_plane);
+            });
+
+            var pointsMaterial = new THREE.PointsMaterial({
+                size: .5,
+                color: "blue"
+            });
+
+            
+            // var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
+            var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
+            var buffGem = new THREE.BufferGeometry().setFromPoints(pointsOfIntersection);
+            var line = new THREE.LineSegments( buffGem, lineMaterial );
+            
+            line.layers.enable(CONFIG.LAYERS_MEASUREMENT_LINES);
+            // console.log("Adding lines layer, hope it works");
+            mesh.add( line );
+        }
+    }
+
+    __addMeasurementDataMeshes(uuid){
         let mesh = this.scene_uuids[uuid];
 
-        //Foot Length procedure using Pternion and Foot Length point Pternion-CP axis landmarks
+        
         if(mesh.uuid in this.scene_landmarks){
 
-            if("0" in this.scene_landmarks[mesh.uuid] && "27" in this.scene_landmarks[mesh.uuid]){
-                let pt_mesh = this.scene_landmarks[mesh.uuid]["0"];
-                let foot_length_cp_mesh = this.scene_landmarks[mesh.uuid]["27"];
-
-                let points = [];
-                points.push(new THREE.Vector3(...getLandmarkPoint(pt_mesh)));
-                points.push(new THREE.Vector3(...getLandmarkPoint(foot_length_cp_mesh)));
-                
-                //Project PT point onto same Z plane as flcp point
-                let val = getValueOfLowestVert(mesh.children[0], "Z");
-                points[0].setZ(val);
-                points[1].setZ(val);
-                
-                //TODO now make the line be pickable/hoverable
-
-                let material = new THREE.LineBasicMaterial({
-                    color: 0xffa500
-                });
-                let geometry = new THREE.BufferGeometry().setFromPoints(points);
-                let line = new THREE.Line(geometry, material);
-
-                line.layers.set(CONFIG.LAYERS_LANDMARKS);
-                
-                mesh.add(line);
-
-                this.scene_uuids[line.uuid] = line;
+            const landmarkNumbersInScene = (landmark_number, ...args) => {
+                return landmark_number in this.scene_landmarks[mesh.uuid] && (args.length ? landmarkNumbersInScene(...args) : true);
             }
 
-            //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane
-            //https://jsfiddle.net/8uxw667m/4/
-
-            //
-            //Ball Girth Circumference using Highest Point Ball Girth, Most Medial Point Ball Girth, Most Lateral Point Ball Girth landmarks.
-            // 
-            //Creates a plane from the three landmarks and intersects mesh geometry faces with the plane to find the circumference points.
-            //Intersected points are put into a geometry object and a LineSegments 
-            if("25" in this.scene_landmarks[mesh.uuid] &&
-                    "28" in this.scene_landmarks[mesh.uuid] &&
-                    "29" in this.scene_landmarks[mesh.uuid]){
-
-                mesh.updateMatrixWorld(true);
-
-                let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
-                let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
-                let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
-
-                mesh.updateMatrixWorld(true);
-                highest_point_ball_girth = highest_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-                most_medial_point_ball_girth = most_medial_point_ball_girth.applyMatrix4(mesh.matrixWorld);
-                most_lateral_point_ball_girth = most_lateral_point_ball_girth.applyMatrix4(mesh.matrixWorld);
+            if(landmarkNumbersInScene(0, 27)){
+                //0 Pternion
+                //
+                console.log("Adding foot length pternion cp axis line");
+                this.__addFootLengthPternionCPAxis_Line(mesh);
+            }
             
-                let intersection_plane = new THREE.Plane();
-                
-                intersection_plane.setFromCoplanarPoints(highest_point_ball_girth, 
-                                                            most_medial_point_ball_girth,
-                                                            most_lateral_point_ball_girth);
-               
-                if(mesh instanceof THREE.Group){
-                    let obj = mesh.children[0];
+            if(landmarkNumbersInScene(25, 28, 29)){
+                console.log("Adding ball girth circumference line");
+                this.__addBallGirthCircumference_Line(mesh);
+            }
 
-                    var a = new THREE.Vector3(),
-                        b = new THREE.Vector3(),
-                        c = new THREE.Vector3();
-
-                    var lineAB = new THREE.Line3(),
-                        lineBC = new THREE.Line3(),
-                        lineCA = new THREE.Line3();
-
-                    var pointsOfIntersection = [];
-
-                    var pointOfIntersection = new THREE.Vector3();
-                    let setPointOfIntersection = function(line, plane){
-                        let tempVec = new THREE.Vector3();
-                        pointOfIntersection = plane.intersectLine(line,tempVec);
-                        if(pointOfIntersection){
-                            pointsOfIntersection.push(tempVec.clone());
-                        }
-                    };
-                    let geometry = (new THREE.Geometry()).fromBufferGeometry(obj.geometry);
-                    geometry.faces.forEach(function(face){
-                        obj.localToWorld(a.copy(geometry.vertices[face.a]));
-                        obj.localToWorld(b.copy(geometry.vertices[face.b]));
-                        obj.localToWorld(c.copy(geometry.vertices[face.c]));
-
-                        lineAB = new THREE.Line3(a, b);
-                        lineBC = new THREE.Line3(b, c);
-                        lineCA = new THREE.Line3(c, a);
-
-                        setPointOfIntersection(lineAB, intersection_plane);
-                        setPointOfIntersection(lineBC, intersection_plane);
-                        setPointOfIntersection(lineCA, intersection_plane);
-                    });
-
-                    var pointsMaterial = new THREE.PointsMaterial({
-                        size: .5,
-                        color: "blue"
-                    });
-
-                    
-                    // var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
-                    var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
-                    var buffGem = new THREE.BufferGeometry().setFromPoints(pointsOfIntersection);
-                    var line = new THREE.LineSegments( buffGem, lineMaterial );
-                    
-                    line.layers.enable(CONFIG.LAYERS_MEASUREMENT_LINES);
-                    // console.log("Adding lines layer, hope it works");
-                    mesh.add( line );
-                }
                 
             }
         }
