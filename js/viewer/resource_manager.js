@@ -213,6 +213,9 @@ class ResourceManager {
     }
 
     __addBallGirthCircumference_Line(mesh){
+        //
+        //Ball Girth Circumference using Highest Point Ball Girth, Most Medial Point Ball Girth, Most Lateral Point Ball Girth landmarks.
+        // 
         let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
         let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
         let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
@@ -240,8 +243,7 @@ class ResourceManager {
         let junction_point = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid][44]));
         let coplanar_point = midPointBetweenTwoPoints(pternion_point, junction_point);
         //Arbitrary distance away from the center line axis of the foot to get a coplanar point (instead of having a point along the pt junction axis) 
-        coplanar_point.setY(mid_point.y + 50);
-
+        coplanar_point.setY(coplanar_point.y + 50);
         
         this.__addCircumferenceLineFromCutPlane(mesh, pternion_point, junction_point, coplanar_point);
     }
@@ -250,9 +252,6 @@ class ResourceManager {
         //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane
         //https://jsfiddle.net/8uxw667m/4/
 
-        //
-        //Ball Girth Circumference using Highest Point Ball Girth, Most Medial Point Ball Girth, Most Lateral Point Ball Girth landmarks.
-        // 
         //Creates a plane from the three landmarks and intersects mesh geometry faces with the plane to find the circumference points.
         //Intersected points are put into a geometry object and a LineSegments 
 
@@ -334,7 +333,7 @@ class ResourceManager {
 
             if(landmarkNumbersInScene(0, 27)){
                 //0 Pternion
-                //
+                //27 
                 console.log("Adding foot length pternion cp axis line");
                 this.__addLineToMeshAndRegister(mesh, 0, 27, "Z");
             }
@@ -364,10 +363,6 @@ class ResourceManager {
                 this.__addHeelGirthCircumference(mesh);
             }
             //TODO consider adding functionality to extend past to a certain distance for stuff like Toe Angle Base Lines
-
-
-
-
         }
     }
 
