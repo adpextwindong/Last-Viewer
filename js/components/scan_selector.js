@@ -24,7 +24,7 @@ export default {
             //Debug
             'Overlay Scene Graph Viewer' : "重ねて表示",
 
-            'Drag and drop one or more files here.': "!TODO",
+            'Drag and drop one or more files here.': "DEBUG_DRAG_AND_DROP_HERE",
         },
     },
     template : `
@@ -240,7 +240,7 @@ export default {
             this.loading = true;
             await sleep(1);
 
-            //TODO REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
+            //WISHLIST REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
             var loader = new THREE.OBJLoader();
             
             LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));

@@ -23,8 +23,12 @@ module.exports = {
             'Hide all landmarks': '全てのランドマークを非表示',
             'Return to home':'ホームに戻る',
             'Reset Camera': 'カメラをリセット',
-            'Top View': '上からのビュー'
+            'Top View': '上からのビュー',
+            'Bottom View': '下からのビュー',
             //TODO REMAINING VIEW TRANSLATIONS
+            'Left View': '左からのビュー',
+            'Right View': '右からのビュー',
+
         },
     },
 
@@ -62,6 +66,7 @@ module.exports = {
                 v-on:click="returnToHome()">{{t('Return to Home Page')}}</button>
             <button type="button" v-on:click="resetCamera()">{{t('Reset Camera')}}</button>
 
+            <!-- TODO view controls component>
             <div id="view_controls">
                 <button type="button" v-on:click="view_top()">{{t('Top View')}}</button>
                 <button type="button" v-on:click="view_left()">{{t('Left View')}}</button>
@@ -103,12 +108,16 @@ module.exports = {
     data() {
         return {
             
+            //Indexed by obj.name of top level scan objects
+            //This might need to be indexed by UUID
             landmarks : {},
 
             //TODO REFACTOR VUEX context menus to make this more declarative
             //Refactor for multi objs
             //If we had a feature like landmark highlighting for contextual measurments (Ball girth length, circumference, etc)
             //Menus like the side detail menu might want to hide things.
+
+            //This state should be pushed down to a component
             landmark_highlighted : false,
             landmark_highlighted_name : "",
             landmark_list_visible : true,
@@ -193,6 +202,9 @@ module.exports = {
             //    console.log("Recieved selected uuids for context menu interaction");
             //    console.log(uuids);
            });
+
+           //TODO REFACTOR VUEX, we should figure out how slow this kind of data binding will be in Vuex
+
            this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
                this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
                this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
@@ -235,7 +247,7 @@ module.exports = {
                 appViewer.manager.removeUUID(uuid);
             });
 
-            //TODO Refactor RAF loop
+            //WISHLIST Refactor RAF loop
             //Starts rendering the scene
             appViewer.animateLoop();
 
@@ -337,6 +349,7 @@ module.exports = {
         //Presentation controlling functions
         hideLandmarks () {
             appViewer.hideLandmarks();
+            //This is a example of a Vuex interaction potentially
             this.landmark_list_visible = !this.landmark_list_visible;
         },
 
