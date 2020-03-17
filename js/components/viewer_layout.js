@@ -5,12 +5,8 @@ var vueclickaway = require('vue-clickaway');
 var Viewer = require('../viewer/viewer_engine.js');
 var appViewer = new Viewer();
 
-//from https://gist.github.com/renaudtertrais/25fc5a2e64fe5d0e86894094c6989e10
-const zip = (arr, ...arrs) => {
-    return arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
-}
-
 const CONFIG = require("../config");
+        LandmarkParser = require("../loader/landmark_parser_utils");
 
 module.exports = {
     mixins: [ vueclickaway.mixin ],
@@ -23,12 +19,6 @@ module.exports = {
             'Hide all landmarks': '全てのランドマークを非表示',
             'Return to home':'ホームに戻る',
             'Reset Camera': 'カメラをリセット',
-            'Top View': '上からのビュー',
-            'Bottom View': '下からのビュー',
-            //TODO REMAINING VIEW TRANSLATIONS
-            'Left View': '左からのビュー',
-            'Right View': '右からのビュー',
-
         },
     },
 
@@ -64,16 +54,11 @@ module.exports = {
             <button type="button"
                 v-if="config.DEBUG"
                 v-on:click="returnToHome()">{{t('Return to Home Page')}}</button>
-            <button type="button" v-on:click="resetCamera()">{{t('Reset Camera')}}</button>
+            <button type="button" v-on:click="engine_interface.resetCamera()">{{t('Reset Camera')}}</button>
 
-            <!-- TODO view controls component>
-            <div id="view_controls">
-                <button type="button" v-on:click="view_top()">{{t('Top View')}}</button>
-                <button type="button" v-on:click="view_left()">{{t('Left View')}}</button>
-                <button type="button" v-on:click="view_right()">{{t('Right View')}}</button>
-                <button type="button" v-on:click="view_toe_end()">{{t('Toe End View')}}</button>
-                <button type="button" v-on:click="view_heel_end()">{{t('Heel End View')}}</button>
-            </div>
+            <!-- TODO REFACTOR COMPONENT view controls component -->
+            <view_controls v-bind:engine_interface="engine_interface"></view_controls>
+
 
             <scene_graph_hiearchy v-if="config.DEBUG"
             v-bind:scene_graph_representation="scene_graph_representation"
@@ -124,6 +109,7 @@ module.exports = {
 
             scene_graph_representation : [],
 
+            //Passed as prop to children for manipulating the scene
             engine_interface : {},
         }
     },
@@ -182,6 +168,9 @@ module.exports = {
             // 
             //PRESENTATION STYLING AND CONTENT EVENT HANDLERS
             // 
+
+            ////TODO REFACTOR PRESENTATION
+            //This could be moved to a landmark component
            this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
                applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
                    this.landmarks[parent_key][ind].isActive = true;
@@ -222,16 +211,38 @@ module.exports = {
            });
     },
     methods: {
+        //Must occur after appViewer.init
+        __bindEngineInterface(){
+            this.engine_interface = {
+                //Used for children components to trigger appViewer manager.removeUUID
+                emitRemoveUUIDRequest: function(uuid){
+                    this.$emit('scene_graph_component_remove_uuid_request', uuid);
+                }.bind(this),
+
+                toggleVisibilityUUID : appViewer.manager.toggleVisibility.bind(appViewer),
+
+                addFootDimensionData : appViewer.manager.addFootDimensionData.bind(appViewer),
+
+                resetCamera : appViewer.resetCamera.bind(appViewer),
+                view_top : appViewer.view_TOP.bind(appViewer),
+                view_left : appViewer.view_LEFT.bind(appViewer),
+                view_right : appViewer.view_RIGHT.bind(appViewer),
+                view_toe_end : appViewer.view_TOE_END.bind(appViewer),
+                view_heel_end : appViewer.view_HEEL_END.bind(appViewer),
+            };
+        },
         launchViewer(target_element, processed_loadTreeList) {
-            this.__grabLandmarks(processed_loadTreeList);
-            let viewer_component_scope = this;
             //This function will be the event emitter handle to the Vue component from the Viewer Engine.
             let viewer_component_event_handle = function (event_name, ...args){
-                viewer_component_scope.$emit(event_name, ...args);
+                this.$emit(event_name, ...args); //Viewer Layout Component Scope
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
-            };
-
+            }.bind(this);
             appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList);
+            this.__bindEngineInterface();
+
+
+            this.__grabLandmarks(processed_loadTreeList);
+
 
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
@@ -251,63 +262,22 @@ module.exports = {
             //Starts rendering the scene
             appViewer.animateLoop();
 
-            //Engine interface for controller components
-            this.engine_interface = {
-                toggleVisibilityUUID : function(uuid){
-                    appViewer.manager.toggleVisibility(uuid);
-                },
-                //Used for children components to trigger appViewer manager.removeUUID
-                emitRemoveUUIDRequest: function(uuid){
-                    this.$emit('scene_graph_component_remove_uuid_request', uuid);
-                }.bind(this),
-
-                addFootDimensionData : function(uuid, feet_dimensions){
-                    appViewer.manager.addFootDimensionData(uuid, feet_dimensions);
-                }
-            };
-
             //Stashing elements to avoid dom traversals later
             this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
             this.menu_display_wrapper_el = document.querySelector("#data_display_wrapper");
             this.menu_wrapper_closer_el = document.querySelector("#wrapper_closer");
         },
 
-        __initLandmarkTexts(parent_key, text){
-            this.$set(this.landmarks, parent_key, []);
-            //Parses the obj textfile for the landmark descriptions and group names.
-            //This assumes all landmark groups are always preceeded by a description line
-            //# Pternion     -> Evens
-            //g landmark_0   -> Odds
-            let xs = text.split('\n').filter(s => s[0] === '#' || s[0] === 'g');//.slice(2);
-            let evens = xs.filter((s, line_index) => line_index % 2 === 0);
-            let odds = xs.filter((s, line_index) => line_index % 2 === 1);
-            
-            //slice(2) in this case drops the leading "# " and "g " line markers in the obj format
-
-
-            //TODO figure out what we should do with the "This file was created by FileConverter" description.
-            //Should this translation be done at load time or at the presentation template level
-            //landmarks schema
-            zip(evens,odds).forEach(ind => {
-                let lm = {
-                    'description': ind[0] ? ind[0].slice(2).trim() : "",
-                    'group_name': ind[1] ? ind[1].slice(2).trim() : "",
-                    'isActive': false
-                };
-                console.log(lm.description);
-                console.log(lm.group_name);
-
-                //LM44, 45 & 46 have no descriptions still.
-                //TODO maybe make a lookup table for these.
-
-                this.landmarks[parent_key].push(lm);
-            });   
-        },
-                       
         __grabLandmarks(processed_loadTreeList){
-            const addLandmarks = tree_node => {
+            let initLandmarkTexts = (parent_obj_name, text) => {
+                //This should be hoisted out.
+                this.$set(this.landmarks, parent_obj_name, []);
+                this.landmarks[parent_obj_name].push(...LandmarkParser.parseLandmarkTextToList(text));
+            };
+
+            let addLandmarks = tree_node => {
                 let {text, obj} = tree_node.response_object;
-                this.__initLandmarkTexts(obj["name"],text);
+                initLandmarkTexts(obj["name"],text);
                 
                 if(tree_node.overlay_children){
                     tree_node.overlay_children.forEach(child => {
@@ -315,38 +285,14 @@ module.exports = {
                     })
                 }
             }
-
             processed_loadTreeList.forEach(t => addLandmarks(t));
         },
 
-        //Engine controls for the data display control panel.
-        //These functions just expose the Viewer Engine's external interface to the VueJS component at compilation time.
-        resetCamera () {
-            appViewer.resetCamera();
-        },
-
-        view_top(){
-            appViewer.view_TOP();
-        },
-
-        view_left(){
-            appViewer.view_LEFT();
-        },
-
-        view_right(){
-            appViewer.view_RIGHT();
-        },
-
-        view_toe_end(){
-            appViewer.view_TOE_END();
-        },
-
-        view_heel_end(){
-            appViewer.view_HEEL_END();
-        },
-
-
-        //Presentation controlling functions
+        ///
+        ///TODO Push this to engine interface
+        ///
+        
+        //Control and presentation should be seperated.
         hideLandmarks () {
             appViewer.hideLandmarks();
             //This is a example of a Vuex interaction potentially
@@ -357,6 +303,7 @@ module.exports = {
             this.$router.push('/');
         },
         
+        //TODO REFACTOR PRESENTATION
         toggleDisplayMenu(){
             this.menu_display_wrapper_el.classList.toggle("closed");
             this.menu_wrapper_closer_el.classList.toggle("closed");

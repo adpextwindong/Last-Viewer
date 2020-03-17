@@ -12,6 +12,7 @@ import Viewer from './components/viewer_layout';
 Vue.component('vue-context', () => import('vue-context'));
 Vue.component('landmark_list', () => import('./components/landmark_list'));
 Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hiearchy'));
+Vue.component('view_controls', () => import('./components/view_controls.js'));
 
 const CONFIG = require("./config");
 
