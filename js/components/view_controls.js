@@ -14,6 +14,7 @@ module.exports = {
     template : `
     <div id="view_controls">
         <button type="button" v-on:click="engine_interface.view_top()">{{t('Top View')}}</button>
+        <button type="button" v-on:click="engine_interface.view_bottom()">{{t('Bottom View')}}</button>
         <button type="button" v-on:click="engine_interface.view_left()">{{t('Left View')}}</button>
         <button type="button" v-on:click="engine_interface.view_right()">{{t('Right View')}}</button>
         <button type="button" v-on:click="engine_interface.view_toe_end()">{{t('Toe End View')}}</button>

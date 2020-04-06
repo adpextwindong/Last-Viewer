@@ -229,6 +229,7 @@ module.exports = {
                 view_right : appViewer.view_RIGHT.bind(appViewer),
                 view_toe_end : appViewer.view_TOE_END.bind(appViewer),
                 view_heel_end : appViewer.view_HEEL_END.bind(appViewer),
+                view_bottom : appViewer.view_BOTTOM.bind(appViewer),
             };
         },
         launchViewer(target_element, processed_loadTreeList) {
