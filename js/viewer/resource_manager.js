@@ -8,7 +8,7 @@ function getValueOfLowestVert(mesh, axis){
     let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
 
     let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
-    let min = Math.min(...filtered_verts);
+    let min = Math.min(filtered_verts);
     return verts[verts.indexOf(min)];
 }
 
