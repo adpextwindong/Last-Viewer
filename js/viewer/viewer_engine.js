@@ -233,26 +233,26 @@ module.exports = function () {
             this.controls.reset();    
         },
 
-        //TODO verify that this behavior is good enough
-        //TODO add a bottom view.
+        //TODO TASK TESTING verify that this behavior is good enough
+        //TODO TASK ADD a bottom view.
 
         view_RIGHT: function(){
-            // //Get current center, based on the right click panning around
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(0,dist,0);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(0,0,1);
-        },
-
-        view_LEFT: function(){
-            // //Get current center, based on the right click panning around
+             // //Get current center, based on the right click panning around
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
             this.camera.position.set(0,-dist,0);
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(0,0,1);
-        },
+       },
+
+        view_LEFT: function(){
+             // //Get current center, based on the right click panning around
+            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+            this.camera.position.set(0,dist,0);
+            
+            this.camera.lookAt(new THREE.Vector3(0,0,0));
+            this.camera.up = new THREE.Vector3(0,0,1);
+       },
 
         view_TOE_END: function(){
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
@@ -278,7 +278,15 @@ module.exports = function () {
             this.camera.up = new THREE.Vector3(1,0,0);
         },
 
-        
+        view_BOTTOM: function(){
+            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+            this.camera.position.set(0,0,-dist);
+            
+            this.camera.lookAt(new THREE.Vector3(0,0,0));
+            this.camera.up = new THREE.Vector3(1,0,0);
+        },
+
+        //Use bounding box to determine default rotation, then landmark to determine vertical orrientation?
 
         hideLandmarks : function() {
             this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
