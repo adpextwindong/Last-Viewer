@@ -98,7 +98,8 @@ module.exports = class PickHelper {
 
       //AxesHelper cannot be highlighted
       //Filtering for just meshes because the LineSegments top level scene child would conflict
-      let candidate_objects = collectGroupChilds(scene).filter(obj => obj.type === "Mesh" && obj.constructor.name !== "AxesHelper");
+      let candidate_objects = collectGroupChilds(scene).filter(obj => obj.type === "Mesh" || obj.type === "Line" || obj.type === "LineSegments" && obj.constructor.name !== "AxesHelper");
+      
       const intersectedObjects = this.raycaster.intersectObjects(candidate_objects);
 
       if (intersectedObjects.length) {
