@@ -59,8 +59,8 @@ module.exports = function () {
 
             this.__setupLighting();
 
-            // this.ground_grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
-            // this.scene.add( this.ground_grid );
+            this.ground_grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+            this.scene.add( this.ground_grid );
 
 
             this.renderer = new THREE.WebGLRenderer( {antialias: CONFIG.ANTI_ALIASING, alpha : CONFIG.ALPHA});
