@@ -80,7 +80,7 @@ module.exports = function () {
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
             
-            //TODO REFACTOR GPU PICKING
+            //WISHLIST GPU PICKING
             this.pickHelper = new PickHelper();
             this.pickHelper.clearPickPosition();
             this.__bindMouseEngineEvents();
@@ -117,7 +117,7 @@ module.exports = function () {
 
             viewer_scope = this;
             this.renderer.domElement.addEventListener('mousemove', function (e){
-                //TODO add a flag to the contextmenu handler to check for a mouse move of a certain distance?
+                //WISHLIST add a flag to the contextmenu handler to check for a mouse move of a certain distance?
                 //The right click drag for moving shouldn't open a context menu
 
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
@@ -126,7 +126,7 @@ module.exports = function () {
             this.renderer.domElement.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
             this.renderer.domElement.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
           
-            //TODO Touch stuff needs to be tested on mobile
+            //TODO TASK TESTING Touch stuff needs to be tested on mobile
             this.renderer.domElement.addEventListener('touchstart', function(event) {
               // prevent the window from scrolling
               event.preventDefault();
@@ -145,7 +145,7 @@ module.exports = function () {
             });
         },
 
-        //TODO change this RAF architecture to not redraw unless a change in the scene happens.
+        //WISHLIST change this RAF architecture to not redraw unless a change in the scene happens.
         animateLoop: function () 
         { 
             requestAnimationFrame( this.animateLoop.bind(this) );
@@ -211,7 +211,7 @@ module.exports = function () {
             //Picking must happen after rendering
             this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
 
-            //TODO refactor this for touch events as well 1/21/20
+            //WISHLIST Change this for touch events as well 1/21/20
             if(this.__state_mouse_handle_click_event){
                 this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
                 this.__state_mouse_handle_click_event = false; //Clears mouse event on handle
@@ -219,7 +219,7 @@ module.exports = function () {
 
             if(this.__state_mouse_handle_contextmenu_event){
                 this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true, true);
-                //TODO context menu handling
+                //WISHLIST context menu handling
                 //We should add handling for a context enum that can handle different context situations and obj interactions.
                 this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));
                 this.__state_mouse_handle_contextmenu_event = false;
@@ -233,11 +233,8 @@ module.exports = function () {
             this.controls.reset();    
         },
 
-        //TODO TASK TESTING verify that this behavior is good enough
-        //TODO TASK ADD a bottom view.
-
         view_RIGHT: function(){
-             // //Get current center, based on the right click panning around
+            //Get current center, based on the right click panning around
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
             this.camera.position.set(0,-dist,0);
             
@@ -246,7 +243,7 @@ module.exports = function () {
        },
 
         view_LEFT: function(){
-             // //Get current center, based on the right click panning around
+            //Get current center, based on the right click panning around
             let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
             this.camera.position.set(0,dist,0);
             

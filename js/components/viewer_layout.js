@@ -56,7 +56,7 @@ module.exports = {
                 v-on:click="returnToHome()">{{t('Return to Home Page')}}</button>
             <button type="button" v-on:click="engine_interface.resetCamera()">{{t('Reset Camera')}}</button>
 
-            <!-- TODO REFACTOR COMPONENT view controls component -->
+            <!-- TODO REFACTOR VUEX COMPONENT view controls component -->
             <view_controls v-bind:engine_interface="engine_interface"></view_controls>
 
 
@@ -169,7 +169,7 @@ module.exports = {
             //PRESENTATION STYLING AND CONTENT EVENT HANDLERS
             // 
 
-            ////TODO REFACTOR PRESENTATION
+            ////TODO REFACTOR VUEX PRESENTATION
             //This could be moved to a landmark component
            this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
                applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
@@ -290,7 +290,7 @@ module.exports = {
         },
 
         ///
-        ///TODO Push this to engine interface
+        ///TODO REFACTOR VUEX
         ///
         
         //Control and presentation should be seperated.
@@ -304,7 +304,7 @@ module.exports = {
             this.$router.push('/');
         },
         
-        //TODO REFACTOR PRESENTATION
+        //TODO REFACTOR VUEX PRESENTATION
         toggleDisplayMenu(){
             this.menu_display_wrapper_el.classList.toggle("closed");
             this.menu_wrapper_closer_el.classList.toggle("closed");

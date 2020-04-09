@@ -16,7 +16,7 @@ module.exports = {
         //slice(2) in this case drops the leading "# " and "g " line markers in the obj format
 
 
-        //TODO figure out what we should do with the "This file was created by FileConverter" description.
+        //TODO TASK PREDEPLOYMENT figure out what we should do with the "This file was created by FileConverter" description.
         //Should this translation be done at load time or at the presentation template level
         //landmarks schema
 
@@ -30,7 +30,7 @@ module.exports = {
             console.log(landmark.description);
             console.log(landmark.group_name);
             //LM44, 45 & 46 have no descriptions still.
-            //TODO maybe make a lookup table for these.
+            //WISHLIST maybe make a lookup table for these.
 
             return landmark;
         });

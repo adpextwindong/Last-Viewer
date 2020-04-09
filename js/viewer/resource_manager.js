@@ -92,6 +92,10 @@ class ResourceManager {
             console.log("defaulting rotations");
             this.__setDefaultOrientations();
 
+
+            //TASK ENGINE WORK Fix the defaulter so it correctly orrientates the model
+            //A simple heuristic that for the general length vs width should work.
+            //Figuring out heel end might be a bit rougher.
         }
 
 
@@ -112,7 +116,10 @@ class ResourceManager {
     }
     __setDefaultOrientations(){
         //Position the foot objs across the X axis in a distributed manner.
-        for(let i = 0; i < this.objs.length; i++){          
+        for(let i = 0; i < this.objs.length; i++){        
+            //TASK Implement correct orrientation
+            
+
             this.objs[i].rotation.set(CONFIG.DEFAULT_ROTATION_X,
                 CONFIG.DEFAULT_ROTATION_Y,
                 CONFIG.DEFAULT_ROTATION_Z);
@@ -167,7 +174,7 @@ class ResourceManager {
         points.push(new THREE.Vector3(...getLandmarkPoint(landmark_a)));
         points.push(new THREE.Vector3(...getLandmarkPoint(landmark_b)));
 
-        //TODO this might need to be refactored or something
+        //WISHLIST See if projecting down is all we need
         if(project_down_onto_axis !== undefined &&
             (project_down_onto_axis === "X" || project_down_onto_axis === "Y" || project_down_onto_axis === "Z")){
             
@@ -196,7 +203,7 @@ class ResourceManager {
 
         line.layers.set(CONFIG.LAYERS_LANDMARKS);
 
-        //TODO now make the line be pickable/hoverable
+        //WISHLIST LINE PICKING/HOVERING now make the line be pickable/hoverable
         //figure out how to make the lines fat for CPU picking...
         //Otherwise GPU picking will be necessary.
 
@@ -362,7 +369,7 @@ class ResourceManager {
                 console.log("Adding Heel Girth circumference line");
                 this.__addHeelGirthCircumference(mesh);
             }
-            //TODO consider adding functionality to extend past to a certain distance for stuff like Toe Angle Base Lines
+            //WISHLIST consider adding functionality to extend past to a certain distance for stuff like Toe Angle Base Lines
         }
     }
 

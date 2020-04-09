@@ -104,6 +104,12 @@ module.exports = class PickHelper {
       if (intersectedObjects.length) {
         // pick the first object. It's the closest one
         this.pickedObject = intersectedObjects[0].object;
+
+        //TODO TASK Line Highlighting.
+        //Turns out we can highlight lines.
+        if(this.pickedObject.type === "Line" || this.pickedObject.type === "LineSegments"){
+            console.log("yolo");
+        }
         // save its color
         if(this.pickedObject.material.emissive){
             this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
