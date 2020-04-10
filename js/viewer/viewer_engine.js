@@ -20,8 +20,9 @@ module.exports = function () {
         fire_event_to_component: null,
         target_element: null,
 
-        init: function (target_element, component_event_emitter, processed_loadGraphList) {
+        init: function (target_element, component_event_emitter, processed_loadGraphList, store) {
 
+            this.$store = store;
             MOBILE_UTILS.hideAddressBarOnMobile();
 
             this.fire_event_to_component = component_event_emitter;
@@ -81,7 +82,7 @@ module.exports = function () {
             this.controls.handleResize();
             
             //WISHLIST GPU PICKING
-            this.pickHelper = new PickHelper();
+            this.pickHelper = new PickHelper(store);
             this.pickHelper.clearPickPosition();
             this.__bindMouseEngineEvents();
           

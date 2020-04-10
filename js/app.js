@@ -1,5 +1,6 @@
 import VueRouter from 'vue-router';
 import VueTranslate from 'vue-translate-plugin';
+import store from './store';
 Vue.use(VueRouter);
 Vue.use(VueTranslate);
 
@@ -13,7 +14,7 @@ Vue.component('vue-context', () => import('vue-context'));
 Vue.component('landmark_list', () => import('./components/landmark_list'));
 Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hiearchy'));
 Vue.component('view_controls', () => import('./components/view_controls.js'));
-
+Vue.component('landmark_nametag', () => import('./components/landmark_nametag'));
 const CONFIG = require("./config");
 
 //TODO REFACTOR VUEX (this is really dirty)
@@ -27,7 +28,7 @@ let getInitialLoadTrees = function(trees) {
 
 var app = new Vue({
     el: '#app',
-
+    store, 
     methods : {
         WebGLAvailible(){
             return window.WebGLRenderingContext !== undefined;

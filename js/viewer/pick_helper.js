@@ -3,7 +3,8 @@ var THREE = require('three');
 const CONFIG = require("../config")
 
 module.exports = class PickHelper {
-    constructor() {
+    constructor(store) {
+      this.$store = store;
       this.raycaster = new THREE.Raycaster();
       this.pickedObject = undefined;
       this.lastFramePickObject = undefined;
@@ -186,7 +187,8 @@ module.exports = class PickHelper {
             camera.updateMatrixWorld(true)
             let vector = mesh_center.project(camera);
 
-            fire_event_to_component("viewer_landmark_highlighted_position", { 
+            //TODO cache this so we don't update every frame
+            this.$store.commit('landmarks/highlighted_set_position', {
                 x: ((vector.x / 2) * renderer.domElement.width) + (renderer.domElement.width/2),
                 y: (renderer.domElement.height/2) - ((vector.y / 2) * renderer.domElement.height) 
             });

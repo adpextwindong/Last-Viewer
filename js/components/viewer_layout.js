@@ -25,28 +25,7 @@ module.exports = {
     template : `
 
     <div id="data_display_wrapper" class="wrapper">
-        <div id="landmark_nametag_wrapper">
-            <span id="landmark_nametag">{{ landmark_highlighted_name }}</span>
-        </div>
-        
-        <!-- <div v-on-clickaway="hideContextMenu" id="context_menu">
-            <p @contextmenu.prevent="$refs.menu.open">
-                Right click on me
-            </p>
-
-            <vue-context ref="menu">
-                <li>
-                    <a @click.prevent="")">
-                        Option 1
-                    </a>
-                </li>
-                <li>
-                    <a @click.prevent="">
-                        Option 2
-                    </a>
-                </li>
-            </vue-context>
-        </div> -->
+        <landmark_nametag/>
 
         <!-- Everything above this should be absolute position UI elements, everything else should go into the display wrapper-->
         
@@ -80,6 +59,7 @@ module.exports = {
     </div>
     `,
 
+    //REFACTOR VUEX
     //This is a hack around the router
     props :  ['loadTreesGetter'],
 
@@ -174,17 +154,14 @@ module.exports = {
            this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
                applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
                    this.landmarks[parent_key][ind].isActive = true;
-                   this.$set(this, "landmark_highlighted", true);
-
                    let group_name = CONFIG.DEBUG ? viewer_group_name : "";
-                   this.landmark_highlighted_name = group_name + " " + this.t(this.landmarks[parent_key][ind].description);
+                   this.$store.commit('landmarks/highlighted_set_name', group_name + " " + this.t(this.landmarks[parent_key][ind].description));
                });
            });
            this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
                applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
                    this.landmarks[parent_key][ind].isActive = false;
-                   this.$set(this, "landmark_highlighted", false);
-                   this.landmark_highlighted_name = "";
+                   this.$store.commit('landmarks/highlighted_set_name', "");
                });
            });
            this.$on('contextmenu_selected_uuids', function(uuids){
@@ -200,6 +177,10 @@ module.exports = {
                this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
            });
 
+           //VUEX REFACTOR PRESENTATION CANDIDATE
+           //Style setting can be done in a watch
+           //The nametag_el can be cached inside the Vue component
+           //This layer will only handle mounting the component rather than dealing with its internals
 
 
            //POSITIONING
@@ -238,7 +219,7 @@ module.exports = {
                 this.$emit(event_name, ...args); //Viewer Layout Component Scope
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
             }.bind(this);
-            appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList);
+            appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList, this.$store);
             this.__bindEngineInterface();
 
 
