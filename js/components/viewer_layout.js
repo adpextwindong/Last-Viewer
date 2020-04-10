@@ -169,20 +169,6 @@ module.exports = {
             //    console.log(uuids);
            });
 
-           //TODO REFACTOR VUEX, we should figure out how slow this kind of data binding will be in Vuex
-
-           this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
-               this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
-               this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
-               this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
-           });
-
-           //VUEX REFACTOR PRESENTATION CANDIDATE
-           //Style setting can be done in a watch
-           //The nametag_el can be cached inside the Vue component
-           //This layer will only handle mounting the component rather than dealing with its internals
-
-
            //POSITIONING
            this.$on('viewer_context_menu_position', function(context_menu_position_v2){
                this.context_menu_active = true;

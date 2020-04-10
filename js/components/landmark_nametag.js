@@ -10,7 +10,6 @@ export default {
         ...mapState('landmarks/', {
             name: state => state.highlighted_landmark.name,
             position: state => state.highlighted_landmark.position,
-            visible: state =>  state.highlighted_landmark.visible
         })
     },
     watch:{
@@ -18,22 +17,12 @@ export default {
             const leftOffset = 20;
             const topOffset = 20;
 
-            //TODO cache this
-            let target = this.$el.querySelector("span");
-            target.style["left"] = (newPosition.x + leftOffset) + "px";
-            target.style["top"] = (newPosition.y - topOffset) + "px";
+            this.target_el.style["left"] = (newPosition.x + leftOffset) + "px";
+            this.target_el.style["top"] = (newPosition.y - topOffset) + "px";
         }
     },
 
     mounted(){
-//TODO hide the element on mount
+        this.target_el = this.$el.querySelector("span");
     }
 }
-
-//TODO port this to the watcher
-// this.$on('viewer_landmark_highlighted_position', function(hightlighted_position_v2){
-//     this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
-//     this.lm_nametag_el.style["left"] = (hightlighted_position_v2.x + 20) + "px";
-//     this.lm_nametag_el.style["top"] = (hightlighted_position_v2.y - 20) + "px";
-// });
-

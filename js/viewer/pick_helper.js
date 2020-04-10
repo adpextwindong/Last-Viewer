@@ -8,6 +8,7 @@ module.exports = class PickHelper {
       this.raycaster = new THREE.Raycaster();
       this.pickedObject = undefined;
       this.lastFramePickObject = undefined;
+      this.cached_highlight_position = undefined;
       this.pickedObjectSavedColor = 0;
 
       this.pickPosition = {x: 0, y: 0};
@@ -186,12 +187,18 @@ module.exports = class PickHelper {
             mesh_center.applyMatrix4(this.pickedObject.matrixWorld);
             camera.updateMatrixWorld(true)
             let vector = mesh_center.project(camera);
-
-            //TODO cache this so we don't update every frame
-            this.$store.commit('landmarks/highlighted_set_position', {
+ 
+            let highlight_position =  {
                 x: ((vector.x / 2) * renderer.domElement.width) + (renderer.domElement.width/2),
                 y: (renderer.domElement.height/2) - ((vector.y / 2) * renderer.domElement.height) 
-            });
+            };
+
+            if(highlight_position !== this.cached_highlight_position){
+                if(this.cached_highlight_position === undefined ||highlight_position !== this.cached_highlight_position){
+                   this.$store.commit('landmarks/highlighted_set_position', highlight_position);
+                }
+                this.cached_highlight_position = highlight_position;
+            }
         }
     }
   }
