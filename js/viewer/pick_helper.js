@@ -161,7 +161,7 @@ module.exports = class PickHelper {
 
             if(this.triggerHoverOffForLastEmitted){
                 if(this.lastEmittedPickedObject){
-                    fire_event_to_component("viewer_landmark_hover_off",
+                    this.$store.commit("landmarks/highlighted_landmark_hover_off", 
                         this.lastEmittedPickedObject.parent["name"] ,this.lastEmittedPickedObject.name);
                 }
                 
@@ -169,9 +169,9 @@ module.exports = class PickHelper {
             }
 
             if(this.pickedObject){
-                fire_event_to_component("viewer_landmark_hover_on",
+                this.$store.commit("landmarks/highlighted_landmark_hover_off",
                     this.pickedObject.parent["name"] ,this.pickedObject.name);
-
+                
                 this.lastEmittedPickedObject = this.pickedObject;
                 this.triggerHoverOffForLastEmitted = true;
             }

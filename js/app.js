@@ -12,6 +12,7 @@ import Viewer from './components/viewer_layout';
 //These imports could be moved down and asyncly done from viewer probably
 Vue.component('vue-context', () => import('vue-context'));
 Vue.component('landmark_list', () => import('./components/landmark_list'));
+Vue.component('landmark_list_item', () => import('./components/landmark_list_item'));
 Vue.component('scene_graph_hiearchy', () => import('./components/scene_graph_hiearchy'));
 Vue.component('view_controls', () => import('./components/view_controls.js'));
 Vue.component('landmark_nametag', () => import('./components/landmark_nametag'));

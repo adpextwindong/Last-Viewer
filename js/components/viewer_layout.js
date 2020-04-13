@@ -44,12 +44,8 @@ module.exports = {
             v-bind:engine_interface="engine_interface"
             />
 
-            <div v-if="landmark_list_visible === true">
-                <landmark_list v-for="(landmark_group,key,index) in landmarks"
-                    v-bind:landmark_group="landmark_group"
-                    v-bind:key=index></landmark_list>
-            </div>
-            <button type="button" v-on:click="hideLandmarks()">{{t('Hide all landmarks')}}</button>
+            <landmark_list></landmark_list>
+            <button type="button" v-on:click="toggleLandmarks()">{{t('Hide all landmarks')}}</button>
             
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
@@ -72,23 +68,7 @@ module.exports = {
     },
     data() {
         return {
-            
-            //Indexed by obj.name of top level scan objects
-            //This might need to be indexed by UUID
-            landmarks : {},
-
-            //TODO REFACTOR VUEX context menus to make this more declarative
-            //Refactor for multi objs
-            //If we had a feature like landmark highlighting for contextual measurments (Ball girth length, circumference, etc)
-            //Menus like the side detail menu might want to hide things.
-
-            //This state should be pushed down to a component
-            landmark_highlighted : false,
-            landmark_highlighted_name : "",
-            landmark_list_visible : true,
-
             scene_graph_representation : [],
-
             //Passed as prop to children for manipulating the scene
             engine_interface : {},
         }
@@ -136,34 +116,6 @@ module.exports = {
     },
 
    created() {
-           const applyOnExistingLandmark = (parent_key, viewer_group_name, f) => {
-               if(this.landmarks[parent_key]){
-                   let ind = this.landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
-                   if(ind !== -1){
-                       f(ind);
-                   }
-               }
-           };
-           
-            // 
-            //PRESENTATION STYLING AND CONTENT EVENT HANDLERS
-            // 
-
-            ////TODO REFACTOR VUEX PRESENTATION
-            //This could be moved to a landmark component
-           this.$on('viewer_landmark_hover_on', function(parent_key, viewer_group_name){   
-               applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
-                   this.landmarks[parent_key][ind].isActive = true;
-                   let group_name = CONFIG.DEBUG ? viewer_group_name : "";
-                   this.$store.commit('landmarks/highlighted_set_name', group_name + " " + this.t(this.landmarks[parent_key][ind].description));
-               });
-           });
-           this.$on('viewer_landmark_hover_off', function(parent_key, viewer_group_name){
-               applyOnExistingLandmark(parent_key, viewer_group_name, (ind) =>{
-                   this.landmarks[parent_key][ind].isActive = false;
-                   this.$store.commit('landmarks/highlighted_set_name', "");
-               });
-           });
            this.$on('contextmenu_selected_uuids', function(uuids){
             //    console.log("Recieved selected uuids for context menu interaction");
             //    console.log(uuids);
@@ -208,9 +160,8 @@ module.exports = {
             appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList, this.$store);
             this.__bindEngineInterface();
 
-
-            this.__grabLandmarks(processed_loadTreeList);
-
+            // this.__grabLandmarks(processed_loadTreeList);
+            this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList);
 
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
@@ -231,40 +182,15 @@ module.exports = {
             appViewer.animateLoop();
 
             //Stashing elements to avoid dom traversals later
-            this.lm_nametag_el = document.querySelector("#landmark_nametag_wrapper span");
             this.menu_display_wrapper_el = document.querySelector("#data_display_wrapper");
             this.menu_wrapper_closer_el = document.querySelector("#wrapper_closer");
         },
 
-        __grabLandmarks(processed_loadTreeList){
-            let initLandmarkTexts = (parent_obj_name, text) => {
-                //This should be hoisted out.
-                this.$set(this.landmarks, parent_obj_name, []);
-                this.landmarks[parent_obj_name].push(...LandmarkParser.parseLandmarkTextToList(text));
-            };
-
-            let addLandmarks = tree_node => {
-                let {text, obj} = tree_node.response_object;
-                initLandmarkTexts(obj["name"],text);
-                
-                if(tree_node.overlay_children){
-                    tree_node.overlay_children.forEach(child => {
-                        addLandmarks(child);
-                    })
-                }
-            }
-            processed_loadTreeList.forEach(t => addLandmarks(t));
-        },
-
-        ///
-        ///TODO REFACTOR VUEX
-        ///
-        
-        //Control and presentation should be seperated.
-        hideLandmarks () {
+       //Control and presentation should be seperated.
+        toggleLandmarks () {
             appViewer.hideLandmarks();
             //This is a example of a Vuex interaction potentially
-            this.landmark_list_visible = !this.landmark_list_visible;
+            this.$store.commit("landmarks/toggle_landmark_list");
         },
 
         returnToHome () {
