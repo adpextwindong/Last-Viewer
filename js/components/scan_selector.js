@@ -62,7 +62,6 @@ export default {
 
     </div>
     `,
-    props: ['loaderTreesSetter'],
     name: 'scan_selector',
     mounted : function() {
         if(typeof REQUEST_METADATA !== "undefined"){
@@ -259,7 +258,7 @@ export default {
             });
 
             this.loading = false;
-            this.loaderTreesSetter(LoadTreeList);
+            this.$store.commit('loadTrees/setTrees', LoadTreeList);
             this.$router.push('engine');
         },
 

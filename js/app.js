@@ -18,15 +18,6 @@ Vue.component('view_controls', () => import('./components/view_controls.js'));
 Vue.component('landmark_nametag', () => import('./components/landmark_nametag'));
 const CONFIG = require("./config");
 
-//TODO REFACTOR VUEX (this is really dirty)
-var initialLoadTrees;
-let setInitialLoadTrees = function(trees) {
-    initialLoadTrees = trees;
-}
-let getInitialLoadTrees = function(trees) {
-    return initialLoadTrees;
-}
-
 var app = new Vue({
     el: '#app',
     store, 
@@ -37,9 +28,9 @@ var app = new Vue({
     },
     router : new VueRouter({
         routes: [
-            { path: '/', component: Scan_Selector, props: {loaderTreesSetter : setInitialLoadTrees}},
+            { path: '/', component: Scan_Selector}, 
             { path: '/settings', component: Settings_Menu},
-            { path: '/engine', component: Viewer, props: {loadTreesGetter : getInitialLoadTrees}},
+            { path: '/engine', component: Viewer},
         ],
         base: __dirname,
     }),

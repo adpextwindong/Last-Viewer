@@ -19,7 +19,6 @@ const getters = {
 
 };
 
-//TODO port
 function initLandmarks(state, processed_loadTreeList){
     let initLandmarkTexts = (parent_obj_name, text) => {
         Vue.set(state.landmarks, parent_obj_name, []);
@@ -52,7 +51,6 @@ const applyIfExistingLandmark = (landmarks) => (parent_key, viewer_group_name, f
 const mutations = {
     initializeLandmarks(state, processed_loadTreeList){
         initLandmarks(state, processed_loadTreeList);
-        // console.log("landmarks initialized!!!");
     },
 
     highlighted_landmark_hover_on(state, parent_key, viewer_group_name){

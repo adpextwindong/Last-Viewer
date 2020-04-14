@@ -53,11 +53,6 @@ module.exports = {
         </div>
     </div>
     `,
-
-    //REFACTOR VUEX
-    //This is a hack around the router
-    props :  ['loadTreesGetter'],
-
     //It might be easier for a control object for each component to be generated that contains closures for each thing
     //instead of vbinding everything. Ofc theres no compile time guarentee that the controls match up.
     computed : {
@@ -96,7 +91,7 @@ module.exports = {
     mounted() {
         //We need some sort of flush flag when the router goes elsewhere and comes back with a new loadTree
         //If they go to the settings menu or something it shouldnt flush a warm scene in the background.
-        loadTrees = this.loadTreesGetter();
+        loadTrees = this.$store.getters["loadTrees/trees"];
         if(loadTrees !== undefined){
             nav = document.querySelector("#router_nav");
             nav.classList.add("hide_me");
