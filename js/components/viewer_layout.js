@@ -84,7 +84,6 @@ module.exports = {
         next();
     },
 
-    //TODO REFACTOR VUEX
     //This is a hack around the parent owning the element & loadTree list
     //but is unable to watch the mounting of the v-if'd layout component.
     //Once the parent loads, it stashes this function.
