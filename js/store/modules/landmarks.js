@@ -52,7 +52,7 @@ const applyIfExistingLandmark = (landmarks) => (parent_key, viewer_group_name, f
 const mutations = {
     initializeLandmarks(state, processed_loadTreeList){
         initLandmarks(state, processed_loadTreeList);
-        console.log("landmarks initialized!!!");
+        // console.log("landmarks initialized!!!");
     },
 
     highlighted_landmark_hover_on(state, parent_key, viewer_group_name){

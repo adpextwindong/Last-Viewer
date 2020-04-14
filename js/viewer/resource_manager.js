@@ -163,7 +163,7 @@ class ResourceManager {
 
     addFootDimensionData(uuid, feet_dimensions){
         let {left, right} = feet_dimensions;
-        //TODO REFACTOR VUEX add UI divs for feet dimensions on hover, etc.
+        //TASK Add foot dimension processing and info display
     }
 
     __LineBetweenLandmarks(mesh, lm_number_a, lm_number_b, project_down_onto_axis = undefined){

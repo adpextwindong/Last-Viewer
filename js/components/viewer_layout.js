@@ -33,15 +33,14 @@ module.exports = {
             <button type="button"
                 v-if="config.DEBUG"
                 v-on:click="returnToHome()">{{t('Return to Home Page')}}</button>
+
             <button type="button" v-on:click="engine_interface.resetCamera()">{{t('Reset Camera')}}</button>
 
-            <!-- TODO REFACTOR VUEX COMPONENT view controls component -->
             <view_controls v-bind:engine_interface="engine_interface"></view_controls>
 
-
             <scene_graph_hiearchy v-if="config.DEBUG"
-            v-bind:scene_graph_representation="scene_graph_representation"
-            v-bind:engine_interface="engine_interface"
+                v-bind:scene_graph_representation="scene_graph_representation"
+                v-bind:engine_interface="engine_interface"
             />
 
             <landmark_list></landmark_list>
@@ -157,16 +156,15 @@ module.exports = {
                 this.$emit(event_name, ...args); //Viewer Layout Component Scope
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
             }.bind(this);
+
             appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList, this.$store);
             this.__bindEngineInterface();
 
-            // this.__grabLandmarks(processed_loadTreeList);
             this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList);
 
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
 
-            //CRITICAL EVENT LAYER
             //This is the event handler that queries the loadTreeList for updates on the scene graph model.
             this.$on('viewer_scene_graph_change', function(){
                 console.log("Scene Graph change recieved");
@@ -189,7 +187,6 @@ module.exports = {
        //Control and presentation should be seperated.
         toggleLandmarks () {
             appViewer.hideLandmarks();
-            //This is a example of a Vuex interaction potentially
             this.$store.commit("landmarks/toggle_landmark_list");
         },
 
@@ -197,19 +194,10 @@ module.exports = {
             this.$router.push('/');
         },
         
-        //TODO REFACTOR VUEX PRESENTATION
         toggleDisplayMenu(){
             this.menu_display_wrapper_el.classList.toggle("closed");
             this.menu_wrapper_closer_el.classList.toggle("closed");
         },
-
-        hideContextMenu: function() {
-            if(this.context_menu_active){
-                this.context_menu_active = false;
-                this.context_menu_el.style["left"] = -10000 + "px";
-                this.context_menu_el.style["top"] = -10000 + "px";
-            }
-          },
     }
     
 }

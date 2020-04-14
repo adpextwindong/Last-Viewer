@@ -56,8 +56,6 @@ module.exports = class PickHelper {
                     if(this.pickedObject.material.emissive){
                         this.pickedObject.material.emissive.setHex(CONFIG.SELECTION_COLOR);
                     }
-                    //TODO REFACTOR VUEX we need to flush a selection change to the model in the layout
-                    //This might be a good candidate reason for migrating to Vuex.
                 }else{
                     let ind = this.selection.map(tupple => tupple.obj).indexOf(this.pickedObject);
                     let {obj, original_color} = this.selection.splice(ind, 1)[0];
