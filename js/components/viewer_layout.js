@@ -131,9 +131,7 @@ module.exports = {
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
 
-                toggleVisibilityUUID : appViewer.manager.toggleVisibility.bind(appViewer),
-
-                addFootDimensionData : appViewer.manager.addFootDimensionData.bind(appViewer),
+                toggleVisibilityUUID : appViewer.manager.toggleVisibility.bind(appViewer.manager),
 
                 resetCamera : appViewer.resetCamera.bind(appViewer),
                 view_top : appViewer.view_TOP.bind(appViewer),

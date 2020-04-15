@@ -5,7 +5,6 @@ export default {
         <div id="landmark_nametag_wrapper">
             <span id="landmark_nametag">{{ name }}</span>
         </div>`,
-    //TODO figure out if theres an easier way to destructure this
     computed: {
         ...mapState('landmarks/', {
             name: state => state.highlighted_landmark.name,

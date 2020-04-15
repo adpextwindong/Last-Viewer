@@ -108,6 +108,8 @@ module.exports = class PickHelper {
 
         //TODO TASK Line Highlighting.
         //Turns out we can highlight lines.
+
+        //Maybe we can stage two passes of intersection. Filter the line/linesegment into their own group and do that first.
         if(this.pickedObject.type === "Line" || this.pickedObject.type === "LineSegments"){
             console.log("yolo");
         }
