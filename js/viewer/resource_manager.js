@@ -230,6 +230,7 @@ class ResourceManager {
         this.__addCircumferenceLineFromCutPlane(mesh, highest_point_ball_girth, most_medial_point_ball_girth, most_lateral_point_ball_girth);
     }
 
+    //TODO fix these circumference interactions with the model (or parent model) being rotated.
     __addHeelGirthCircumference(mesh){
         // LM44 LM1 (interpolate 3rd point for plane from colinear points) Heel Girth Circumference
         const midPointBetweenTwoPoints = (point_a, point_b) => {
