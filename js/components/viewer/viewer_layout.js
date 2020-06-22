@@ -2,7 +2,7 @@
 // Its seperated from the APP
 var vueclickaway = require('vue-clickaway');
 
-var Viewer = require('../../viewer/viewer_engine.js');
+var Viewer = require('../../engine/viewer_engine.js');
 var appViewer = new Viewer();
 
 const CONFIG = require("../../config");
