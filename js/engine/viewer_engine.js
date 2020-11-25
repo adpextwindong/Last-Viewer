@@ -97,11 +97,16 @@ module.exports = function () {
 
         __bindMouseEngineEvents: function()
         {
+            //TODO maybe these need to force rerender this.rerender();
+
             // Binds engine events such as click handlers for the mouse leftclick and context menu, mouse position
 
             //These bindings should be seperated from Mobile client bindings.
+            viewerScope = this;
+
             this.__state_current_mouse_handler = function(e){
                 this.__state_mouse_handle_click_event = e;
+                viewerScope.rerender("current_mouse_handler");
             }.bind(this);
             this.renderer.domElement.addEventListener('click', this.__state_current_mouse_handler);
 
@@ -122,38 +127,59 @@ module.exports = function () {
                 //The right click drag for moving shouldn't open a context menu
 
                 this.setPickPosition(e, viewer_scope.renderer.domElement);
+                viewerScope.rerender("mousemove");
             }.bind(this.pickHelper));
 
-            this.renderer.domElement.addEventListener('mouseout', this.pickHelper.clearPickPosition.bind(this.pickHelper));
-            this.renderer.domElement.addEventListener('mouseleave', this.pickHelper.clearPickPosition.bind(this.pickHelper));
+            this.renderer.domElement.addEventListener('mouseout', function(event){
+                this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                viewerScope.rerender("mouseout");
+            });
+            this.renderer.domElement.addEventListener('mouseleave', function(event) {
+                this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                viewerScope.rerender("mouseleave");
+            });
           
             //TODO TASK TESTING Touch stuff needs to be tested on mobile
             this.renderer.domElement.addEventListener('touchstart', function(event) {
               // prevent the window from scrolling
               event.preventDefault();
               this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+
+              viewerScope.rerender("touchstart");
             }.bind(this), {passive: false});
           
             this.renderer.domElement.addEventListener('touchmove', function(event) {
                 event.preventDefault();
                 this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+
+                viewerScope.rerender("touchmove");
             }.bind(this));
           
             this.renderer.domElement.addEventListener('touchend', function(event){
                 event.preventDefault();
+
+                viewerScope.rerender("touchend");
                 // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
                 // this.pickHelper.clearPickPosition.bind(this.pickHelper);
             });
         },
 
-        //WISHLIST change this RAF architecture to not redraw unless a change in the scene happens.
+        //TODO debug all UI interactions to force rerender, and finalize RAF architecture removal
+        //TODO debug why this hangs on Android
         animateLoop: function () 
         { 
-            requestAnimationFrame( this.animateLoop.bind(this) );
             if(this.__canvasOnPage){
                 this.__render();		
                 this.__update();
-            }       
+            }
+        },
+
+        //TODO include a flag that any UI/Touch event forces true that causes a rerender.
+        rerender : function (source){
+            this.animateLoop();
+            if(source){
+                console.log(source);
+            }
         },
 
         __appendRendererToDom : function () {
@@ -230,8 +256,12 @@ module.exports = function () {
 
         
         //External facing functions for controling the scene from the viewer layout Vue component.
+        //TODO rename these EXTERNAL
+        //TODO these all force rerender
         resetCamera: function (){
-            this.controls.reset();    
+            this.controls.reset();
+
+            this.rerender("resetCamera");
         },
 
         view_RIGHT: function(){
@@ -241,6 +271,8 @@ module.exports = function () {
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(0,0,1);
+            
+            this.rerender("view_RIGHT");
        },
 
         view_LEFT: function(){
@@ -250,6 +282,8 @@ module.exports = function () {
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(0,0,1);
+
+            this.rerender("view_LEFT");
        },
 
         view_TOE_END: function(){
@@ -258,6 +292,8 @@ module.exports = function () {
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(0,0,1);
+
+            this.rerender("view_TOE_END");
         },
 
         view_HEEL_END: function(){
@@ -266,6 +302,8 @@ module.exports = function () {
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(0,0,1);
+
+            this.rerender("view_HEEL_END");
         },
 
         view_TOP: function(){
@@ -274,6 +312,8 @@ module.exports = function () {
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(1,0,0);
+
+            this.rerender("view_TOP");
         },
 
         view_BOTTOM: function(){
@@ -282,12 +322,16 @@ module.exports = function () {
             
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.up = new THREE.Vector3(1,0,0);
+
+            this.rerender("view_BOTTOM");
         },
 
         //Use bounding box to determine default rotation, then landmark to determine vertical orrientation?
 
         hideLandmarks : function() {
             this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
+
+            this.rerender("hideLandmarks");
         },
 
         //
