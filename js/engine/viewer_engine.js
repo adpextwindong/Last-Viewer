@@ -82,8 +82,11 @@ module.exports = function () {
             this.controls.handleResize();
             
             //WISHLIST GPU PICKING
-            this.pickHelper = new PickHelper(store);
-            this.pickHelper.clearPickPosition();
+            if(!CONFIG.CONTEXT_MOBILE){
+                this.pickHelper = new PickHelper(store);
+                this.pickHelper.clearPickPosition();    
+            }
+            
             this.__bindMouseEngineEvents();
           
             //
@@ -125,33 +128,40 @@ module.exports = function () {
             this.renderer.domElement.addEventListener('mousemove', function (e){
                 //WISHLIST add a flag to the contextmenu handler to check for a mouse move of a certain distance?
                 //The right click drag for moving shouldn't open a context menu
-
-                this.setPickPosition(e, viewer_scope.renderer.domElement);
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.setPickPosition(e, viewer_scope.renderer.domElement);
+                }
                 viewerScope.rerender("mousemove");
             }.bind(this.pickHelper));
 
             this.renderer.domElement.addEventListener('mouseout', function(event){
-                this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                }
                 viewerScope.rerender("mouseout");
             });
             this.renderer.domElement.addEventListener('mouseleave', function(event) {
-                this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                }
                 viewerScope.rerender("mouseleave");
             });
           
             //TODO TASK TESTING Touch stuff needs to be tested on mobile
             this.renderer.domElement.addEventListener('touchstart', function(event) {
               // prevent the window from scrolling
-              event.preventDefault();
-              this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
-
-              viewerScope.rerender("touchstart");
+                event.preventDefault();
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+                }
+                viewerScope.rerender("touchstart");
             }.bind(this), {passive: false});
           
             this.renderer.domElement.addEventListener('touchmove', function(event) {
                 event.preventDefault();
-                this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
-
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
+                }
                 viewerScope.rerender("touchmove");
             }.bind(this));
           
@@ -160,7 +170,9 @@ module.exports = function () {
 
                 viewerScope.rerender("touchend");
                 // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
-                // this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.clearPickPosition.bind(this.pickHelper);
+                }
             });
         },
 
@@ -177,9 +189,10 @@ module.exports = function () {
         //TODO include a flag that any UI/Touch event forces true that causes a rerender.
         rerender : function (source){
             this.animateLoop();
-            if(source){
-                console.log(source);
-            }
+            // if(source){
+            //     console.log(source);
+            // }
+            //console.log("Rerender letting go");
         },
 
         __appendRendererToDom : function () {
@@ -233,22 +246,34 @@ module.exports = function () {
         },
         __render: function () {
             this.renderer.render( this.scene, this.camera );
-            this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
+            if(!CONFIG.CONTEXT_MOBILE){
+                this.pickHelper.pick(this.pickHelper.pickPosition, this.scene, this.camera);
+            }
+
 
             //Picking must happen after rendering
-            this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);
+            if(!CONFIG.CONTEXT_MOBILE){
+                this.pickHelper.fireEvents(this.fire_event_to_component, this.camera, this.renderer);               
+            }
+
 
             //WISHLIST Change this for touch events as well 1/21/20
             if(this.__state_mouse_handle_click_event){
-                this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, keyboard.pressed("shift"))
+                }
+
                 this.__state_mouse_handle_click_event = false; //Clears mouse event on handle
             }
 
-            if(this.__state_mouse_handle_contextmenu_event){
-                this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true, true);
+            if(this.__state_mouse_handle_contextmenu_event){                
                 //WISHLIST context menu handling
                 //We should add handling for a context enum that can handle different context situations and obj interactions.
-                this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));
+                if(!CONFIG.CONTEXT_MOBILE){
+                    this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true, true);
+                    this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));
+                }
+
                 this.__state_mouse_handle_contextmenu_event = false;
             }
         },
@@ -345,6 +370,8 @@ module.exports = function () {
             // Don't know why threejs will draw it after a visibility toggle so hopefully this hotfix is enough for now.
             const toggleAll = () => {
                 this.manager.mapOverTopObjs(o => this.manager.toggleVisibility(o.uuid));
+                this.rerender("toggleVisibility");
+                //TODO fix visibilty toggle not handling landmarks and circumference children
             }
 
             toggleAll();
