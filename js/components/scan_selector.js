@@ -240,6 +240,7 @@ export default {
             await sleep(1);
 
             //WISHLIST REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
+            //TODO parse filename for OBJ or STL
             var loader = new THREE.OBJLoader();
             
             LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));
@@ -258,6 +259,8 @@ export default {
             });
 
             this.loading = false;
+            //CRITICAL SECTION FOR LOADING DUE TO VUEJS V-IF LIMITATIONS
+            //viewer/viewer_layout.js::mounted() has notes on this.
             this.$store.commit('loadTrees/setTrees', LoadTreeList);
             this.$router.push('engine');
         },
