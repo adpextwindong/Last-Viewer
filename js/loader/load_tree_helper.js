@@ -77,7 +77,7 @@ module.exports = class LoadTree{
     //TODO refactor the load state handling into seperate predicate and state transition functions
     //Make sure the strings this stringly typed shit points to a const array of them like the scan types.
     startLoadOBJS(obj_loader){
-        this.load_state = "PENDING";
+        this.load_state = LOADING_STATES.pending;
 
         obj_loader.load(this.path, function(response_text_obj_pair){
             response_text_obj_pair["MODEL_TYPE"] = this.type;
@@ -85,26 +85,26 @@ module.exports = class LoadTree{
             this.response_object = response_text_obj_pair;
             
             if(this.overlay_children){
-                this.load_state = "AWAITING CHILDREN";
+                this.load_state = LOADING_STATES.awaiting;
                 //Recurse onto children
                 this.overlay_children.forEach(child_load_graph => child_load_graph.startLoadOBJS(obj_loader));
             }else{
-                this.load_state = "LOADED";
+                this.load_state = LOADING_STATES.loaded;
             }
         }.bind(this));
     }
 
     __pendingChildren(){
         if(this.overlay_children){
-            return this.overlay_children.some(g => g.load_state === "PENDING")
+            return this.overlay_children.some(g => g.load_state === LOADING_STATES.pending)
         }else{
             return false;
         }
     }
     updateBasedOnAwaitingChildren(){
-        if(this.load_state === "AWAITING CHILDREN"){
+        if(this.load_state === LOADING_STATES.awaiting){
             if(this.__pendingChildren() === false){
-                this.load_state = "LOADED";
+                this.load_state = LOADING_STATES.loaded;
             }else{
                 //Recurse onto children
                 this.overlay_children.forEach(child => child.updateBasedOnAwaitingChildren());
@@ -125,7 +125,7 @@ module.exports = class LoadTree{
 
     //Utility predicate for the loading phase
     notLoaded(){
-        return this.load_state !== "LOADED"
+        return this.load_state !== LOADING_STATES.loaded;
     }
     
     //Apply config and force overlay children to recursively apply config.
