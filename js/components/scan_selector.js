@@ -9,6 +9,8 @@ const LoadTreeFromObject = (o) => {
 var OBJLoader = require('../../lib/vendor/three_loader_custom');
 OBJLoader(THREE);
 
+var STLLoader = require('../../lib/vendor/STLLoader');
+
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export default {
@@ -219,6 +221,7 @@ export default {
             this.LoadTreeViewer(LoadTreeList);
 
         },
+        //Refactor this name
         async loadViewer (scan_paths, insole_paths) {
             let LoadTreeList = [];
 
@@ -232,6 +235,7 @@ export default {
             this.LoadTreeViewer(LoadTreeList);
         },
 
+        //Refactor this name
         async LoadTreeViewer (LoadTreeListRawObject) {
             let LoadTreeList = LoadTreeListRawObject.map(LoadTreeFromObject);
 
@@ -242,6 +246,9 @@ export default {
             //WISHLIST REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
             //TODO parse filename for OBJ or STL
             var loader = new THREE.OBJLoader();
+            var ts  = new STLLoader();
+            
+            console.log("LETS HOPE THIS WORKS");
             
             LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));
             while(LoadTreeList.some(g => g.notLoaded())){
@@ -252,6 +259,7 @@ export default {
             this.stitchAndStartEngine(LoadTreeList);
         },
 
+        //PreCondition: No children in the LoadTreeList are awaiting on children to load.
         stitchAndStartEngine(LoadTreeList){
             LoadTreeList.forEach(g => {
                 g.stitchSceneGraph();
@@ -266,6 +274,7 @@ export default {
         },
 
         //Drag and drop load handler
+        //TODO conver this to funnel into LoadTreeViewer
         async fileDropHandler(ev) {
             console.log('File(s) dropped');
           
@@ -274,6 +283,7 @@ export default {
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();
 
+            //TODO change this for STL
             var loader = new THREE.OBJLoader();
             let obj_promises = [];
             
@@ -295,6 +305,7 @@ export default {
             this.$forceUpdate();
             await sleep(1);
 
+            //Hmm this assumes a flat list of scans to load
             const texts = await Promise.all(obj_promises.map(o => o.text_p));
             const response_objects = texts.map(txt => loader.parse(txt));
             const LoadTreeList = response_objects.map((o,i) => new LoadTree(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));

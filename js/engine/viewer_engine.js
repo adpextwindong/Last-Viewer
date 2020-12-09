@@ -20,6 +20,7 @@ module.exports = function () {
         fire_event_to_component: null,
         target_element: null,
 
+        //This should be a class constructor
         init: function (target_element, component_event_emitter, processed_loadGraphList, store) {
 
             this.$store = store;
@@ -77,6 +78,7 @@ module.exports = function () {
             window.dispatchEvent(new Event('resize'));
             this.controls.handleResize();
             
+            //TODO add a flag for this
             //WISHLIST GPU PICKING
             if(!CONFIG.CONTEXT_MOBILE){
                 this.pickHelper = new PickHelper(store);

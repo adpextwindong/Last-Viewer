@@ -28,14 +28,31 @@ const OBJ_TYPES = [
     "FOOT_PAIR"
 ]
 
+const LOADING_STATES = {
+    loaded : "LOADED",
+    pending : "PENDING",
+    awaiting : "AWAITING CHILDREN"
+}
+
+//Overlay children is for scans you want to 'overlay' on top of a parent scan.
+//For example overlaying a last model over a foot model to visualize the difference.
+//This is why this class is a LoadTree as you might want to overlay multiple lasts and toggle visibility on them.
+//Handling that recursively, in the event someone wants to nest a bunch (partial scans etc idk), simplifies that.
+
+//The response object is the ThreeJS object loaded by whichever loader (OBJLoader or STLLoader)
+//Config applies Three.js operations to the ThreeJS object before first render.
 module.exports = class LoadTree{
     constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined, response_object=undefined){
         this.name = name;
         this.path = path;
+        //Scan type TODO REFACTOR THIS NAME
         this.type = type;
 
+        // this.file_ext = 
+        //TODO regex on path to determine loader to use
+
         if(overlay_children){
-            this.overlay_children = overlay_children;//These are also load graphs
+            this.overlay_children = overlay_children;//These are also load trees
             this.overlay_children.forEach(c => {
                 c.parent = this;
             });
@@ -50,12 +67,15 @@ module.exports = class LoadTree{
         }
 
         if(response_object){
+            //This is the internal THREE.JS Object class for the loaded model
             this.response_object = response_object;
         }
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
     //WISHLIST refactor This needs to be decoupled from the current loader
+    //TODO refactor the load state handling into seperate predicate and state transition functions
+    //Make sure the strings this stringly typed shit points to a const array of them like the scan types.
     startLoadOBJS(obj_loader){
         this.load_state = "PENDING";
 
@@ -107,6 +127,8 @@ module.exports = class LoadTree{
     notLoaded(){
         return this.load_state !== "LOADED"
     }
+    
+    //Apply config and force overlay children to recursively apply config.
     applyConfig(){
         if(this.config){
             //iterate and pattern match on properties
@@ -187,10 +209,10 @@ module.exports = class LoadTree{
     getTHREEObj(){
         return this.response_object.obj;
     }
-    removeChild(graph){
-        if(this.overlay_children.includes(graph)){
-            graph.parent = null;
-            this.overlay_children.splice(this.overlay_children.indexOf(graph),1);
+    removeChild(tree){
+        if(this.overlay_children.includes(tree)){
+            tree.parent = null;
+            this.overlay_children.splice(this.overlay_children.indexOf(tree),1);
             //Recursively remove from tree?
             if(this.overlay_children.length === 0){
                 this.overlay_children = undefined;
