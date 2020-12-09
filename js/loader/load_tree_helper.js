@@ -79,6 +79,11 @@ module.exports = class LoadTree{
     startLoadOBJS(obj_loader){
         this.load_state = LOADING_STATES.pending;
 
+        //TODO CRITICAL SECTION FOR STL PATCH
+        //We could just dispatch to the correct loader here and use the this.file_ext for control flow inside the onLoadHandler
+        //TODO play with the STLLoader.js load function to see what it spits back
+
+        //NOTE this only provides an onLoad function currently
         obj_loader.load(this.path, function(response_text_obj_pair){
             response_text_obj_pair["MODEL_TYPE"] = this.type;
             response_text_obj_pair.obj["name"] = this.name;
@@ -95,6 +100,7 @@ module.exports = class LoadTree{
     }
 
     __pendingChildren(){
+        //Wrap the some check to prevent NPE/undefined deref
         if(this.overlay_children){
             return this.overlay_children.some(g => g.load_state === LOADING_STATES.pending)
         }else{
