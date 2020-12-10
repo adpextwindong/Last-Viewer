@@ -1,3 +1,8 @@
+var OBJLoader = require('../../lib/vendor/three_loader_custom');
+OBJLoader(THREE);
+
+var STLLoader = require('../../lib/vendor/STLLoader.js');
+
 /*
 
 Heres the kind of json schema Im expecting to load with this thing
@@ -26,13 +31,38 @@ const OBJ_TYPES = [
     "INSOLE",
     "LAST",
     "FOOT_PAIR"
-]
+];
 
 const LOADING_STATES = {
     loaded : "LOADED",
     pending : "PENDING",
     awaiting : "AWAITING CHILDREN"
-}
+};
+
+const FILE_REGEXPS = {
+    wavefront_obj : /\w+(\.obj)$/i,
+    stl : /\w+(\.stl)$/i
+};
+
+//This should be a result monad honestly
+const PARSABLE_FILETYPES = {
+    obj : "OBJ",
+    stl : "STL",
+    INVALID : "INVALID",
+};
+
+const parse_file_type = (path) => {
+    if(FILE_REGEXPS.wavefront_obj.test(path)){
+        return PARSABLE_FILETYPES.obj;
+    }
+
+    if(FILE_REGEXPS.stl.test(path)){
+        return PARSABLE_FILETYPES.stl;
+    }
+
+    //Failure case to catch unusable filetypes
+    return PARSABLE_FILETYPES.INVALID;
+};
 
 //Overlay children is for scans you want to 'overlay' on top of a parent scan.
 //For example overlaying a last model over a foot model to visualize the difference.
@@ -41,16 +71,16 @@ const LOADING_STATES = {
 
 //The response object is the ThreeJS object loaded by whichever loader (OBJLoader or STLLoader)
 //Config applies Three.js operations to the ThreeJS object before first render.
-module.exports = class LoadTree{
+module.exports = class LoadTree {
     constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined, response_object=undefined){
         this.name = name;
         this.path = path;
         //Scan type TODO REFACTOR THIS NAME
         this.type = type;
 
-        // this.file_ext = 
-        //TODO regex on path to determine loader to use
-
+        this.file_ext = parse_file_type(path);
+        //TODO error log on invalid filetype
+        
         if(overlay_children){
             this.overlay_children = overlay_children;//These are also load trees
             this.overlay_children.forEach(c => {
@@ -76,27 +106,47 @@ module.exports = class LoadTree{
     //WISHLIST refactor This needs to be decoupled from the current loader
     //TODO refactor the load state handling into seperate predicate and state transition functions
     //Make sure the strings this stringly typed shit points to a const array of them like the scan types.
-    startLoadOBJS(obj_loader){
+    startLoad(){
         this.load_state = LOADING_STATES.pending;
 
         //TODO CRITICAL SECTION FOR STL PATCH
         //We could just dispatch to the correct loader here and use the this.file_ext for control flow inside the onLoadHandler
         //TODO play with the STLLoader.js load function to see what it spits back
 
+        //TODO test the behavior of the stl loader to see if we can reuse this closure
+        //if reusable we can just dynamic dispatch on a this.loader that is set on class constructor
+
         //NOTE this only provides an onLoad function currently
-        obj_loader.load(this.path, function(response_text_obj_pair){
-            response_text_obj_pair["MODEL_TYPE"] = this.type;
-            response_text_obj_pair.obj["name"] = this.name;
-            this.response_object = response_text_obj_pair;
+
+        if(this.file_ext === PARSABLE_FILETYPES.obj){
+            var objloader = new THREE.OBJLoader();
             
-            if(this.overlay_children){
-                this.load_state = LOADING_STATES.awaiting;
-                //Recurse onto children
-                this.overlay_children.forEach(child_load_graph => child_load_graph.startLoadOBJS(obj_loader));
-            }else{
-                this.load_state = LOADING_STATES.loaded;
-            }
-        }.bind(this));
+            objloader.load(this.path, function(response_text_obj_pair){
+                response_text_obj_pair["MODEL_TYPE"] = this.type;
+                response_text_obj_pair.obj["name"] = this.name;
+                this.response_object = response_text_obj_pair;
+                
+                if(this.overlay_children){
+                    this.load_state = LOADING_STATES.awaiting;
+                    //Recurse onto children
+                    this.overlay_children.forEach(child_load_graph => child_load_graph.startLoadOBJS(obj_loader));
+                }else{
+                    this.load_state = LOADING_STATES.loaded;
+                }
+            }.bind(this));
+
+        }else if(this.file_ext === PARSABLE_FILETYPES.stl){
+            var loader = new STLLoader();
+            
+            loader.load(this.path,function(result){
+                //TODO on load
+                console.log("STL!!!");
+            })
+            //TODO put in the stl handler
+        }else{
+            console.error("Unparsable filetype");
+        }
+
     }
 
     __pendingChildren(){

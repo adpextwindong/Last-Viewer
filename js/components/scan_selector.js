@@ -1,5 +1,6 @@
 const LoadTree = require('../loader/load_tree_helper');
 
+//TODO rename this or something
 //Careful theres no validation on this
 const LoadTreeFromObject = (o) => {
     let children = o.overlay_children ? o.overlay_children.map(LoadTreeFromObject) : undefined;
@@ -9,7 +10,8 @@ const LoadTreeFromObject = (o) => {
 var OBJLoader = require('../../lib/vendor/three_loader_custom');
 OBJLoader(THREE);
 
-var STLLoader = require('../../lib/vendor/STLLoader');
+import { STLLoader } from '../../lib/vendor/STLLoader.js';
+//TODO REFACTOR move these loaders into the load_tree_helper layer
 
 const sleep = m => new Promise(r => setTimeout(r, m))
 
@@ -244,13 +246,7 @@ export default {
             await sleep(1);
 
             //WISHLIST REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
-            //TODO parse filename for OBJ or STL
-            var loader = new THREE.OBJLoader();
-            var ts  = new STLLoader();
-            
-            console.log("LETS HOPE THIS WORKS");
-            
-            LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));
+            LoadTreeList.forEach(LoadTree => LoadTree.startLoad());
             while(LoadTreeList.some(g => g.notLoaded())){
                 await sleep(100);
                 LoadTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
@@ -283,8 +279,7 @@ export default {
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();
 
-            //TODO change this for STL
-            var loader = new THREE.OBJLoader();
+
             let obj_promises = [];
             
             if (ev.dataTransfer.items) {
@@ -306,6 +301,9 @@ export default {
             await sleep(1);
 
             //Hmm this assumes a flat list of scans to load
+            //TODO change this for STL
+            var loader = new THREE.OBJLoader();
+
             const texts = await Promise.all(obj_promises.map(o => o.text_p));
             const response_objects = texts.map(txt => loader.parse(txt));
             const LoadTreeList = response_objects.map((o,i) => new LoadTree(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));
