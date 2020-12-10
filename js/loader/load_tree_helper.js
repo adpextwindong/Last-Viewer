@@ -51,12 +51,12 @@ const PARSABLE_FILETYPES = {
     INVALID : "INVALID",
 };
 
-const parse_file_type = (path) => {
-    if(FILE_REGEXPS.wavefront_obj.test(path)){
+const parse_file_type = (name, path) => {
+    if(FILE_REGEXPS.wavefront_obj.test(path) || FILE_REGEXPS.wavefront_obj.test(name)){
         return PARSABLE_FILETYPES.obj;
     }
 
-    if(FILE_REGEXPS.stl.test(path)){
+    if(FILE_REGEXPS.stl.test(path) || FILE_REGEXPS.stl.test(name)){
         return PARSABLE_FILETYPES.stl;
     }
 
@@ -78,7 +78,7 @@ module.exports = class LoadTree {
         //Scan type TODO REFACTOR THIS NAME
         this.type = type;
 
-        this.file_ext = parse_file_type(path);
+        this.file_ext = parse_file_type(name, path);
         //TODO error log on invalid filetype
         
         if(overlay_children){
@@ -117,31 +117,51 @@ module.exports = class LoadTree {
         //if reusable we can just dynamic dispatch on a this.loader that is set on class constructor
 
         //NOTE this only provides an onLoad function currently
+        const handleLoadingStateBasedOnChildren = () => {
+            if(this.overlay_children){
+                this.load_state = LOADING_STATES.awaiting;
+                //Recurse onto children
+                this.overlay_children.forEach(child_load_graph => child_load_graph.startLoadOBJS(obj_loader));
+            }else{
+                this.load_state = LOADING_STATES.loaded;
+            }
+        }
 
         if(this.file_ext === PARSABLE_FILETYPES.obj){
             var objloader = new THREE.OBJLoader();
-            
+
             objloader.load(this.path, function(response_text_obj_pair){
+                //This spits back a text of the file and a THREEJS group object
+
                 response_text_obj_pair["MODEL_TYPE"] = this.type;
                 response_text_obj_pair.obj["name"] = this.name;
                 this.response_object = response_text_obj_pair;
                 
-                if(this.overlay_children){
-                    this.load_state = LOADING_STATES.awaiting;
-                    //Recurse onto children
-                    this.overlay_children.forEach(child_load_graph => child_load_graph.startLoadOBJS(obj_loader));
-                }else{
-                    this.load_state = LOADING_STATES.loaded;
-                }
+                handleLoadingStateBasedOnChildren();
             }.bind(this));
 
         }else if(this.file_ext === PARSABLE_FILETYPES.stl){
-            var loader = new STLLoader();
+            var loader = new STLLoader.STLLoader();
             
             loader.load(this.path,function(result){
                 //TODO on load
                 console.log("STL!!!");
-            })
+                console.log(result);
+
+                //TODO find a better mesh basic material
+                const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+                const model = new THREE.Mesh(result, material);
+                const group = new THREE.Group();
+                group.add(model);
+
+                //Make sure this conforms to the ResourceManager constructor
+                //We probably need handling on non existent landmark names because of the texts
+                this.response_object = {
+                    obj : group
+                };
+
+                handleLoadingStateBasedOnChildren();
+            }.bind(this));
             //TODO put in the stl handler
         }else{
             console.error("Unparsable filetype");

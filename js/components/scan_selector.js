@@ -7,12 +7,6 @@ const LoadTreeFromObject = (o) => {
     return new LoadTree(o.name, o.path, o.type, children, o.config);
 }
 
-var OBJLoader = require('../../lib/vendor/three_loader_custom');
-OBJLoader(THREE);
-
-import { STLLoader } from '../../lib/vendor/STLLoader.js';
-//TODO REFACTOR move these loaders into the load_tree_helper layer
-
 const sleep = m => new Promise(r => setTimeout(r, m))
 
 export default {
@@ -279,9 +273,8 @@ export default {
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();
 
+            let obj_urls = [];
 
-            let obj_promises = [];
-            
             if (ev.dataTransfer.items) {
               // Use DataTransferItemList interface to access the file(s)
               for (var i = 0; i < ev.dataTransfer.items.length; i++) {
@@ -291,7 +284,8 @@ export default {
                     var file = ev.dataTransfer.items[i].getAsFile();
                   console.log(file);
                   console.log('... file[' + i + '].name = ' + file.name);
-                  obj_promises.push({name: file.name, text_p: file.text()});
+                  obj_urls.push({name : file.name, path: URL.createObjectURL(file), type: "FOOT"});
+                  //TODO These createObjectURLS need to be freed eventually
                 }
               }
             }
@@ -300,16 +294,16 @@ export default {
             this.$forceUpdate();
             await sleep(1);
 
-            //Hmm this assumes a flat list of scans to load
-            //TODO change this for STL
-            var loader = new THREE.OBJLoader();
+            const awaitedPaths = await Promise.all(obj_urls);
+            const awaitedTreeList = awaitedPaths.map((o,i) => new LoadTree(o.name, o.path, o.type));
+            
+            awaitedTreeList.forEach(LoadTree => LoadTree.startLoad());
+            while(awaitedTreeList.some(g => g.notLoaded())){
+                await sleep(100);
+                awaitedTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
+            }
 
-            const texts = await Promise.all(obj_promises.map(o => o.text_p));
-            const response_objects = texts.map(txt => loader.parse(txt));
-            const LoadTreeList = response_objects.map((o,i) => new LoadTree(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));
-            console.log("parsed all");
-
-            this.stitchAndStartEngine(LoadTreeList);
+            this.stitchAndStartEngine(awaitedTreeList);
           }
     }
 }
