@@ -20,6 +20,7 @@ const getters = {
 };
 
 function initLandmarks(state, processed_loadTreeList){
+    //TODO make this more robust for when the model doesnt have landmarks
     let initLandmarkTexts = (parent_obj_name, text) => {
         Vue.set(state.landmarks, parent_obj_name, []);
         state.landmarks[parent_obj_name].push(...LandmarkParser.parseLandmarkTextToList(text));

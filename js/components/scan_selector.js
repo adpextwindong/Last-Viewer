@@ -1,13 +1,11 @@
 const LoadTree = require('../loader/load_tree_helper');
 
+//TODO rename this or something
 //Careful theres no validation on this
 const LoadTreeFromObject = (o) => {
     let children = o.overlay_children ? o.overlay_children.map(LoadTreeFromObject) : undefined;
     return new LoadTree(o.name, o.path, o.type, children, o.config);
 }
-
-var OBJLoader = require('../../lib/vendor/three_loader_custom');
-OBJLoader(THREE);
 
 const sleep = m => new Promise(r => setTimeout(r, m))
 
@@ -219,6 +217,7 @@ export default {
             this.LoadTreeViewer(LoadTreeList);
 
         },
+        //Refactor this name
         async loadViewer (scan_paths, insole_paths) {
             let LoadTreeList = [];
 
@@ -232,6 +231,7 @@ export default {
             this.LoadTreeViewer(LoadTreeList);
         },
 
+        //Refactor this name
         async LoadTreeViewer (LoadTreeListRawObject) {
             let LoadTreeList = LoadTreeListRawObject.map(LoadTreeFromObject);
 
@@ -240,9 +240,7 @@ export default {
             await sleep(1);
 
             //WISHLIST REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
-            var loader = new THREE.OBJLoader();
-            
-            LoadTreeList.forEach(LoadTree => LoadTree.startLoadOBJS(loader));
+            LoadTreeList.forEach(LoadTree => LoadTree.startLoad());
             while(LoadTreeList.some(g => g.notLoaded())){
                 await sleep(100);
                 LoadTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
@@ -251,6 +249,7 @@ export default {
             this.stitchAndStartEngine(LoadTreeList);
         },
 
+        //PreCondition: No children in the LoadTreeList are awaiting on children to load.
         stitchAndStartEngine(LoadTreeList){
             LoadTreeList.forEach(g => {
                 g.stitchSceneGraph();
@@ -258,11 +257,14 @@ export default {
             });
 
             this.loading = false;
+            //CRITICAL SECTION FOR LOADING DUE TO VUEJS V-IF LIMITATIONS
+            //viewer/viewer_layout.js::mounted() has notes on this.
             this.$store.commit('loadTrees/setTrees', LoadTreeList);
             this.$router.push('engine');
         },
 
         //Drag and drop load handler
+        //TODO conver this to funnel into LoadTreeViewer
         async fileDropHandler(ev) {
             console.log('File(s) dropped');
           
@@ -271,9 +273,8 @@ export default {
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();
 
-            var loader = new THREE.OBJLoader();
-            let obj_promises = [];
-            
+            let obj_urls = [];
+
             if (ev.dataTransfer.items) {
               // Use DataTransferItemList interface to access the file(s)
               for (var i = 0; i < ev.dataTransfer.items.length; i++) {
@@ -283,7 +284,8 @@ export default {
                     var file = ev.dataTransfer.items[i].getAsFile();
                   console.log(file);
                   console.log('... file[' + i + '].name = ' + file.name);
-                  obj_promises.push({name: file.name, text_p: file.text()});
+                  obj_urls.push({name : file.name, path: URL.createObjectURL(file), type: "FOOT"});
+                  //TODO These createObjectURLS need to be freed eventually
                 }
               }
             }
@@ -292,12 +294,16 @@ export default {
             this.$forceUpdate();
             await sleep(1);
 
-            const texts = await Promise.all(obj_promises.map(o => o.text_p));
-            const response_objects = texts.map(txt => loader.parse(txt));
-            const LoadTreeList = response_objects.map((o,i) => new LoadTree(obj_promises[i].name, obj_promises[i].name, "FOOT", undefined, undefined, undefined, o));
-            console.log("parsed all");
+            const awaitedPaths = await Promise.all(obj_urls);
+            const awaitedTreeList = awaitedPaths.map((o,i) => new LoadTree(o.name, o.path, o.type));
+            
+            awaitedTreeList.forEach(LoadTree => LoadTree.startLoad());
+            while(awaitedTreeList.some(g => g.notLoaded())){
+                await sleep(100);
+                awaitedTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
+            }
 
-            this.stitchAndStartEngine(LoadTreeList);
+            this.stitchAndStartEngine(awaitedTreeList);
           }
     }
 }
