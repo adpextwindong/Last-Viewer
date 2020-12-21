@@ -123,22 +123,35 @@ module.exports = function () {
             }.bind(this));
 
             viewer_scope = this;
-            this.renderer.domElement.addEventListener('mousemove', function (e){
+            this.renderer.domElement.addEventListener('mousemove', function (event){
+                event.preventDefault();
                 //WISHLIST add a flag to the contextmenu handler to check for a mouse move of a certain distance?
                 //The right click drag for moving shouldn't open a context menu
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.setPickPosition(e, viewer_scope.renderer.domElement);
                 }
                 viewerScope.rerender("mousemove");
-            }.bind(this.pickHelper));
+            }.bind(this.pickHelper), false);
+
+            //Prevents chopiness with zooming in and out
+            this.renderer.domElement.addEventListener('wheel', function(event){
+                event.preventDefault();
+                viewerScope.rerender("wheel");
+                setTimeout(() => {
+                    //Prevents chopiness on scrollwheel not firing an event on wheel change end
+                    viewerScope.rerender("wheel_timeout");
+                }, 10);
+            });
 
             this.renderer.domElement.addEventListener('mouseout', function(event){
+                event.preventDefault();
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
                 viewerScope.rerender("mouseout");
             });
             this.renderer.domElement.addEventListener('mouseleave', function(event) {
+                event.preventDefault();
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
