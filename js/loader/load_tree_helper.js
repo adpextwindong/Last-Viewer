@@ -77,6 +77,7 @@ module.exports = class LoadTree {
         this.path = path;
         //Scan type TODO REFACTOR THIS NAME
         this.type = type;
+        this.dimensions = undefined; //Used by scene graph hiearchy to store the dimensions on parse
 
         this.file_ext = parse_file_type(name, path);
         //TODO error log on invalid filetype
@@ -241,7 +242,8 @@ module.exports = class LoadTree {
         return {
             "name" : this.name,
             "type" : this.type,
-
+            "dimensions" : this.dimensions,
+            
             //Optional based on existence in the graph
             ...this.response_object && {
                 //Deep copy uuid?

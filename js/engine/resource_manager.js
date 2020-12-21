@@ -31,7 +31,10 @@ class ResourceManager {
         //Processed LoadTree shouldn't be touched otherwise except for stashing parsed obj's
         //for later use if they're removed from the scene.
         //Additionally response object should never be touched by the engine directly
-        this.objs = this.__processed_loadTreeList.map(t => t.response_object.obj);
+        this.objs = this.__processed_loadTreeList.map((t) => {
+            t.response_object.obj.loadtree = t;
+            return t.response_object.obj;
+        });
 
         //This will be the dictionary for looking up objects by UUID.
         //If anything gets removed from the scene its entry here should be removed.
@@ -162,8 +165,9 @@ class ResourceManager {
     }
 
     addFootDimensionData(uuid, feet_dimensions){
-        let {left, right} = feet_dimensions;
-        //TASK Add foot dimension processing and info display
+        //Find loadtree of uuid and append dimension data
+        this.getBySceneUUID(uuid).loadtree.dimensions = feet_dimensions;
+        //caller should update the scene graph representation
     }
 
     __LineBetweenLandmarks(mesh, lm_number_a, lm_number_b, project_down_onto_axis = undefined){
