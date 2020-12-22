@@ -122,7 +122,7 @@ module.exports = class LoadTree {
             if(this.overlay_children){
                 this.load_state = LOADING_STATES.awaiting;
                 //Recurse onto children
-                this.overlay_children.forEach(child_load_graph => child_load_graph.startLoadOBJS(obj_loader));
+                this.overlay_children.forEach(child_load_graph => child_load_graph.startLoad());
             }else{
                 this.load_state = LOADING_STATES.loaded;
             }
