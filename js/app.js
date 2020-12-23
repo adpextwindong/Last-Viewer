@@ -17,6 +17,8 @@ Vue.component('scene_graph_hiearchy', () => import('./components/viewer/scene_gr
 Vue.component('view_controls', () => import('./components/viewer/view_controls.js'));
 Vue.component('landmark_nametag', () => import('./components/viewer/landmark_nametag'));
 Vue.component('dimensions', () => import('./components/viewer/dimensions'));
+
+//TODO make this runtime configurable
 const CONFIG = require("./config");
 
 var app = new Vue({

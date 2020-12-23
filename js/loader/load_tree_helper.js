@@ -189,6 +189,7 @@ module.exports = class LoadTree {
         }
     }
 
+    //TODO consider moving this into the scene manager
     //Book keeping functions for setuping up internal THREEJS after loading is complete
     stitchSceneGraph(){
         if(this.overlay_children){

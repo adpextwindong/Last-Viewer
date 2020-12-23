@@ -258,7 +258,7 @@ export default {
 
             this.loading = false;
             //CRITICAL SECTION FOR LOADING DUE TO VUEJS V-IF LIMITATIONS
-            //viewer/viewer_layout.js::mounted() has notes on this.
+            //component/viewer/viewer_layout.js::mounted() has notes on this.
             this.$store.commit('loadTrees/setTrees', LoadTreeList);
             this.$router.push('engine');
         },

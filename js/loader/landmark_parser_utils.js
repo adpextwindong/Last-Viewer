@@ -4,6 +4,9 @@ const zip = (arr, ...arrs) => {
 }
 
 module.exports = {
+
+    // type landmark = (String `description`, String `group_name`, Bool `isActive` FOR CSS )
+    // parseLandmarkTextToList :: text (OBJ file w/ landmarks) -> (()) 
     parseLandmarkTextToList(text){
         //Parses the obj textfile for the landmark descriptions and group names.
         //This assumes all landmark groups are always preceeded by a description line
@@ -24,7 +27,7 @@ module.exports = {
             let landmark = {
                 'description': line_pair[0] ? line_pair[0].slice(2).trim() : "",
                 'group_name': line_pair[1] ? line_pair[1].slice(2).trim() : "",
-                'isActive': false
+                'isActive': false //Handling is done in store/modules/landmarks.js
             };
 
             console.log(landmark.description);
