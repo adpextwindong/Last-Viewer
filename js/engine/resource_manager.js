@@ -1,6 +1,7 @@
 //All the resource ownership/managment of objs and
 //interactions via UUIDS should be done through this class.
 
+const { VertexNormalsHelper } = require("three");
 const CONFIG = require("../config");
 
 function getValueOfLowestVert(mesh, axis){
@@ -54,8 +55,18 @@ class ResourceManager {
         }
 
         this.objs.forEach(o => {
+            
             this.scene_ref.add( o );
             
+            //TODO make this togleable
+            if(o.children && o.children[0].name == "foot"){
+                var normalhelper = new VertexNormalsHelper(o.children[0],2, 0x00ff00, 1 );
+                console.log("Adding normal helper");
+                normalhelper.matrixAutoUpdate = false;
+                o.add(normalhelper)
+                // this.scene_ref.add(normalhelper);
+
+            }
             this.scene_uuids[o.uuid] = o;
             bind_engine_watchers(o);
         });
