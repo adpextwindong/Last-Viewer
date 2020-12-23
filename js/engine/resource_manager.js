@@ -20,7 +20,8 @@ function getLandmarkPoint(landmark_mesh){
     return [float_32_array[0], float_32_array[1], float_32_array[2]];
 };
 
-
+//TODO refactor parts of this class so its more readable and consistent in naming
+//Centralizing the uuid LUTS and related functions will be nice for future work
 class ResourceManager {
     constructor(scene, processed_loadTreeList){
         this.scene_ref = scene;
