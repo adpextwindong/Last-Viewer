@@ -19,6 +19,7 @@ const getters = {
 
 };
 
+//TODO consider pushing this landmark loading into a LOADER class so the landmarks text file handling is inline w/ OBJ loading
 function initLandmarks(state, processed_loadTreeList){
     //TODO make this more robust for when the model doesnt have landmarks
     let initLandmarkTexts = (parent_obj_name, text) => {
@@ -49,6 +50,7 @@ const applyIfExistingLandmark = (landmarks) => (parent_key, viewer_group_name, f
     }
 };
 
+//This module handles pushing state changes (like the scene picker highlight changes) into the VueJS related components
 const mutations = {
     initializeLandmarks(state, processed_loadTreeList){
         initLandmarks(state, processed_loadTreeList);
