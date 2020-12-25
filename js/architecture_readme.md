@@ -137,7 +137,7 @@ The viewer layout shouldn't own a reference to the processed_loadTreeList in its
 ### Engine Internal Organization
 We need better file metadata support to determine usable features for certain files. (ex: Landmarker vs Markerless features)
 
-External facing engine controls should be renamed to have a consistent suffix like EXT_~~~~
+External facing engine controls should be renamed to have a consistent suffix like EXT_~~~~. It should just be packed into a single object that closures over engine internals, named ENGINE_CONTROLER with adequate documentation that these only manipulate the scene but does not manage any lifetimes. Outside of the engine we can only see two things to interact with. The engine.CONTROLS and engine.SCENE_MANAGER.
 
 ### Resource Manager
 A lot of the facilities in the scene manager needs to be refactored into readable functions.

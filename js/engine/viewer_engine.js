@@ -292,7 +292,7 @@ module.exports = function () {
 
         
         //External facing functions for controling the scene from the viewer layout Vue component.
-        //TODO rename these EXTERNAL
+        //TODO rename these EXTERNAL and exported in a single object thats named CONTROLLER.
         //TODO these all force rerender
         resetCamera: function (){
             this.controls.reset();
