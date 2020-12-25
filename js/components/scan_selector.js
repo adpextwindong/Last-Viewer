@@ -93,7 +93,8 @@ export default {
             insoles: [
                 { path: './data/sole.obj' },
             ],
-        
+       
+            //TODO add scheme naming to these things.
             existing_load_schemes: [
                 [{
                 name: "foot1",
@@ -239,7 +240,7 @@ export default {
             this.loading = true;
             await sleep(1);
 
-            //WISHLIST REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
+            //TODO REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
             LoadTreeList.forEach(LoadTree => LoadTree.startLoad());
             while(LoadTreeList.some(g => g.notLoaded())){
                 await sleep(100);
@@ -268,7 +269,7 @@ export default {
         async fileDropHandler(ev) {
             console.log('File(s) dropped');
           
-            //WISHLIST file validation and error handling
+            //TODO file validation and error handling
 
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();

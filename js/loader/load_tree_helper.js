@@ -104,7 +104,7 @@ module.exports = class LoadTree {
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
-    //WISHLIST refactor This needs to be decoupled from the current loader
+    //TODO refactor This needs to be decoupled from the current loader
     //TODO refactor the load state handling into seperate predicate and state transition functions
     //Make sure the strings this stringly typed shit points to a const array of them like the scan types.
     startLoad(){
@@ -145,7 +145,6 @@ module.exports = class LoadTree {
             var loader = new STLLoader.STLLoader();
             
             loader.load(this.path,function(result){
-                //TODO on load
                 console.log("STL!!!");
                 console.log(result);
 

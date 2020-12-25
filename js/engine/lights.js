@@ -77,4 +77,4 @@ module.exports = function() {
     }
 }
 
-//TODO TASK PREDEPLOYMENT spit out json for all these values so we can update the config.js file
+//WISHLIST PREDEPLOYMENT spit out json for all these values so we can update the config.js file

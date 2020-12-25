@@ -6,7 +6,6 @@ module.exports = {
         jp: {
             'Top View': '上からのビュー',
             'Bottom View': '下からのビュー',
-            //TODO TASK REMAINING VIEW TRANSLATIONS
             'Left View': '左からのビュー',
             'Right View': '右からのビュー',
         },

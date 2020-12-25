@@ -38,12 +38,12 @@ module.exports = {
     name: 'scene_graph_hiearchy',
     methods : {
 
-        //WISHLIST handling should be moved elsewhere, its convient for debugging to do it drag&drop like this for now.
+        //TODO handling should be moved elsewhere, its convient for debugging to do it drag&drop like this for now.
         //Handles parsing of an xml file for foot dimensions
         async xmlDataHandler(ev, scene_uuid){
             console.log('File(s) dropped');
           
-            //WISHLIST file validation and error handling
+            //TODO file validation and error handling
 
             // Prevent default behavior (Prevent file from being opened)
             ev.preventDefault();

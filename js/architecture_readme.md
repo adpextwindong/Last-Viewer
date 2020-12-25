@@ -50,6 +50,8 @@ NOTE: Remaining tasks in these files will be annotated as
 
 Write an async parser for OBJ files that works in another thread to prevent threejs from blocking I guess.
 
+GPU Picking
+Context Menu development and refinement.
 --------------------------------------------------------------------------------
 ## NOTES
 --------------------------------------------------------------------------------
@@ -80,10 +82,32 @@ WISHLIST -- Push file parsing into an async web worker.
 WISHLIST -- Maybe checking out TypeScript
 WISHLIST -- Figuring out async/await & Promises to a better degree.
 
+The config should be pushed to runtime to allow for toggling. Things like the pick helper don't need to be on mobile necessarily.
+
 ### Performance
 Optimize load time of first paint for the engine.
 Perhaps reintroduce the RAF architecture as a setting so we can handle animating/tweening a scene. Right now the change based rerendering is an optimization for phone battery life.
+
+We need to double check rerendering costs. Right nowe we liberally rerender on mouse handlers and stuff in __bindMouseEngineEvents.
+
+The old RAF architecture might be needed for doing spinning animations or using RAF's and having a settimeout that removes that animation event handler.
 ### General Organization
+
+Func utils like zip need to be split out and imported correctly.
+
+#### Load Tree Helper
+We need to split out file metadata from the current load tree helper.
+
+Error handling and validation should be in there.
+
+THREEJS mesh defaults could be split out into another file to keep defaults in a single spot.
+
+Stitch scene graph might belong in the scene manager honestly. Not sure yet.
+
+#### Landmark handling in the VueX store
+Right now any landmark texts is just stashed in the respective obj. Which is unclean, unwieldly and should be the responsibiltiy of the file loader or scene manager.
+
+We need a lookup table for names in the objs and their respective landmarks.
 #### File Loader
 Split out file loading from the scan selector component. It should handle freeing parsed files. Storing landmark texts in a parsed form.
 
@@ -97,14 +121,34 @@ Build up a file loader to handle adding scans during operation.
 
 Persisting a scan viewing session across open and closes.
 
-Seperate the boot process out of 
+Seperate the boot process out of file loading so we can present a webgl canvas as soon as possible. The scan selector should end up being a component that talks to the scene manager instead of kicking off the boot process.
+
+Clean up the load tree object crust in scan_selector. Right now theres a LoadTreeFromObject function that is very untype safe and makes no assertions about the object it accepts. We can probably use a class around loadTree or something to validate this. Or have an actual constructor.
+
+The current 'load scheme's' should be turned into a real data type that can store a session. Then the file loader can dyn dispatch based on the paths being on disk, via API (using an iTouch API layer), or API cached on disk or something. This will have to deal with more persistence related things and VueX most likely.
+
+The async fileDropHandler in scan selector is very similar to the stuff in scene graph hiearchy. Theres no validation either which is dangerous and its too tightly coupled with the loading and booting process. This should be split up. The drop handler can just be a standalone function that gets pointed at by a VueJS component. At worst it should be a module closure that binds a file loader handle or something. There is also freeing of createObjectURLS to be considered too.
+
+The foot dimension data handling should work with VueX and the scene manager better to store the data. Honestly it should go through the file loader so it can get stashed/cached or something then rigged up to the respective OBJ, then plumbed into the VueJS component.
+
+The viewer layout shouldn't own a reference to the processed_loadTreeList in its current form like in the launchViewer method. It can't handle any errors at that layer level and it makes the scene managment/file loading structure too rigid.
+
+
 ### Engine Internal Organization
 We need better file metadata support to determine usable features for certain files. (ex: Landmarker vs Markerless features)
 
-### Features
-Animating the scene for presentations.
+External facing engine controls should be renamed to have a consistent suffix like EXT_~~~~
 
-Display dimension figures alongside their respective lines.
+### Resource Manager
+A lot of the facilities in the scene manager needs to be refactored into readable functions.
+
+
+### Features
+View Normals should be a toggleable feature. Currently handled by scene manager. VUEX task.
+Animating the scene for presentations.
+Picking and highlighting should be extended for lines/landmarks/etc for more interactability. Highlighting in respective components should support that as well.
+
+Display dimension figures alongside their respective lines. In the wishlist theres also an idea for extending lines past landmarks in an axis for things like Toe Angle Base Lines.
 #### Heuristics
     Determining foot position in local space to adjust in world space.
     Orrientation of foot position. Landmarker and Markerless heuristics for this. (ex: Long vs short sides for markerless, using quartiles to find heel position using avg max height or something)
@@ -112,10 +156,22 @@ Display dimension figures alongside their respective lines.
 
     Determining if a dropped file is an insole.
 
+### Testing
+
+Visibility toggling should be tested. There have been issues in the past.
+
+Touch events need to be tested.
+
+Hopefully mouse events don't stack up and spam rerenders. This should be checked.
+
+The landmark parser should have a test suite for it. Things like "This file was created by FileConverter" should be tossed early or pushed into metadata.
+
+We need to see if click handling in mobile is performant enough now that the old RAF arch is removed.
+
 ## Current Organization for VueJS message passing from the Engine
 On boot the engine passes the engine interface (an object containing function pointers to simple engine functions and bindings to scene manager functions)
 
-Logging should be added to those interfaces.
+Logging should be added to those engine interfaces. Hell we might need a simple logging framework that doesn't bog down things.
 
 An event pipe is also passed into the viewer engine on init from the VueJS Viewer Layout layer. This should be used for top level changes of the overall viewer layout.
 
@@ -129,3 +185,5 @@ In short the layers and interfaces are:
     - VueX store for component level watching of related data and operations.
 
 We should see if we can make the VueX related stuff more consistent. Currently only the landmarks deal with that and might need more refactoring.
+
+TODO LOOK AT HOW THE EVENT PIPE IS CURRENTLY BEING USED.

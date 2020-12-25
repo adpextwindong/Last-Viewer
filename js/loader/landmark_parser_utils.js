@@ -33,7 +33,7 @@ module.exports = {
             console.log(landmark.description);
             console.log(landmark.group_name);
             //LM44, 45 & 46 have no descriptions still.
-            //WISHLIST maybe make a lookup table for these.
+            //TODO maybe make a lookup table for these.
 
             return landmark;
         });
