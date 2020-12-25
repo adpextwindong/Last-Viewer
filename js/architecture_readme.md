@@ -111,3 +111,21 @@ Display dimension figures alongside their respective lines.
     Left vs Right Foot (Probably requires landmarks)
 
     Determining if a dropped file is an insole.
+
+## Current Organization for VueJS message passing from the Engine
+On boot the engine passes the engine interface (an object containing function pointers to simple engine functions and bindings to scene manager functions)
+
+Logging should be added to those interfaces.
+
+An event pipe is also passed into the viewer engine on init from the VueJS Viewer Layout layer. This should be used for top level changes of the overall viewer layout.
+
+This engine interface is passed down to viewer components via the props system.
+
+Any data uses between the Viewer engine and Viewer Layout children components should be facilitated by Vuex to maintain code locality. It's probably more reliable that way instead of passing stringly typed shit through the event pipe, forcing it down via prop updates or something from the Viewer Layout level.
+
+In short the layers and interfaces are:
+    - Event Pipe for ENGINE => VIEWER_LAYOUT layout changes
+    - Engine Interface for VIEWER_LAYOUT & LAYOUT CHILDREN => ENGINE IO Operations
+    - VueX store for component level watching of related data and operations.
+
+We should see if we can make the VueX related stuff more consistent. Currently only the landmarks deal with that and might need more refactoring.
