@@ -1,5 +1,5 @@
 var THREE = require('three');
-var TrackballControls = require('three-trackballcontrols');
+var TrackballControls = require('../../lib/vendor/three-trackballcontrols');
 var THREEx		= THREEx 		|| {};
 var _THREEX_KEYBOARD = require("../../lib/vendor/THREEx.KeyboardState");
 _THREEX_KEYBOARD(THREEx);
@@ -65,7 +65,13 @@ module.exports = function () {
             this.renderer.setSize( screen_width, screen_height );
            
             // CONTROLS
-            this.controls = new TrackballControls( this.camera, this.renderer.domElement );
+            this.controls = new TrackballControls( this.camera, this.renderer.domElement,                 
+                function engine_zoom_raf_handler(){
+                    requestAnimationFrame(() => {
+                        viewerScope.rerender("trackball_control_zoomer");
+                    })}
+            );
+
             this.controls.maxDistance = CONFIG.MAX_DISTANCE;
             
             // 
@@ -86,7 +92,13 @@ module.exports = function () {
             }
             
             this.__bindMouseEngineEvents();
-          
+
+            viewerScope = this;
+            const engine_poll_mouse = function engine_poll_mouse_loop(){
+                viewerScope.controls.update();
+                setTimeout(engine_poll_mouse, 5);
+            }
+            setTimeout(engine_poll_mouse,5);
             //
             //HOTFIX SECTION
             //
@@ -105,9 +117,12 @@ module.exports = function () {
             //These bindings should be seperated from Mobile client bindings.
             viewerScope = this;
 
-            this.__state_current_mouse_handler = function(e){
+            this.__state_current_mouse_handler = function engine_loaded_mouse_handler(e){
                 this.__state_mouse_handle_click_event = e;
-                viewerScope.rerender("current_mouse_handler");
+                
+                requestAnimationFrame(function f(){
+                    viewerScope.rerender("current_mouse_handler");
+                });
             }.bind(this);
             this.renderer.domElement.addEventListener('click', this.__state_current_mouse_handler);
 
@@ -123,67 +138,82 @@ module.exports = function () {
             }.bind(this));
 
             viewer_scope = this;
-            this.renderer.domElement.addEventListener('mousemove', function (event){
+            this.renderer.domElement.addEventListener('mousemove', function engine_mousemove_handler(event){
                 event.preventDefault();
                 //WISHLIST add a flag to the contextmenu handler to check for a mouse move of a certain distance?
                 //The right click drag for moving shouldn't open a context menu
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.setPickPosition(e, viewer_scope.renderer.domElement);
                 }
-                viewerScope.rerender("mousemove");
+                requestAnimationFrame(function mousemove_rerender(){
+                    viewerScope.rerender("mousemove");
+                });
             }.bind(this.pickHelper), false);
 
             //Prevents chopiness with zooming in and out
-            this.renderer.domElement.addEventListener('wheel', function(event){
+            this.renderer.domElement.addEventListener('wheel', function engine_mousewheel_handler(event){
                 event.preventDefault();
-                viewerScope.rerender("wheel");
-                setTimeout(() => {
+                // viewerScope.rerender("wheel");
+                requestAnimationFrame(function wheeltimeout_rerender(){
                     //Prevents chopiness on scrollwheel not firing an event on wheel change end
                     viewerScope.rerender("wheel_timeout");
-                }, 10);
+                });
             });
 
-            this.renderer.domElement.addEventListener('mouseout', function(event){
+            this.renderer.domElement.addEventListener('mouseout', function engine_mouseout_handler(event){
                 event.preventDefault();
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
-                viewerScope.rerender("mouseout");
+                requestAnimationFrame(function mouseout_rerender(){
+                    viewerScope.rerender("mouseout");
+                });
             });
-            this.renderer.domElement.addEventListener('mouseleave', function(event) {
+            this.renderer.domElement.addEventListener('mouseleave', function engine_mouseleave_handler(event) {
                 event.preventDefault();
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
-                viewerScope.rerender("mouseleave");
+                requestAnimationFrame(function mouseleave_rerender(){
+                    viewerScope.rerender("mouseleave");
+                });
             });
           
             //TODO TASK TESTING Touch stuff needs to be tested on mobile
-            this.renderer.domElement.addEventListener('touchstart', function(event) {
+            this.renderer.domElement.addEventListener('touchstart', function engine_touchstart_handler(event) {
               // prevent the window from scrolling
                 event.preventDefault();
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
                 }
-                viewerScope.rerender("touchstart");
+
+                requestAnimationFrame(function touchstart_rerender(){
+                    viewerScope.rerender("touchstart");
+                });
             }.bind(this), {passive: false});
           
-            this.renderer.domElement.addEventListener('touchmove', function(event) {
+            this.renderer.domElement.addEventListener('touchmove', function engine_touchmove_handler(event) {
                 event.preventDefault();
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
                 }
-                viewerScope.rerender("touchmove");
+                
+                requestAnimationFrame(function touchmove_rerender(){
+                    viewerScope.rerender("touchmove");
+                });
             }.bind(this));
           
-            this.renderer.domElement.addEventListener('touchend', function(event){
+            this.renderer.domElement.addEventListener('touchend', function engine_touchend_handler(event){
                 event.preventDefault();
 
-                viewerScope.rerender("touchend");
                 // We need to consider passively deselecting if the touchend occurs on 1 touch finger only and is off anything highlightable.
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
+                
+                requestAnimationFrame(function touchend_rerender(){
+                    viewerScope.rerender("touchend");
+                });
             });
         },
 
