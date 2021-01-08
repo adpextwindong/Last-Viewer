@@ -234,6 +234,8 @@ module.exports = function () {
             //     console.log(source);
             // }
             //console.log("Rerender letting go");
+
+            //TODO utilize the DOMHighResTimeStamp given by RAF to squash multiple rerenders in one frame.
         },
 
         __appendRendererToDom : function () {
