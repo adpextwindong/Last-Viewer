@@ -63,12 +63,14 @@ module.exports = function () {
 
             this.renderer = new THREE.WebGLRenderer( {antialias: CONFIG.ANTI_ALIASING, alpha : CONFIG.ALPHA});
             this.renderer.setSize( screen_width, screen_height );
+
+            this.cached_raf_ts = 0.0; //Used to prevent multiple renders in the same RAF frame.
            
             // CONTROLS
             this.controls = new TrackballControls( this.camera, this.renderer.domElement,                 
                 function engine_zoom_raf_handler(){
-                    requestAnimationFrame(() => {
-                        viewerScope.rerender("trackball_control_zoomer");
+                    requestAnimationFrame((ts) => {
+                        viewerScope.rerender(ts, "trackball_control_zoomer");
                     })}
             );
 
@@ -120,8 +122,8 @@ module.exports = function () {
             this.__state_current_mouse_handler = function engine_loaded_mouse_handler(e){
                 this.__state_mouse_handle_click_event = e;
                 
-                requestAnimationFrame(function f(){
-                    viewerScope.rerender("current_mouse_handler");
+                requestAnimationFrame(function f(ts){
+                    viewerScope.rerender(ts, "current_mouse_handler");
                 });
             }.bind(this);
             this.renderer.domElement.addEventListener('click', this.__state_current_mouse_handler);
@@ -145,8 +147,8 @@ module.exports = function () {
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.setPickPosition(e, viewer_scope.renderer.domElement);
                 }
-                requestAnimationFrame(function mousemove_rerender(){
-                    viewerScope.rerender("mousemove");
+                requestAnimationFrame(function mousemove_rerender(ts){
+                    viewerScope.rerender(ts, "mousemove");
                 });
             }.bind(this.pickHelper), false);
 
@@ -154,9 +156,9 @@ module.exports = function () {
             this.renderer.domElement.addEventListener('wheel', function engine_mousewheel_handler(event){
                 event.preventDefault();
                 // viewerScope.rerender("wheel");
-                requestAnimationFrame(function wheeltimeout_rerender(){
+                requestAnimationFrame(function wheeltimeout_rerender(ts){
                     //Prevents chopiness on scrollwheel not firing an event on wheel change end
-                    viewerScope.rerender("wheel_timeout");
+                    viewerScope.rerender(ts, "wheel_timeout");
                 });
             });
 
@@ -165,8 +167,8 @@ module.exports = function () {
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
-                requestAnimationFrame(function mouseout_rerender(){
-                    viewerScope.rerender("mouseout");
+                requestAnimationFrame(function mouseout_rerender(ts){
+                    viewerScope.rerender(ts,"mouseout");
                 });
             });
             this.renderer.domElement.addEventListener('mouseleave', function engine_mouseleave_handler(event) {
@@ -174,8 +176,8 @@ module.exports = function () {
                 if(!CONFIG.CONTEXT_MOBILE){
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
-                requestAnimationFrame(function mouseleave_rerender(){
-                    viewerScope.rerender("mouseleave");
+                requestAnimationFrame(function mouseleave_rerender(ts){
+                    viewerScope.rerender(ts,"mouseleave");
                 });
             });
           
@@ -187,8 +189,8 @@ module.exports = function () {
                     this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
                 }
 
-                requestAnimationFrame(function touchstart_rerender(){
-                    viewerScope.rerender("touchstart");
+                requestAnimationFrame(function touchstart_rerender(ts){
+                    viewerScope.rerender(ts, "touchstart");
                 });
             }.bind(this), {passive: false});
           
@@ -198,8 +200,8 @@ module.exports = function () {
                     this.pickHelper.setPickPosition(event.touches[0], viewer_scope.renderer.domElement);
                 }
                 
-                requestAnimationFrame(function touchmove_rerender(){
-                    viewerScope.rerender("touchmove");
+                requestAnimationFrame(function touchmove_rerender(ts){
+                    viewerScope.rerender(ts, "touchmove");
                 });
             }.bind(this));
           
@@ -211,8 +213,8 @@ module.exports = function () {
                     this.pickHelper.clearPickPosition.bind(this.pickHelper);
                 }
                 
-                requestAnimationFrame(function touchend_rerender(){
-                    viewerScope.rerender("touchend");
+                requestAnimationFrame(function touchend_rerender(ts){
+                    viewerScope.rerender(ts, "touchend");
                 });
             });
         },
@@ -228,14 +230,15 @@ module.exports = function () {
         },
 
         //TODO include a flag that any UI/Touch event forces true that causes a rerender.
-        rerender : function (source){
-            this.animateLoop();
+        rerender : function (timestamp, source){
+            if(this.cached_raf_ts != timestamp){
+                this.animateLoop();
+                this.cached_raf_ts = timestamp;
+            }
             // if(source){
             //     console.log(source);
             // }
             //console.log("Rerender letting go");
-
-            //TODO utilize the DOMHighResTimeStamp given by RAF to squash multiple rerenders in one frame.
         },
 
         __appendRendererToDom : function () {
