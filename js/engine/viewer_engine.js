@@ -328,11 +328,12 @@ module.exports = function () {
             //External facing functions for controling the scene from the viewer layout Vue component.
             //These functions need to be bound, but the Viewer Vue layer handles that in the engine interface setup anyways.
 
-            //TODO RAF these rerenders
             resetCamera: function (){
                 this.controls.reset();
 
-                this.rerender("resetCamera");
+                requestAnimationFrame(function resetCamera_rerender(ts){
+                    viewerScope.rerender(ts, "resetCamera");
+                });
             },
 
             view_RIGHT: function(){
@@ -343,7 +344,9 @@ module.exports = function () {
                 this.camera.lookAt(new THREE.Vector3(0,0,0));
                 this.camera.up = new THREE.Vector3(0,0,1);
                 
-                this.rerender("view_RIGHT");
+                requestAnimationFrame(function view_RIGHT_rerender(ts){
+                    viewerScope.rerender(ts, "view_RIGHT");
+                });
             },
 
             view_LEFT: function(){
@@ -354,7 +357,9 @@ module.exports = function () {
                 this.camera.lookAt(new THREE.Vector3(0,0,0));
                 this.camera.up = new THREE.Vector3(0,0,1);
 
-                this.rerender("view_LEFT");
+                requestAnimationFrame(function view_LEFT_rerender(ts){
+                    viewerScope.rerender(ts, "view_LEFT");
+                });
             },
 
             view_TOE_END: function(){
@@ -364,7 +369,9 @@ module.exports = function () {
                 this.camera.lookAt(new THREE.Vector3(0,0,0));
                 this.camera.up = new THREE.Vector3(0,0,1);
 
-                this.rerender("view_TOE_END");
+                requestAnimationFrame(function view_TOE_END_rerender(ts){
+                    viewerScope.rerender(ts, "view_TOE_END");
+                });
             },
 
             view_HEEL_END: function(){
@@ -375,6 +382,10 @@ module.exports = function () {
                 this.camera.up = new THREE.Vector3(0,0,1);
 
                 this.rerender("view_HEEL_END");
+
+                requestAnimationFrame(function view_HEEL_END_rerender(ts){
+                    viewerScope.rerender(ts, "view_HEEL_END");
+                });
             },
 
             view_TOP: function(){
@@ -384,7 +395,9 @@ module.exports = function () {
                 this.camera.lookAt(new THREE.Vector3(0,0,0));
                 this.camera.up = new THREE.Vector3(1,0,0);
 
-                this.rerender("view_TOP");
+                requestAnimationFrame(function view_TOP_rerender(ts){
+                    viewerScope.rerender(ts, "view_TOP");
+                });
             },
 
             view_BOTTOM: function(){
@@ -394,15 +407,19 @@ module.exports = function () {
                 this.camera.lookAt(new THREE.Vector3(0,0,0));
                 this.camera.up = new THREE.Vector3(1,0,0);
 
-                this.rerender("view_BOTTOM");
+                requestAnimationFrame(function view_BOTTOM_rerender(ts){
+                    viewerScope.rerender(ts, "view_BOTTOM");
+                });
             },
 
             //Use bounding box to determine default rotation, then landmark to determine vertical orrientation?
 
             hideLandmarks : function() {
                 this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
-
-                this.rerender("hideLandmarks");
+                
+                requestAnimationFrame(function hideLandmarks_rerender(ts){
+                    viewerScope.rerender(ts, "hideLandmarks");
+                });
             },
         },
         
