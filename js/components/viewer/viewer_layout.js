@@ -139,13 +139,13 @@ module.exports = {
                 //TODO viewerScope.rerender();
                 toggleVisibilityUUID : appViewer.manager.toggleVisibility.bind(appViewer.manager),
 
-                resetCamera : appViewer.resetCamera.bind(appViewer),
-                view_top : appViewer.view_TOP.bind(appViewer),
-                view_left : appViewer.view_LEFT.bind(appViewer),
-                view_right : appViewer.view_RIGHT.bind(appViewer),
-                view_toe_end : appViewer.view_TOE_END.bind(appViewer),
-                view_heel_end : appViewer.view_HEEL_END.bind(appViewer),
-                view_bottom : appViewer.view_BOTTOM.bind(appViewer),
+                resetCamera     : appViewer.controller.resetCamera.bind(appViewer),
+                view_top        : appViewer.controller.view_TOP.bind(appViewer),
+                view_left       : appViewer.controller.view_LEFT.bind(appViewer),
+                view_right      : appViewer.controller.view_RIGHT.bind(appViewer),
+                view_toe_end    : appViewer.controller.view_TOE_END.bind(appViewer),
+                view_heel_end   : appViewer.controller.view_HEEL_END.bind(appViewer),
+                view_bottom     : appViewer.controller.view_BOTTOM.bind(appViewer),
             };
         },
         launchViewer(target_element, processed_loadTreeList) {

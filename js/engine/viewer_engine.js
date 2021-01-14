@@ -324,86 +324,89 @@ module.exports = function () {
             }
         },
 
+        controller : {
+            //External facing functions for controling the scene from the viewer layout Vue component.
+            //These functions need to be bound, but the Viewer Vue layer handles that in the engine interface setup anyways.
 
+            //TODO RAF these rerenders
+            resetCamera: function (){
+                this.controls.reset();
+
+                this.rerender("resetCamera");
+            },
+
+            view_RIGHT: function(){
+                //Get current center, based on the right click panning around
+                let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+                this.camera.position.set(0,-dist,0);
+                
+                this.camera.lookAt(new THREE.Vector3(0,0,0));
+                this.camera.up = new THREE.Vector3(0,0,1);
+                
+                this.rerender("view_RIGHT");
+            },
+
+            view_LEFT: function(){
+                //Get current center, based on the right click panning around
+                let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+                this.camera.position.set(0,dist,0);
+                
+                this.camera.lookAt(new THREE.Vector3(0,0,0));
+                this.camera.up = new THREE.Vector3(0,0,1);
+
+                this.rerender("view_LEFT");
+            },
+
+            view_TOE_END: function(){
+                let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+                this.camera.position.set(dist,0,0);
+                
+                this.camera.lookAt(new THREE.Vector3(0,0,0));
+                this.camera.up = new THREE.Vector3(0,0,1);
+
+                this.rerender("view_TOE_END");
+            },
+
+            view_HEEL_END: function(){
+                let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+                this.camera.position.set(-dist,0,0);
+                
+                this.camera.lookAt(new THREE.Vector3(0,0,0));
+                this.camera.up = new THREE.Vector3(0,0,1);
+
+                this.rerender("view_HEEL_END");
+            },
+
+            view_TOP: function(){
+                let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+                this.camera.position.set(0,0,dist);
+                
+                this.camera.lookAt(new THREE.Vector3(0,0,0));
+                this.camera.up = new THREE.Vector3(1,0,0);
+
+                this.rerender("view_TOP");
+            },
+
+            view_BOTTOM: function(){
+                let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
+                this.camera.position.set(0,0,-dist);
+                
+                this.camera.lookAt(new THREE.Vector3(0,0,0));
+                this.camera.up = new THREE.Vector3(1,0,0);
+
+                this.rerender("view_BOTTOM");
+            },
+
+            //Use bounding box to determine default rotation, then landmark to determine vertical orrientation?
+
+            hideLandmarks : function() {
+                this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
+
+                this.rerender("hideLandmarks");
+            },
+        },
         
-        //External facing functions for controling the scene from the viewer layout Vue component.
-        //TODO rename these EXTERNAL and exported in a single object thats named CONTROLLER.
-        //TODO these all force rerender
-        resetCamera: function (){
-            this.controls.reset();
 
-            this.rerender("resetCamera");
-        },
-
-        view_RIGHT: function(){
-            //Get current center, based on the right click panning around
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(0,-dist,0);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(0,0,1);
-            
-            this.rerender("view_RIGHT");
-       },
-
-        view_LEFT: function(){
-            //Get current center, based on the right click panning around
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(0,dist,0);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(0,0,1);
-
-            this.rerender("view_LEFT");
-       },
-
-        view_TOE_END: function(){
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(dist,0,0);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(0,0,1);
-
-            this.rerender("view_TOE_END");
-        },
-
-        view_HEEL_END: function(){
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(-dist,0,0);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(0,0,1);
-
-            this.rerender("view_HEEL_END");
-        },
-
-        view_TOP: function(){
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(0,0,dist);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(1,0,0);
-
-            this.rerender("view_TOP");
-        },
-
-        view_BOTTOM: function(){
-            let dist = this.camera.position.distanceTo(new THREE.Vector3(0,0,0));
-            this.camera.position.set(0,0,-dist);
-            
-            this.camera.lookAt(new THREE.Vector3(0,0,0));
-            this.camera.up = new THREE.Vector3(1,0,0);
-
-            this.rerender("view_BOTTOM");
-        },
-
-        //Use bounding box to determine default rotation, then landmark to determine vertical orrientation?
-
-        hideLandmarks : function() {
-            this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
-
-            this.rerender("hideLandmarks");
-        },
 
         //
         //SCENE MANAGER
