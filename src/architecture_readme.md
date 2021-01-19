@@ -1,5 +1,7 @@
 # Project Architecture Documentation
 
+TODO REWRITE THIS FOR THE MIGRATION
+
 foot_viewer.html and App.js is the entry point for this Scan Model Viewer. App.js contains a small VueRouter for the settings, base page and engine page.
 
 ## File & Folder Layout
