@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app" v-cloak>
+      <div v-if="WebGLAvailible()">
+        <!-- Figure out how to hide this with a class or something during the engine page -->	
+        <nav id="router_nav">
+          <router-link to="/">Home</router-link>
+          <router-link to="/settings">Settings Menu</router-link>
+        </nav>
+        <router-view></router-view>
+      </div>
+      <div class="webgl_warning" v-else>
+        <span>Your browser does not seem to support WebGL. Please use a WebGL enabled device to use this viewer.</span>
+      </div>
+    </div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

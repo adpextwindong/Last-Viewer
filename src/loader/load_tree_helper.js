@@ -1,7 +1,6 @@
-var OBJLoader = require('../../lib/vendor/three_loader_custom');
-OBJLoader(THREE);
-
-var STLLoader = require('../../lib/vendor/STLLoader.js');
+import * as THREE from 'three';
+import OBJLoader from "../../lib/vendor/three_loader_custom";
+import STLLoader from "../../lib/vendor/STLLoader";
 
 /*
 
@@ -71,28 +70,31 @@ const parse_file_type = (name, path) => {
 
 //The response object is the ThreeJS object loaded by whichever loader (OBJLoader or STLLoader)
 //Config applies Three.js operations to the ThreeJS object before first render.
-module.exports = class LoadTree {
+class LoadTree {
     constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined, response_object=undefined){
         this.name = name;
         this.path = path;
         //Scan type TODO REFACTOR THIS NAME
         this.type = type;
+        //TODO remove this
+        console.log(type + OBJ_TYPES);
+
         this.dimensions = undefined; //Used by scene graph hiearchy to store the dimensions on parse
 
         this.file_ext = parse_file_type(name, path);
         //TODO error log on invalid filetype
-        
+
         if(overlay_children){
             this.overlay_children = overlay_children;//These are also load trees
             this.overlay_children.forEach(c => {
                 c.parent = this;
             });
         }
-        
+
         if(config){
             this.config = config;
         }
-        
+
         if(parent){
             this.parent = parent;
         }
@@ -129,7 +131,7 @@ module.exports = class LoadTree {
         }
 
         if(this.file_ext === PARSABLE_FILETYPES.obj){
-            var objloader = new THREE.OBJLoader();
+            var objloader = new OBJLoader.OBJLoader();
 
             objloader.load(this.path, function(response_text_obj_pair){
                 //This spits back a text of the file and a THREEJS group object
@@ -137,13 +139,13 @@ module.exports = class LoadTree {
                 response_text_obj_pair["MODEL_TYPE"] = this.type;
                 response_text_obj_pair.obj["name"] = this.name;
                 this.response_object = response_text_obj_pair;
-                
+
                 handleLoadingStateBasedOnChildren();
             }.bind(this));
 
         }else if(this.file_ext === PARSABLE_FILETYPES.stl){
             var loader = new STLLoader.STLLoader();
-            
+
             loader.load(this.path,function(result){
                 console.log("STL!!!");
                 console.log(result);
@@ -204,7 +206,7 @@ module.exports = class LoadTree {
     notLoaded(){
         return this.load_state !== LOADING_STATES.loaded;
     }
-    
+
     //Apply config and force overlay children to recursively apply config.
     applyConfig(){
         if(this.config){
@@ -215,7 +217,7 @@ module.exports = class LoadTree {
                 let obj = this.response_object.obj;
 
                 console.log("Applying key and value "+ key + " "+ value);
-                
+
                 if(key === "position"){
                     let {x,y,z} = value;
                     obj.position.set(x,y,z);
@@ -243,23 +245,23 @@ module.exports = class LoadTree {
             "name" : this.name,
             "type" : this.type,
             "dimensions" : this.dimensions,
-            
+
             //Optional based on existence in the graph
             ...this.response_object && {
                 //Deep copy uuid?
                 scene_uuid: this.response_object.obj.uuid,
                 //Engine managed variables with data change events
 
-                visibility: this.response_object.obj.visible ? this.response_object.obj.visible : 
+                visibility: this.response_object.obj.visible ? this.response_object.obj.visible :
                         (this.response_object.obj.children && this.response_object.obj.children[0] ? this.response_object.obj.children[0].visible : undefined)
                 //This is a disgusting ternary that could be replaced with a lambda.
-                //A Group with a foot mesh and landmarks will not have its own visible field so we need to use the foot mesh's instead.   
+                //A Group with a foot mesh and landmarks will not have its own visible field so we need to use the foot mesh's instead.
             },
             ...this.overlay_children && {
                 overlay_children : this.overlay_children.map(c => c.buildTreeRepresentationModel())
             }
         };
-        
+
     }
 
     //Pre order Tree Traversal for uuid
@@ -298,3 +300,5 @@ module.exports = class LoadTree {
         }
     }
 }
+
+export { LoadTree };

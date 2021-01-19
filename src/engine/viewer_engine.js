@@ -119,6 +119,7 @@ module.exports = function () {
             //These bindings should be seperated from Mobile client bindings.
             viewerScope = this;
 
+            //We can use __state_current_mouse_handler to point at different MODE mouse handlers.
             this.__state_current_mouse_handler = function engine_loaded_mouse_handler(e){
                 this.__state_mouse_handle_click_event = e;
                 
