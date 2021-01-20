@@ -1,4 +1,6 @@
-const LoadTree = require('../loader/load_tree_helper');
+import LoadTree from '../loader/load_tree_helper';
+
+var REQUEST_METADATA = REQUEST_METADATA || undefined;
 
 //TODO rename this or something
 //Careful theres no validation on this
