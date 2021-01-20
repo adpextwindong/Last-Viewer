@@ -131,7 +131,7 @@ class LoadTree {
         }
 
         if(this.file_ext === PARSABLE_FILETYPES.obj){
-            var objloader = new OBJLoader.OBJLoader();
+            let objloader = new OBJLoader();
 
             objloader.load(this.path, function(response_text_obj_pair){
                 //This spits back a text of the file and a THREEJS group object
