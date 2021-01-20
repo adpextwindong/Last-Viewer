@@ -63,8 +63,7 @@ Vue.component('dimensions', () => import('./components/viewer/dimensions'));
 const CONFIG = require("./config");
 
 export default {
-    el: '#app',
-    store, 
+    store,
     methods : {
         WebGLAvailible(){
             return window.WebGLRenderingContext !== undefined;
