@@ -1,0 +1,142 @@
+/* Hide the index.html Vue content while it compiles */
+[v-cloak] {
+    display: none
+}
+
+.scan_picker {
+    margin: auto;
+    width: 50%;
+    border: 3px solid #888;
+    padding: 10px;
+}
+
+.hide_me {
+    display: none;
+}
+nav {
+    background-color: white;
+}
+
+#app {
+    min-height: 100%;
+    min-width: 100%;
+}
+
+canvas {
+    display: inline-block;
+    vertical-align: top;
+    position: absolute;
+    z-index: -1;
+    /* margin-left: 20%; */
+    height: 100%;
+}
+
+#data_display_wrapper {
+    /* display: inline-block; */
+    vertical-align: top;
+}
+
+#data_display {
+    /* Critical layout */
+    position: absolute;
+    height: 98%;
+    display: flex;
+    flex: 1 1 1px;
+    flex-direction: column;
+    overflow-y: scroll;
+    /* TODO custom overflow-y styling */
+    z-index: 10;
+    /* Non-critical apperance  */
+    padding: 0.25em;
+    border: groove;
+    overflow-wrap: break-word;
+}
+
+#landmark_nametag_wrapper span {
+    position: absolute;
+    background-color: black;
+}
+
+/* TODO make this responsive design */
+#data_display_wrapper {
+    width: 20%;
+    #data_display {
+        max-width: 20%;
+        width: 20%;
+    }
+
+    &.closed{
+        max-width: 0%;
+        width: 0%;
+
+        #data_display{
+            max-width: 0%;
+            width: 0%;
+            display:none;
+        }
+
+        &　~ canvas{
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+}
+
+#wrapper_closer{
+    position: absolute;
+    height: 100%;
+
+    left: 20%;
+    &.closed{
+        left: 0%;   
+    }
+
+    min-width: 8vw;
+    max-width: 100xp;
+    opacity: 50%;
+    
+    /*
+        Make width a function of visual units
+
+        TODO add a transition
+    */
+    &:hover{
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.685) , rgba(255, 255, 255, 0));
+    }
+}
+
+/* debug menu styling */
+
+#app > div.dg.main > div {
+    /* z-index: 10; */
+}
+
+#app > div.dg.main {
+    /* z-index: 10; */
+    float: right;
+}
+
+/* Landmark highlighting */
+.active {
+    background-color: orange;
+}
+
+/* TODO convert this file into scss cause it needs more organization. 
+    TODO Figure out a correct way to handle on the on click event and hide the data display.
+    TODO custom scroll bar
+*/
+
+#context_menu {
+    position: absolute;
+    background-color: black;
+    //Offscreen to start with
+    left: -10000px;
+    top: -10000px;
+}
+
+#drop_zone{
+    min-width: 200px;
+    min-height: 200px;
+    border: 3px solid #888;
+    padding: 10px;
+}
