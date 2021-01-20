@@ -301,4 +301,4 @@ class LoadTree {
     }
 }
 
-export { LoadTree };
+export default LoadTree;
