@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 const state = {
     trees : undefined,
 };
