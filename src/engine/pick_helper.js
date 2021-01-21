@@ -1,8 +1,7 @@
-var THREE = require('three');
+import * as THREE from 'three';
+import CONFIG from "../config";
 
-const CONFIG = require("../config")
-
-module.exports = class PickHelper {
+class PickHelper {
     constructor(store) {
       this.$store = store;
       this.raycaster = new THREE.Raycaster();
@@ -202,3 +201,5 @@ module.exports = class PickHelper {
         }
     }
   }
+
+export default PickHelper;
