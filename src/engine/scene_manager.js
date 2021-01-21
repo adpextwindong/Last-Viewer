@@ -1,8 +1,14 @@
 //All the resource ownership/managment of objs and
 //interactions via UUIDS should be done through this class.
 
-const { VertexNormalsHelper } = require("three");
-const CONFIG = require("../config");
+import * as THREE_ from "three";
+import VertexNormalsHelper from "three/examples/jsm/helpers/VertexNormalsHelper.js";
+const THREE = {
+    ...THREE_,
+    ...VertexNormalsHelper
+};
+
+import CONFIG from "../config";
 
 function getValueOfLowestVert(mesh, axis){
     let verts = mesh.geometry.attributes.position.array;
@@ -18,13 +24,15 @@ function getLandmarkPoint(landmark_mesh){
     let float_32_array = landmark_mesh.geometry.attributes.position.array;
 
     return [float_32_array[0], float_32_array[1], float_32_array[2]];
-};
+}
 
 //TODO refactor parts of this class so its more readable and consistent in naming
 //Centralizing the uuid LUTS and related functions will be nice for future work
-class ResourceManager {
+class SceneManager {
     constructor(scene, processed_loadTreeList){
         this.scene_ref = scene;
+
+        //TODO refactor this for a file loading layer. OBJs should stay resident in memory.
         this.__processed_loadTreeList = processed_loadTreeList;
         this.flush_flag = false;
 
@@ -49,22 +57,22 @@ class ResourceManager {
         let manager_scope = this;
         const bind_engine_watchers = function(obj) {
             Object.defineProperty(obj, 'visible', {
-                set: function(v){
+                set: function(){
                     manager_scope.flush_flag = true;
                 }
             })
         }
 
         this.objs.forEach(o => {
-            
+
             this.scene_ref.add( o );
-            
+
             //TODO make this togleable
             if(o.children && o.children[0].name == "foot"){
-                var normalhelper = new VertexNormalsHelper(o.children[0],2, 0x00ff00, 1 );
-                console.log("Adding normal helper");
-                normalhelper.matrixAutoUpdate = false;
-                o.add(normalhelper)
+                //var normalhelper = new VertexNormalsHelper(o.children[0],2, 0x00ff00, 1 );
+                //console.log("Adding normal helper");
+                //normalhelper.matrixAutoUpdate = false;
+                //o.add(normalhelper)
                 // this.scene_ref.add(normalhelper);
 
             }
@@ -72,7 +80,7 @@ class ResourceManager {
             bind_engine_watchers(o);
         });
 
-        
+
         let allMeshs = this.objs.flatMap(o => o.children);
         allMeshs.filter(o => !o.name.includes("landmark")).forEach(o => {
             this.scene_uuids[o.uuid] = o;
@@ -92,13 +100,13 @@ class ResourceManager {
             this.scene_landmarks[mesh.parent.uuid][landmark_index] = mesh;
             this.scene_landmark_by_uuids[mesh.uuid] = mesh;
 
-            
+
         });
 
         this.objs.forEach(o => {
             this.__addMeasurementDataMeshes(o.uuid);
         });
-        
+
         if(processed_loadTreeList.every(g => g.config === undefined)){
             // Distributed Positions
             console.log("defaulting positions");
@@ -114,7 +122,7 @@ class ResourceManager {
         }
 
 
-        
+
     }
     __get_max_mesh_width(){
         return Math.max.apply(Math, this.objs.map(o =>{
@@ -126,14 +134,14 @@ class ResourceManager {
         let max_mesh_width = this.__get_max_mesh_width();
 
         for(let i = 0; i < this.objs.length; i++){
-            this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);         
+            this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
         }
     }
     __setDefaultOrientations(){
         //Position the foot objs across the X axis in a distributed manner.
-        for(let i = 0; i < this.objs.length; i++){        
+        for(let i = 0; i < this.objs.length; i++){
             //TASK Implement correct orrientation
-            
+
 
             this.objs[i].rotation.set(CONFIG.DEFAULT_ROTATION_X,
                 CONFIG.DEFAULT_ROTATION_Y,
@@ -193,7 +201,7 @@ class ResourceManager {
         //WISHLIST See if projecting down is all we need
         if(project_down_onto_axis !== undefined &&
             (project_down_onto_axis === "X" || project_down_onto_axis === "Y" || project_down_onto_axis === "Z")){
-            
+
             if(project_down_onto_axis === "X"){
                 let val = getValueOfLowestVert(mesh.children[0], "X");
                 points[0].setX(val);
@@ -238,7 +246,7 @@ class ResourceManager {
     __addBallGirthCircumference_Line(mesh){
         //
         //Ball Girth Circumference using Highest Point Ball Girth, Most Medial Point Ball Girth, Most Lateral Point Ball Girth landmarks.
-        // 
+        //
         let highest_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["25"]));
         let most_medial_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["28"]));
         let most_lateral_point_ball_girth = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid]["29"]));
@@ -266,9 +274,9 @@ class ResourceManager {
         let pternion_point = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid][1]));
         let junction_point = new THREE.Vector3(...getLandmarkPoint(this.scene_landmarks[mesh.uuid][44]));
         let coplanar_point = midPointBetweenTwoPoints(pternion_point, junction_point);
-        //Arbitrary distance away from the center line axis of the foot to get a coplanar point (instead of having a point along the pt junction axis) 
+        //Arbitrary distance away from the center line axis of the foot to get a coplanar point (instead of having a point along the pt junction axis)
         coplanar_point.setY(coplanar_point.y + 50);
-        
+
         this.__addCircumferenceLineFromCutPlane(mesh, pternion_point, junction_point, coplanar_point);
     }
 
@@ -277,21 +285,21 @@ class ResourceManager {
         //https://jsfiddle.net/8uxw667m/4/
 
         //Creates a plane from the three landmarks and intersects mesh geometry faces with the plane to find the circumference points.
-        //Intersected points are put into a geometry object and a LineSegments 
+        //Intersected points are put into a geometry object and a LineSegments
 
         let p_a = new THREE.Vector3().copy(point_a),
             p_b = new THREE.Vector3().copy(point_b),
             p_c = new THREE.Vector3().copy(point_c);
-            
+
         mesh.updateMatrixWorld(true);
         p_a = p_a.applyMatrix4(mesh.matrixWorld);
         p_b = p_b.applyMatrix4(mesh.matrixWorld);
         p_c = p_c.applyMatrix4(mesh.matrixWorld);
-    
+
         let intersection_plane = new THREE.Plane();
-        
+
         intersection_plane.setFromCoplanarPoints(p_a, p_b, p_c);
-       
+
         if(mesh instanceof THREE.Group){
             let obj = mesh.children[0];
 
@@ -328,17 +336,18 @@ class ResourceManager {
                 setPointOfIntersection(lineCA, intersection_plane);
             });
 
+            /*
             var pointsMaterial = new THREE.PointsMaterial({
                 size: .5,
                 color: "blue"
-            });
+            }); */
 
-            
+
             // var points = new THREE.Points(pointsOfIntersection, pointsMaterial);
             var lineMaterial = new THREE.LineBasicMaterial( { color: 0x9932CC } );
             var buffGem = new THREE.BufferGeometry().setFromPoints(pointsOfIntersection);
             var line = new THREE.LineSegments( buffGem, lineMaterial );
-            
+
             line.layers.enable(CONFIG.LAYERS_MEASUREMENT_LINES);
             // console.log("Adding lines layer, hope it works");
             mesh.add( line );
@@ -348,7 +357,7 @@ class ResourceManager {
     __addMeasurementDataMeshes(uuid){
         let mesh = this.scene_uuids[uuid];
 
-        
+
         if(mesh.uuid in this.scene_landmarks){
 
             const landmarkNumbersInScene = (landmark_number, ...args) => {
@@ -357,11 +366,11 @@ class ResourceManager {
 
             if(landmarkNumbersInScene(0, 27)){
                 //0 Pternion
-                //27 
+                //27
                 console.log("Adding foot length pternion cp axis line");
                 this.__addLineToMeshAndRegister(mesh, 0, 27, "Z");
             }
-            
+
             if(landmarkNumbersInScene(25, 28, 29)){
                 console.log("Adding ball girth circumference line");
                 this.__addBallGirthCircumference_Line(mesh);
@@ -396,10 +405,10 @@ class ResourceManager {
         if(uuid in this.scene_landmark_by_uuids){
             //Its a landmark
             let parent_uuid = this.scene_landmark_by_uuids[uuid].parent.uuid;
-            
+
             delete this.scene_landmarks[parent_uuid][uuid];
             delete this.scene_landmark_by_uuids[uuid];
-            
+
         }else if(this.__isTopLevelObj(uuid)){
             let removed = this.objs.splice(this.objs.map(o => o.uuid).indexOf(uuid) ,1);
             this.scene_ref.remove(removed[0]);
@@ -424,4 +433,4 @@ class ResourceManager {
     }
 }
 
-module.exports = ResourceManager;
+export default SceneManager;
