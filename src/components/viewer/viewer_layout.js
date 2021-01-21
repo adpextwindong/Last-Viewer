@@ -1,16 +1,17 @@
 // This is the Vue Component file for the 3D Viewer.
 // Its seperated from the APP
-var vueclickaway = require('vue-clickaway');
+import vueclickaway from 'vue-clickaway';
 
-var Viewer = require('../../engine/viewer_engine.js');
-var appViewer = new Viewer();
+import ViewerEngine from '../../engine/viewer_engine.js';
+var appViewer;
 
-const CONFIG = require("../../config");
-        LandmarkParser = require("../../loader/landmark_parser_utils");
+import CONFIG from "../../config";
+//import LandmarkParser from "../../loader/landmark_parser_utils";
+//TODO move the landmark parser into a file loading layer that handles meta data and lifetimes nicely.
 
-module.exports = {
+export default {
     mixins: [ vueclickaway.mixin ],
-  
+
     locales : {
         en: {
 
@@ -74,12 +75,15 @@ module.exports = {
     // has access to `this` component instance.
         //and hide the canvas
         // appViewer.__shutdown_still_warm = true;
-        appViewer.__shutdownEngineDomElements();
-        appViewer = undefined;
-        
+        if(appViewer){
+            appViewer.__shutdownEngineDomElements();
+            appViewer = undefined;
+        }
+
         // delete appViewer;
-        appViewer = new Viewer();
-        nav = document.querySelector("#router_nav");
+        // TODO fix this interaction from the refactor
+        //appViewer = new ViewerEngine();
+        let nav = document.querySelector("#router_nav");
         nav.classList.remove("hide_me");
         next();
     },
@@ -90,15 +94,15 @@ module.exports = {
     mounted() {
         //We need some sort of flush flag when the router goes elsewhere and comes back with a new loadTree
         //If they go to the settings menu or something it shouldnt flush a warm scene in the background.
-        loadTrees = this.$store.getters["loadTrees/trees"];
+        let loadTrees = this.$store.getters["loadTrees/trees"];
         if(loadTrees !== undefined){
-            nav = document.querySelector("#router_nav");
+            let nav = document.querySelector("#router_nav");
             nav.classList.add("hide_me");
 
             this.launchViewer(this.$root.$el, loadTrees);
             // if(appViewer.__shutdown_still_warm){
             //     //scrap the old stuff
-                
+
             // }
         }else{
             //Force the user back to home if they just refresh on the engine route
@@ -111,7 +115,7 @@ module.exports = {
    created() {
            this.$on('contextmenu_selected_uuids', function(uuids){
             //    console.log("Recieved selected uuids for context menu interaction");
-            //    console.log(uuids);
+                console.log(uuids);
            });
 
            //POSITIONING
@@ -155,9 +159,10 @@ module.exports = {
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
             }.bind(this);
 
-            appViewer.init(target_element, viewer_component_event_handle, processed_loadTreeList, this.$store);
+            appViewer = new ViewerEngine(target_element, viewer_component_event_handle, processed_loadTreeList, this.$store);
             this.__bindEngineInterface();
 
+            //TODO this needs to be moved to a file loading layer
             this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList); //TODO processed_loadTreeList This should be pushed down into the appViewer init based on the scene manager/file loader succesfully parsing landmarks.
 
             //EVENTS
@@ -175,6 +180,7 @@ module.exports = {
                 appViewer.manager.removeUUID(uuid);
             });
 
+            appViewer.attachToPageElement();
             //Starts rendering the scene
             appViewer.animateLoop();
 
