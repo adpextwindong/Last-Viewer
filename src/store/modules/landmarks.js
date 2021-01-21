@@ -40,7 +40,7 @@ function initLandmarks(state, processed_loadTreeList){
         }
     }
     processed_loadTreeList.forEach(t => addLandmarks(t));
-};
+}
 
 //Applies f given it exists and has an index in landmarks[parent_key]
 const applyIfExistingLandmark = (landmarks) => (parent_key, viewer_group_name, f) => {
