@@ -1,4 +1,6 @@
-const LandmarkParser = require("../../loader/landmark_parser_utils");
+import Vue from "vue";
+import LandmarkParser from "../../loader/landmark_parser_utils";
+import CONFIG from "../../config";
 
 const state = {
     //Indexed by obj.name of top level scan objects
@@ -60,14 +62,14 @@ const mutations = {
         applyIfExistingLandmark(state.landmarks, parent_key, viewer_group_name, (ind) =>{
             state.landmarks[parent_key][ind].isActive = true;
             let group_name = CONFIG.DEBUG ? viewer_group_name : "";
-           
-            Vue.set(state.highlighted_landmark, 'name', group_name + " " + Vue.t(landmarks[parent_key][ind].description));
+
+            Vue.set(state.highlighted_landmark, 'name', group_name + " " + Vue.t(state.landmarks[parent_key][ind].description));
         });
     },
 
     highlighted_landmark_hover_off(state, parent_key, viewer_group_name){
         applyIfExistingLandmark(state.landmarks, parent_key, viewer_group_name, (ind) =>{
-            landmarks[parent_key][ind].isActive = false;
+            state.landmarks[parent_key][ind].isActive = false;
             Vue.set(state.highlighted_landmark, 'name', "");
         });
     },
