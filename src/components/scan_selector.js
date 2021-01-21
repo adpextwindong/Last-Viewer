@@ -235,8 +235,8 @@ export default {
             await sleep(1);
 
             const awaitedPaths = await Promise.all(obj_urls);
-            const awaitedTreeList = awaitedPaths.map((o,i) => new LoadTree(o.name, o.path, o.type));
-            
+            const awaitedTreeList = awaitedPaths.map((o) => new LoadTree(o.name, o.path, o.type));
+
             awaitedTreeList.forEach(LoadTree => LoadTree.startLoad());
             while(awaitedTreeList.some(g => g.notLoaded())){
                 await sleep(100);
