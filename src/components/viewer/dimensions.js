@@ -1,5 +1,4 @@
-const DimensionParser = require('../../loader/dimensions_parser');
-
+//const DimensionParser = require('../../loader/dimensions_parser');
 //This module displays the dimensions from a dimension.xml file parsed by the scene_graph_hiearchy
 module.exports = {
     locales : {
