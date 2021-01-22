@@ -1,12 +1,14 @@
 //All the resource ownership/managment of objs and
 //interactions via UUIDS should be done through this class.
 
-import * as THREE_ from "three";
+import * as THREE from "three";
+/*
 import VertexNormalsHelper from "three/examples/jsm/helpers/VertexNormalsHelper.js";
 const THREE = {
     ...THREE_,
     ...VertexNormalsHelper
 };
+*/
 
 import CONFIG from "../config";
 
