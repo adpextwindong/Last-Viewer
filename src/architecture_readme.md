@@ -75,7 +75,7 @@ Line picking can be done with a bounding box. This will have to be ported someho
 ## 2020 CHRISTMAS TASKS AND WISHLIST
 --------------------------------------------------------------------------------
 ### DEVOPS
-Redo the webpack bundling process and make sure it replicatiable on Debian. Make sure the VueJS stuff is pinned to a good version.
+Make sure the VueJS stuff is pinned to a good version.
 
 See if we can do tree pruning for different builds. We don't need to ship all of the codebase for a mobile app or presentation build.
 
