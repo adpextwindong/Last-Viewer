@@ -15,11 +15,9 @@ import LIGHTS from './lights.js';
 import PickHelper from './pick_helper.js';
 import SceneManager from "./scene_manager";
 
-let viewerScope;
-
 class ViewerEngine {
     constructor(target_element, component_event_emitter, processed_loadGraphList, store){
-        viewerScope = this;
+        let viewerScope = this;
         this.target_element = target_element;
         //function to emit event to the containing Vue component
         this.fire_event_to_component = component_event_emitter;
@@ -102,6 +100,7 @@ class ViewerEngine {
         //
         this.__bindMouseEngineEvents();
 
+        let viewerScope = this;
         const engine_poll_mouse = function engine_poll_mouse_loop(){
             viewerScope.controls.update();
             setTimeout(engine_poll_mouse, 5);
@@ -118,6 +117,7 @@ class ViewerEngine {
     }
 
     __bindMouseEngineEvents(){
+        let viewerScope = this;
         //TODO maybe these need to force rerender this.rerender();
 
         // Binds engine events such as click handlers for the mouse leftclick and context menu, mouse position
@@ -145,7 +145,6 @@ class ViewerEngine {
             this.__state_mouse_handle_contextmenu_event = e;
         }.bind(this));
 
-        //viewerScope = this;
         this.renderer.domElement.addEventListener('mousemove', function engine_mousemove_handler(event){
             event.preventDefault();
             //WISHLIST add a flag to the contextmenu handler to check for a mouse move of a certain distance?
@@ -329,6 +328,7 @@ class ViewerEngine {
     }
 
     ___setupController(){
+        let viewerScope = this;
         this.controller = {
             //External facing functions for controling the scene from the viewer layout Vue component.
             //These functions need to be bound, but the Viewer Vue layer handles that in the engine interface setup anyways.
