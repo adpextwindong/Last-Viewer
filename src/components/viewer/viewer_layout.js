@@ -5,7 +5,8 @@ import vueclickaway from 'vue-clickaway';
 import ViewerEngine from '../../engine/viewer_engine.js';
 var appViewer;
 
-import CONFIG from "../../config";
+import APP_SETTINGS from "../../app_settings";
+
 //import LandmarkParser from "../../loader/landmark_parser_utils";
 //TODO move the landmark parser into a file loading layer that handles meta data and lifetimes nicely.
 
@@ -32,14 +33,14 @@ export default {
         
         <div id="data_display" class="wrapper_open" >
             <button type="button"
-                v-if="config.DEBUG"
+                v-if="app_settings.DEBUG"
                 v-on:click="returnToHome()">{{t('Return to Home Page')}}</button>
 
             <button type="button" v-on:click="engine_interface.resetCamera()">{{t('Reset Camera')}}</button>
 
             <view_controls v-bind:engine_interface="engine_interface"></view_controls>
 
-            <scene_graph_hiearchy v-if="config.DEBUG"
+            <scene_graph_hiearchy v-if="app_settings.DEBUG"
                 v-bind:scene_graph_representation="scene_graph_representation"
                 v-bind:engine_interface="engine_interface"
             />
@@ -57,8 +58,8 @@ export default {
     //It might be easier for a control object for each component to be generated that contains closures for each thing
     //instead of vbinding everything. Ofc theres no compile time guarentee that the controls match up.
     computed : {
-        config(){
-            return CONFIG
+        app_settings(){
+            return APP_SETTINGS
         }
     },
     data() {

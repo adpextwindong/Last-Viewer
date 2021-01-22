@@ -1,6 +1,6 @@
-const CONFIG = require("../config");
+import APP_SETTINGS from "../app_settings";
 
-module.exports = {
+export default {
     locales : {
         en: {
 
@@ -32,7 +32,7 @@ module.exports = {
             </div>
         </div>
 
-        <div v-if="config.DEBUG">
+        <div v-if="app_settings.APP_DEBUG">
             <button type="button" v-on:click="clearLocalStorage()">{{t('Clear localStorage')}}</button>
         </div>
     </div>`,
@@ -40,7 +40,7 @@ module.exports = {
         isCurrentLocal : function(locale){
             let stored = window.localStorage.getItem("locale");
             if(stored === null){
-                this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
+                this.$translate.setLang(APP_SETTINGS.DEFAULT_LOCALE);
                 window.localStorage.setItem("locale", locale);
             }
             return locale === window.localStorage.getItem("locale");
@@ -61,8 +61,8 @@ module.exports = {
 
     },
     computed : {
-        config(){
-            return CONFIG
+        app_settings(){
+            return APP_SETTINGS
         }
     },
     created(){
@@ -70,7 +70,7 @@ module.exports = {
         if(locale){
             this.$translate.setLang(locale);
         }else{
-            this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
+            this.$translate.setLang(APP_SETTINGS.DEFAULT_LOCALE);
         }
     }
 }

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import CONFIG from "../config";
+import configuration from "./config";
+var CONFIG = CONFIG || new configuration();
 
 class PickHelper {
     constructor(store) {

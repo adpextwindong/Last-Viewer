@@ -1,8 +1,8 @@
-module.exports = {
+const DEFAULTS = {
     ///
     /// APP
     ///
-    DEFAULT_LOCALE : "en",
+
     DEBUG : true,
     ///
     ///ENGINE
@@ -42,5 +42,27 @@ module.exports = {
     LAYERS_SCANS : 1,
     LAYERS_LANDMARKS : 2,
     LAYERS_MEASUREMENT_LINES : 3
-    
+
+};
+
+//This might end up in Vuex, not sure because of performance overhead.
+//For now it should be instantiated with expectations of it being globally declared
+//Like this:
+//
+//import configuration from "configuration";
+//var CONFIG = CONFIG || new configuration();
+
+//THIS SHOULD ONLY BE USED INSIDE THE ENGINE
+class configuration{
+    constructor(config){
+        if(config === undefined){
+            Object.assign(this, DEFAULTS);
+        }else{
+            Object.assign(this, config);
+        }
+    }
+    downloadConfig(){
+    }
 }
+
+export default configuration;

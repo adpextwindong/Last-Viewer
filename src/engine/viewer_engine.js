@@ -9,7 +9,9 @@ _THREEX_KEYBOARD(THREEx);
 
 var keyboard = new THREEx.KeyboardState();
 
-import CONFIG from "../config";
+import configuration from "./config";
+var CONFIG = new configuration();
+
 import MOBILE_UTILS from './mobile_utils.js';
 import LIGHTS from './lights.js';
 import PickHelper from './pick_helper.js';
@@ -279,7 +281,6 @@ class ViewerEngine {
 
     __setupLighting (){
         this.lighting = new LIGHTS();
-        this.lighting.init();
         this.lighting.lights.forEach(light => {
             light.layers.enable(0);
             this.scene.add(light)

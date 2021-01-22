@@ -60,7 +60,7 @@ Vue.component('landmark_nametag', () => import('./components/viewer/landmark_nam
 Vue.component('dimensions', () => import('./components/viewer/dimensions'));
 
 //TODO make this runtime configurable
-const CONFIG = require("./config");
+import APP_SETTINGS from "./app_settings";
 
 export default {
     store,
@@ -82,7 +82,7 @@ export default {
         if(locale){
             this.$translate.setLang(locale);
         }else{
-            this.$translate.setLang(CONFIG.DEFAULT_LOCALE);
+            this.$translate.setLang(APP_SETTINGS.DEFAULT_LOCALE);
         }
     },
 };
