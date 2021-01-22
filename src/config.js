@@ -17,7 +17,8 @@ module.exports = {
     DEFAULT_ROTATION_Y : 0,
     DEFAULT_ROTATION_Z : -90*Math.PI/180,
 
-    CONTEXT_MOBILE : true,
+    //Disables mouse picking when true
+    CONTEXT_MOBILE : false,
 
     //Mouse interaction features
     CONTEXT_MENU_ENABLED : false,
