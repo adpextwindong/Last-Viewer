@@ -12,12 +12,12 @@ const convertDomToDict = (dom) => {
 };
 
 function mergeLeftRightDicts(ls, rs){
-    lks = Object.keys(ls);
-    rks = Object.keys(rs).filter((x) => lks.includes(x));
-    keys = [...lks, ...rks];
-    
-    pairs = keys.map(k => [ls[k], rs[k]]);
-    
+    let lks = Object.keys(ls);
+    let rks = Object.keys(rs).filter((x) => lks.includes(x));
+    let keys = [...lks, ...rks];
+
+    let pairs = keys.map(k => [ls[k], rs[k]]);
+
     return zip(keys,pairs);
 }
 
