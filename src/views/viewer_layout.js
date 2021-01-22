@@ -2,10 +2,10 @@
 // Its seperated from the APP
 import vueclickaway from 'vue-clickaway';
 
-import ViewerEngine from '../../engine/viewer_engine.js';
+import ViewerEngine from '../engine/viewer_engine.js';
 var appViewer;
 
-import APP_SETTINGS from "../../app_settings";
+import APP_SETTINGS from "../app_settings";
 
 //import LandmarkParser from "../../loader/landmark_parser_utils";
 //TODO move the landmark parser into a file loading layer that handles meta data and lifetimes nicely.
@@ -30,7 +30,7 @@ export default {
         <landmark_nametag/>
 
         <!-- Everything above this should be absolute position UI elements, everything else should go into the display wrapper-->
-        
+
         <div id="data_display" class="wrapper_open" >
             <button type="button"
                 v-if="app_settings.DEBUG"
@@ -47,11 +47,10 @@ export default {
 
             <landmark_list></landmark_list>
             <button type="button" v-on:click="toggleLandmarks()">{{t('Hide all landmarks')}}</button>
-            
         </div>
         <!-- When the app state transitions to AppStates.LOADED the Viewer will attach its renderer to the DOM -->
         <div id="wrapper_closer" v-on:click="toggleDisplayMenu()">
-            
+
         </div>
     </div>
     `,
@@ -135,12 +134,12 @@ export default {
                 emitRemoveUUIDRequest: function(uuid){
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
-                
+
                 addFootDimensionData: function(uuid, dimensions){
                     appViewer.manager.addFootDimensionData(uuid, dimensions);
                     this.$emit('viewer_scene_graph_change');
                 }.bind(this),
-                
+
                 //TODO viewerScope.rerender();
                 toggleVisibilityUUID : appViewer.manager.toggleVisibility.bind(appViewer.manager),
 
@@ -199,11 +198,11 @@ export default {
         returnToHome () {
             this.$router.push('/');
         },
-        
+
         toggleDisplayMenu(){
             this.menu_display_wrapper_el.classList.toggle("closed");
             this.menu_wrapper_closer_el.classList.toggle("closed");
         },
     }
-    
+
 }

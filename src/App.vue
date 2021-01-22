@@ -46,9 +46,9 @@ import store from './store';
 Vue.use(VueTranslate);
 
 
-import Scan_Selector from './components/scan_selector';
-import Settings_Menu from './components/settings_menu';
-import Viewer from './components/viewer/viewer_layout';
+import Scan_Selector from './views/scan_selector';
+import Settings_Menu from './views/settings_menu';
+import Viewer from './views/viewer_layout';
 
 //These imports could be moved down and asyncly done from viewer probably
 Vue.component('vue-context', () => import('vue-context'));
