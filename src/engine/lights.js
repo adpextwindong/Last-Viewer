@@ -1,5 +1,5 @@
-const THREE = require('three');
-const dat = require('dat.gui');
+import * as THREE from'three';
+import dat from'dat.gui';
 
 import configuration from "./config";
 var CONFIG = CONFIG || new configuration();
