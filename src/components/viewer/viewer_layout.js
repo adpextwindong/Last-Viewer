@@ -191,7 +191,7 @@ export default {
 
        //Control and presentation should be seperated.
         toggleLandmarks () {
-            appViewer.hideLandmarks();
+            appViewer.controller.hideLandmarks();
             this.$store.commit("landmarks/toggle_landmark_list");
         },
 
