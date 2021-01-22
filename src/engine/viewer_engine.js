@@ -175,7 +175,7 @@ class ViewerEngine {
             requestAnimationFrame(function mouseout_rerender(ts){
                 viewerScope.rerender(ts,"mouseout");
             });
-        });
+        }.bind(viewerScope));
         this.renderer.domElement.addEventListener('mouseleave', function engine_mouseleave_handler(event) {
             event.preventDefault();
             if(!CONFIG.CONTEXT_MOBILE){
@@ -184,7 +184,7 @@ class ViewerEngine {
             requestAnimationFrame(function mouseleave_rerender(ts){
                 viewerScope.rerender(ts,"mouseleave");
             });
-        });
+        }.bind(viewerScope));
 
         //TODO TASK TESTING Touch stuff needs to be tested on mobile
         this.renderer.domElement.addEventListener('touchstart', function engine_touchstart_handler(event) {
@@ -197,7 +197,7 @@ class ViewerEngine {
             requestAnimationFrame(function touchstart_rerender(ts){
                 viewerScope.rerender(ts, "touchstart");
             });
-        }.bind(this), {passive: false});
+        }.bind(viewerScope), {passive: false});
 
         this.renderer.domElement.addEventListener('touchmove', function engine_touchmove_handler(event) {
             event.preventDefault();
@@ -208,7 +208,7 @@ class ViewerEngine {
             requestAnimationFrame(function touchmove_rerender(ts){
                 viewerScope.rerender(ts, "touchmove");
             });
-        }.bind(this));
+        }.bind(viewerScope));
 
         this.renderer.domElement.addEventListener('touchend', function engine_touchend_handler(event){
             event.preventDefault();
@@ -221,7 +221,7 @@ class ViewerEngine {
             requestAnimationFrame(function touchend_rerender(ts){
                 viewerScope.rerender(ts, "touchend");
             });
-        });
+        }.bind(viewerScope));
     }
 
     //TODO debug all UI interactions to force rerender, and finalize RAF architecture removal
@@ -420,7 +420,7 @@ class ViewerEngine {
             //Use bounding box to determine default rotation, then landmark to determine vertical orrientation?
 
             hideLandmarks : function() {
-                this.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
+                viewerScope.camera.layers.toggle(CONFIG.LAYERS_LANDMARKS);
 
                 requestAnimationFrame(function hideLandmarks_rerender(ts){
                     viewerScope.rerender(ts, "hideLandmarks");
