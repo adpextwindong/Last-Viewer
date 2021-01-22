@@ -6,28 +6,27 @@ foot_viewer.html and App.js is the entry point for this Scan Model Viewer. App.j
 
 ## File & Folder Layout
 
-    Store/
-        Holds the Vuex data stores for anything we want to access/watch across components.
-        For the bootup process of the VUE Viewer Layout and Viewer Engine. I ran into an issue where simply stashing the loadTree in global space had some sort of data race w/ the VueJS component seeing it or something. VueX simply avoids this for us but shouldn't be the primary source of truth.
-
-        Also, this was added to avoid overloading the event handler and event bus in Vue with weakly typed data update events that are loosely defined all over the place.
-        While Vuex might be overkill its simpler to have the data models defined in one place instead of having them spread everywhere.
-
-        The fire_event_to_component handler will still be used for information from the engine that the layout should handle.
-
-    Components/ --- VueJS components
-        Top level components are directly put here.
-        Viewer dir contains all the model viewer related UI components and its main layout
-
-    Loader/ --- Loading utilities for handling a load tree and landmark parsing from obj files.
-
-    Viewer/
-        viewer_engine.js handles the ThreeJS engine context.
-        resource_manager.js handles manipulating the ThreeJS scene as an interface for Viewer Layout components to interact with.
-
-        Other files are utils for Viewer Engine and should only interact with the ThreeJS scene.
-
-    config.js is configuration settings for the engine that is done at compile time.
+assets/
+    Static assets to be handled by webpack.
+components/
+    Components for use by Vuejs Views.
+engine/
+    Any and all engine related code goes here. Configured by config.js
+    Viewer Engine attachs to a domElement given to it.
+    scene_manager.js handles external controls for CHANGING the scene.
+    The Viewer Engine controller object is an interface to MANIPULATING the scene's objects.
+loader/
+    Handles all loading of files. PENDING REFACTOR
+router/
+    Sets up the inital route.
+store/
+    VUEX Store for Application wide settings and things that need to be watched by Views/Components such as Landmarks.
+styles/
+    Style sheet. SCSS is preferred.
+utils/
+    Functional programming utils and whatnot.
+views/
+    Page level components that should be routed to.
 
 ## Application initilization flow
 
