@@ -15,7 +15,7 @@ var CONFIG = new configuration();
 import MOBILE_UTILS from './mobile_utils.js';
 import LIGHTS from './lights.js';
 import PickHelper from './pick_helper.js';
-import SceneManager from "./scene_manager";
+import SceneManager from "./scene/scene_manager";
 
 class ViewerEngine {
     constructor(target_element, component_event_emitter, processed_loadGraphList, store){
