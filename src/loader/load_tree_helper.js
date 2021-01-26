@@ -264,6 +264,10 @@ class LoadTree {
 
     }
 
+    //TODO REFACTOR SCENE GRAPH
+    //This should be traverse for
+    //With a partially applied method for uuid
+
     //Pre order Tree Traversal for uuid
     //Can return empty list representing no uuid in tree
     //This list interface is awkward because of the children case potentially returning the uuid
@@ -286,6 +290,9 @@ class LoadTree {
             this.overlay_children.forEach(c => c.traverseAndApplyRecursively(f));
         }
     }
+
+    //TODO REFACTOR SCENE GRAPH
+    //This is too tightly tied between the response object and threejs scene
     getTHREEObj(){
         return this.response_object.obj;
     }

@@ -51,6 +51,7 @@ import Settings_Menu from './views/settings_menu';
 import Viewer from './views/viewer_layout';
 
 //These imports could be moved down and asyncly done from viewer probably
+//TODO make the components used by viewer private to the viewer component
 Vue.component('vue-context', () => import('vue-context'));
 Vue.component('landmark_list', () => import('./components/viewer/landmark_list'));
 Vue.component('landmark_list_item', () => import('./components/viewer/landmark_list_item'));

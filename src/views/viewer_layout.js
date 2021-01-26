@@ -167,13 +167,17 @@ export default {
 
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel())); //TODO processed_loadTreeList This should be pushed down as well
+            //TODO appViewer.manager.buildScreenGraphRepresentationModel()
 
             //This is the event handler that queries the loadTreeList for updates on the scene graph model.
             //TODO the scene manager should be handling ownership/managment of this processed_loadTreeList variable
             this.$on('viewer_scene_graph_change', function(){
                 console.log("Scene Graph change recieved");
                 //Provide this through appViewer Manager
-                this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel())); //TODO processed_loadTreeList this is too detailed of an interaction for this layer.
+                this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
+                
+                //TODO processed_loadTreeList this is too detailed of an interaction for this layer.
+                //TODO appViewer.manager.buildScreenGraphRepresentationModel()
             });
 
             this.$on('scene_graph_component_remove_uuid_request', function(uuid){

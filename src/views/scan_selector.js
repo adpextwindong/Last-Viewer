@@ -192,13 +192,18 @@ export default {
         //PreCondition: No children in the LoadTreeList are awaiting on children to load.
         stitchAndStartEngine(LoadTreeList){
             LoadTreeList.forEach(g => {
-                g.stitchSceneGraph();
-                g.applyConfig();
+                g.stitchSceneGraph(); //Work for the scene graph manager
+                g.applyConfig(); //Work for the scene graph manager
             });
 
             this.loading = false;
             //CRITICAL SECTION FOR LOADING DUE TO VUEJS V-IF LIMITATIONS
             //component/viewer/viewer_layout.js::mounted() has notes on this.
+
+            //TODO SCENE GRAPH REFACTOR
+            //Since we just need to stash the initial set of LoadTrees into Vuex
+            //Which will be handled by the FileLoader which generates a scene graph for the scene manager to hook up
+            //We can move this loading code into a file loader
             this.$store.commit('loadTrees/setTrees', LoadTreeList);
             this.$router.push('engine');
         },
