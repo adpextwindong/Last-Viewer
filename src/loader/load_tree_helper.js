@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import OBJLoader from "../../lib/vendor/three_loader_custom";
 import STLLoader from "../../lib/vendor/STLLoader";
 
+import Tree from "../types/tree";
+
 /*
 
 Heres the kind of json schema Im expecting to load with this thing
@@ -70,8 +72,9 @@ const parse_file_type = (name, path) => {
 
 //The response object is the ThreeJS object loaded by whichever loader (OBJLoader or STLLoader)
 //Config applies Three.js operations to the ThreeJS object before first render.
-class LoadTree {
+class LoadTree extends Tree {
     constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined, response_object=undefined){
+        super(overlay_children, parent);
         this.name = name;
         this.path = path;
         //Scan type TODO REFACTOR THIS NAME
@@ -79,26 +82,17 @@ class LoadTree {
         //TODO remove this
         console.log(type + OBJ_TYPES);
 
+        //TODO REFACTOR Dimensions should be moved to the file manager metadata layer
         this.dimensions = undefined; //Used by scene graph hiearchy to store the dimensions on parse
 
         this.file_ext = parse_file_type(name, path);
         //TODO error log on invalid filetype
 
-        if(overlay_children){
-            this.overlay_children = overlay_children;//These are also load trees
-            this.overlay_children.forEach(c => {
-                c.parent = this;
-            });
-        }
-
         if(config){
             this.config = config;
         }
 
-        if(parent){
-            this.parent = parent;
-        }
-
+        //TODO REFACTOR response object should be moved to the file manager.
         if(response_object){
             //This is the internal THREE.JS Object class for the loaded model
             this.response_object = response_object;
@@ -106,6 +100,7 @@ class LoadTree {
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
+    //TODO REFACTOR move this and the scan_selector loading code into the File Manager layer
     //TODO refactor This needs to be decoupled from the current loader
     //TODO refactor the load state handling into seperate predicate and state transition functions
     //Make sure the strings this stringly typed shit points to a const array of them like the scan types.
@@ -172,6 +167,10 @@ class LoadTree {
     }
 
     __pendingChildren(){
+        //Uses base Tree class someChildren
+        this.someChildren((g) => g.load_state === LOADING_STATES.pending);
+    }
+    __OLD_XXX_pendingChildren(){
         //Wrap the some check to prevent NPE/undefined deref
         if(this.overlay_children){
             return this.overlay_children.some(g => g.load_state === LOADING_STATES.pending)
@@ -207,6 +206,7 @@ class LoadTree {
         return this.load_state !== LOADING_STATES.loaded;
     }
 
+    //TODO REFACTOR remove this and move it to the scene graph manager layer
     //Apply config and force overlay children to recursively apply config.
     applyConfig(){
         if(this.config){
@@ -284,27 +284,10 @@ class LoadTree {
         }
     }
 
-    traverseAndApplyRecursively(f){
-        f(this);
-        if(this.overlay_children){
-            this.overlay_children.forEach(c => c.traverseAndApplyRecursively(f));
-        }
-    }
-
     //TODO REFACTOR SCENE GRAPH
     //This is too tightly tied between the response object and threejs scene
     getTHREEObj(){
         return this.response_object.obj;
-    }
-    removeChild(tree){
-        if(this.overlay_children.includes(tree)){
-            tree.parent = null;
-            this.overlay_children.splice(this.overlay_children.indexOf(tree),1);
-            //Recursively remove from tree?
-            if(this.overlay_children.length === 0){
-                this.overlay_children = undefined;
-            }
-        }
     }
 }
 

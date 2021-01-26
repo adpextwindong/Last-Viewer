@@ -1,10 +1,9 @@
-//Overlay children is for scans you want to 'overlay' on top of a parent scan.
-//For example overlaying a last model over a foot model to visualize the difference.
-//This is why this class is a LoadTree as you might want to overlay multiple lasts and toggle visibility on them.
-//Handling that recursively, in the event someone wants to nest a bunch (partial scans etc idk), simplifies that.
+//This is a base class for Tree related types like a LoadTree and Scene Graph (not really a graph)
+//I wanted to seperate loading from scene manipulation and handling.
+//But retain the flexibility of using a tree.
 
-//The response object is the ThreeJS object loaded by whichever loader (OBJLoader or STLLoader)
-//Config applies Three.js operations to the ThreeJS object before first render.
+//Overlay Children is a list
+//Parent is just a reference to whomever owns this tree (not really enforced)
 class Tree {
     //data LoadTree :: this [trees] parent_reference //The children tree
     constructor(overlay_children = undefined, parent=undefined){
@@ -33,19 +32,6 @@ class Tree {
         }
     }
     //TODO rewrite __pendingChildren()
-
-    //TODO consider moving this into the scene manager
-    //Book keeping functions for setuping up internal THREEJS after loading is complete
-    stitchSceneGraph(){
-        if(this.overlay_children){
-            this.overlay_children.forEach(child => {
-                this.response_object.obj.add(child.response_object.obj);
-                //Recurse onto children
-                child.stitchSceneGraph();
-            })
-        }
-    }
-
 
     //TODO REFACTOR SCENE GRAPH
     //This should be traverse for
@@ -99,4 +85,4 @@ class Tree {
     }
 }
 
-export default LoadTree;
+export default Tree;

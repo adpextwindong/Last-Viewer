@@ -187,6 +187,8 @@ export default {
             }
 
             this.stitchAndStartEngine(LoadTreeList);
+
+            //TODO REFACTOR SCENE GRAPH, tree load schemes seem bugged now.
         },
 
         //PreCondition: No children in the LoadTreeList are awaiting on children to load.
