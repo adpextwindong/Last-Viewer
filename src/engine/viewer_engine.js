@@ -45,6 +45,9 @@ class ViewerEngine {
         this.scene.add(this.camera);
         this.camera.position.set(0, 0, 500);
         this.camera.lookAt(this.scene.position);
+
+        //TODO migration from r113 to r114, raycaster now obeys camera visibility of objects
+        //The scene manager should have some sort of handle on the pickhelper to toggle raycasting layers.
         this.camera.layers.enable(0);
         this.camera.layers.enable(CONFIG.LAYERS_SCANS);
         this.camera.layers.enable(CONFIG.LAYERS_LANDMARKS);
