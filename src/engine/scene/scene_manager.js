@@ -10,7 +10,7 @@ const THREE = {
 };
 */
 
-import configuration from "./config";
+import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
 function getValueOfLowestVert(mesh, axis){
