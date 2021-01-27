@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import OBJLoader from "../../lib/vendor/three_loader_custom";
-import STLLoader from "../../lib/vendor/STLLoader";
+import OBJLoader from "../../../lib/vendor/three_loader_custom";
+import STLLoader from "../../../lib/vendor/STLLoader";
 
-import Tree from "../types/tree";
+import Tree from "../../types/Tree";
 
 /*
 
@@ -27,18 +27,18 @@ Overlay children are LoadTrees as well incase you want to nest a Last/Insole sca
             }],
         }
 */
-const OBJ_TYPES = [
-    "FOOT",
-    "INSOLE",
-    "LAST",
-    "FOOT_PAIR"
-];
+const OBJ_TYPES = Object.freeze({
+    foot: Symbol("FOOT"),
+    insole: Symbol("INSOLE"),
+    last: Symbol("LAST"),
+    foot_pair: Symbol("FOOT_PAIR")
+});
 
-const LOADING_STATES = {
-    loaded : "LOADED",
-    pending : "PENDING",
-    awaiting : "AWAITING CHILDREN"
-};
+const LOADING_STATES = Object.freeze({
+    loaded : Symbol("LOADED"),
+    pending : Symbol("PENDING"),
+    awaiting : Symbol("AWAITING CHILDREN")
+});
 
 const FILE_REGEXPS = {
     wavefront_obj : /\w+(\.obj)$/i,

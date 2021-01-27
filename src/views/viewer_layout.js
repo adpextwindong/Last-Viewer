@@ -2,7 +2,7 @@
 // Its seperated from the APP
 import vueclickaway from 'vue-clickaway';
 
-import ViewerEngine from '../engine/viewer_engine.js';
+import ViewerEngine from '../engine/ViewerEngine';
 var appViewer;
 
 import APP_SETTINGS from "../app_settings";

@@ -1,4 +1,4 @@
-import DimensionParser from '../../loader/dimensions_parser';
+import DimensionParser from '../../parser/dimensions_parser';
 
 //This module recursively builds a Scene graph representation of the 3d scene for debug purposes only.
 module.exports = {

@@ -1,4 +1,4 @@
-import LoadTree from '../loader/LoadTree';
+import LoadTree from '../engine/loader/LoadTree';
 
 var REQUEST_METADATA = REQUEST_METADATA || undefined;
 

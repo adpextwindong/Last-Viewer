@@ -1,7 +1,7 @@
 import * as THREE from'three';
 import dat from'dat.gui';
 
-import configuration from "./config";
+import configuration from '../config';
 var CONFIG = CONFIG || new configuration();
 
 class lights {

@@ -12,9 +12,10 @@ var keyboard = new THREEx.KeyboardState();
 import configuration from "./config";
 var CONFIG = new configuration();
 
-import MOBILE_UTILS from './mobile_utils.js';
-import LIGHTS from './lights.js';
-import PickHelper from './pick_helper.js';
+import MOBILE_UTILS from './utils/mobile_utils.js';
+import LIGHTS from './utils/lights.js';
+
+import PickHelper from './PickHelper';
 import SceneManager from "./scene/scene_manager";
 
 class ViewerEngine {

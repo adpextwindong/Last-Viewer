@@ -1,5 +1,5 @@
 import Vue from "vue";
-import LandmarkParser from "../../loader/landmark_parser_utils";
+import LandmarkParser from '../../parser/landmark_parser';
 
 import APP_SETTINGS from "../../app_settings";
 
