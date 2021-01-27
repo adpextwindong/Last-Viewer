@@ -51,6 +51,8 @@ class SceneManager {
 
         //This will be the dictionary for looking up objects by UUID.
         //If anything gets removed from the scene its entry here should be removed.
+
+        //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript MAP
         this.scene_uuids = {};
         this.scene_landmark_by_uuids = {};
 
