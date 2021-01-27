@@ -168,7 +168,7 @@ class LoadTree extends Tree {
 
     __pendingChildren(){
         //Uses base Tree class someChildren
-        this.someChildren((g) => g.load_state === LOADING_STATES.pending);
+        return this.someChildren((g) => g.load_state === LOADING_STATES.pending);
     }
     __OLD_XXX_pendingChildren(){
         //Wrap the some check to prevent NPE/undefined deref
