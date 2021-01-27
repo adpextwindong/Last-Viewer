@@ -16,10 +16,11 @@ import MOBILE_UTILS from './utils/mobile_utils.js';
 import LIGHTS from './utils/lights.js';
 
 import PickHelper from './PickHelper';
-import SceneManager from "./scene/scene_manager";
+import SceneManager from './scene/scene_manager';
+import FileManager from './loader/file_manager';
 
 class ViewerEngine {
-    constructor(target_element, component_event_emitter, processed_loadGraphList, store){
+    constructor(target_element, component_event_emitter, store, processed_loadGraphList=undefined){
         let viewerScope = this;
         this.target_element = target_element;
         //function to emit event to the containing Vue component
@@ -31,7 +32,8 @@ class ViewerEngine {
 
         //TODO refactor this to have a file loading Vuex Store layer.
         //EXTERNAL FACING OBJECTS
-        this.manager = new SceneManager(this.scene, processed_loadGraphList);
+        this.scene_manager = new SceneManager(this.scene, processed_loadGraphList);
+        this.file_manager = new FileManager(processed_loadGraphList, this.manager); //Refactor this processed_loadGraphList varname to InitialLoadTree
 
         // CAMERA
         let screen_height = window.innerWidth;

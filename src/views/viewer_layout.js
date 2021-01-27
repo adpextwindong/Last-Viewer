@@ -130,18 +130,18 @@ export default {
         //Must occur after appViewer.init
         __bindEngineInterface(){
             this.engine_interface = {
-                //Used for children components to trigger appViewer manager.removeUUID
+                //Used for children components to trigger appViewer scene_manager.removeUUID
                 emitRemoveUUIDRequest: function(uuid){
                     this.$emit('scene_graph_component_remove_uuid_request', uuid);
                 }.bind(this),
 
                 addFootDimensionData: function(uuid, dimensions){
-                    appViewer.manager.addFootDimensionData(uuid, dimensions);
+                    appViewer.scene_manager.addFootDimensionData(uuid, dimensions);
                     this.$emit('viewer_scene_graph_change');
                 }.bind(this),
 
                 //TODO viewerScope.rerender();
-                toggleVisibilityUUID : appViewer.manager.toggleVisibility.bind(appViewer.manager),
+                toggleVisibilityUUID : appViewer.scene_manager.toggleVisibility.bind(appViewer.scene_manager),
 
                 resetCamera     : appViewer.controller.resetCamera.bind(appViewer),
                 view_top        : appViewer.controller.view_TOP.bind(appViewer),
@@ -159,7 +159,7 @@ export default {
                 // console.log("Emitted "+event_name+ " event from Viewer Engine");
             }.bind(this);
 
-            appViewer = new ViewerEngine(target_element, viewer_component_event_handle, processed_loadTreeList, this.$store);
+            appViewer = new ViewerEngine(target_element, viewer_component_event_handle, this.$store, processed_loadTreeList);
             this.__bindEngineInterface();
 
             //TODO this needs to be moved to a file loading layer
@@ -167,21 +167,21 @@ export default {
 
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel())); //TODO processed_loadTreeList This should be pushed down as well
-            //TODO appViewer.manager.buildScreenGraphRepresentationModel()
+            //TODO appViewer.scene_manager.buildScreenGraphRepresentationModel()
 
             //This is the event handler that queries the loadTreeList for updates on the scene graph model.
             //TODO the scene manager should be handling ownership/managment of this processed_loadTreeList variable
             this.$on('viewer_scene_graph_change', function(){
                 console.log("Scene Graph change recieved");
-                //Provide this through appViewer Manager
+                //Provide this through appViewer scene_manager
                 this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
                 
                 //TODO processed_loadTreeList this is too detailed of an interaction for this layer.
-                //TODO appViewer.manager.buildScreenGraphRepresentationModel()
+                //TODO appViewer.scene_manager.buildScreenGraphRepresentationModel()
             });
 
             this.$on('scene_graph_component_remove_uuid_request', function(uuid){
-                appViewer.manager.removeUUID(uuid);
+                appViewer.scene_manager.removeUUID(uuid);
             });
 
             appViewer.attachToPageElement();

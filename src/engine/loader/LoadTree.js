@@ -40,6 +40,7 @@ const LOADING_STATES = Object.freeze({
     awaiting : Symbol("AWAITING CHILDREN")
 });
 
+//TODO REMOVAL 
 const FILE_REGEXPS = {
     wavefront_obj : /\w+(\.obj)$/i,
     stl : /\w+(\.stl)$/i
@@ -64,6 +65,7 @@ const parse_file_type = (name, path) => {
     //Failure case to catch unusable filetypes
     return PARSABLE_FILETYPES.INVALID;
 };
+//TODO REFACTOR REMOVAL
 
 //Overlay children is for scans you want to 'overlay' on top of a parent scan.
 //For example overlaying a last model over a foot model to visualize the difference.

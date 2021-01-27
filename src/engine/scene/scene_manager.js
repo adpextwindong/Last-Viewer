@@ -162,6 +162,8 @@ class SceneManager {
     mapOverTopObjs(f){
         this.objs.map(f);
     }
+    
+    //TODO refactor, maybe get rid of this
     forEachTopObjs(f){
         this.objs.forEach(f);
     }
