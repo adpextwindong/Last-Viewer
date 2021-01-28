@@ -44,7 +44,7 @@ class ViewerEngine {
                         this.scene_manager.processLoadedTree(this.file_manager, loadTree);
                         this.__render(); //Directly rerender after new load
                     }else{
-                        console.log("This loadTree was unloadable");
+                        console.error("This loadTree was unloadable");
                         console.log(loadTree);
                     }
                 });
