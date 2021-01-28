@@ -50,17 +50,13 @@ const parse_file_type = (path) => {
 
 
 class FileManager{
-    constructor(initial_load_tree = undefined, scene_manager_ref = undefined){
-        this.scene_manager_ref = scene_manager_ref;
+    constructor(){
         this.file_map = new Map(); //We can use filename keys for now as long as this is centralized.
-
-        if(initial_load_tree){
-            this.load(initial_load_tree);
-            this.scene_manager_ref.processLoadedTree(initial_load_tree);
-        }
+        this.response_text_map = new Map();
     }
 
-    //load :: LoadTree -> [Promise IO()]
+    //load :: LoadTree -> Promise.allSettled([Promise IO()])
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled#using_promise.allsettled
     //Traverses the tree for all files to load
     //Loads them in a webworker
     //On completion the Tree is fully loaded and ready for the scene manager
@@ -74,21 +70,28 @@ class FileManager{
             //check map
             //ORIGINAL HASH DEFINITION
             let desired_path = load_tree_node.path;
+            let fileHash = load_tree_node.hash();
 
             //TODO implement caching
-            if(this.file_map.has(desired_path)){
+            if(this.file_map.has(fileHash)){
                 //Cached path.
                 //Do nothing.
-            }else if(!this.filesToLoad.has(desired_path)){
-                this.fileToLoad.add(desired_path);
+            }else if(!filesToLoad.has(fileHash)){
+                filesToLoad.add({
+                    fileHash: fileHash,
+                    filePath: desired_path
+                });
             }
 
             //Actually we should just cache objects and clone on SceneGraph load
             //That way we can destroy the scene without care.
         });
 
+        let FileManagerScope = this;
         //TODO write promise based loaders
-        let loading_promises = filesToLoad.entries().map((filePath) => {
+        let loading_promises = [...filesToLoad].map((load_target) => {
+            let { filePath, fileHash } = load_target;
+
             let loader;
             let file_ext = parse_file_type(filePath);
             switch(file_ext){
@@ -106,14 +109,21 @@ class FileManager{
             return new Promise((resolve, reject)=>{
                 //TODO load file
                 if(loader === undefined){
-                    reject();
+                    reject();//Hmm i'm not sure if we should resolve or reject
                 }else{
                     let obj;
 
                     if(file_ext === PARSABLE_FILETYPES.OBJ){
                         loader.load(filePath, function(response_text_obj_pair){
                             obj = response_text_obj_pair.obj;
+                            let text = response_text_obj_pair.text;
+
+                            //TODO this should probably trigger a Vuex command for the landmark store to handle them or something in the scene manager
+                            FileManagerScope.response_text_map.set(fileHash, text);
                             //TODO handle metadata such as MODEL TYPE, name, TEXT
+
+                            FileManagerScope.file_map.set(fileHash, obj);
+                            resolve(obj);
                         });
                     }else if(file_ext === PARSABLE_FILETYPES.STL){
                         loader.load(filePath, function(result){
@@ -123,16 +133,16 @@ class FileManager{
                             group.add(model);
 
                             obj = group;
+                                    
+                            FileManagerScope.file_map.set(fileHash, obj);
+                            resolve(obj);
                         });
                     }
-
-                    this.file_map.set(filePath, obj);
-                    resolve(obj);
                 }
-            })
+            });
         });
 
-        return loading_promises;
+        return Promise.allSettled(loading_promises);
         //Map over filesToLoadSet and chain it to a single promise.
 
         //Lets use a map because I don't want to load the same file twice, we can iterate over the map too.
@@ -151,8 +161,16 @@ class FileManager{
     //recursive -- if true, descendants of the object are also cloned. Default is true.
     //Returns a clone of this object and optionally all descendants.
     cloneCachedHash(hash, ...args){
+        console.assert(this.file_map.has(hash), "This hash is not cached %s", hash);
         return this.file_map.get(hash).clone(args);
     }
+
+    getCachedDirect(hash){
+        return this.file_map.get(hash);
+    }
+
+    //Idea
+    //Map<Hash, WeakSet{obj's using the file}
     /*
     gcFiles(FileHashs, scene_manager_ref){
         //Check scene_manager's Map<FileHash, [scene_uuids]>

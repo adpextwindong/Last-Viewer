@@ -8,7 +8,7 @@ class Tree {
     //data LoadTree :: this [trees] parent_reference //The children tree
     constructor(overlay_children = undefined, parent=undefined){
         if(overlay_children){
-            this.overlay_children = overlay_children;//These are also load trees
+            this.overlay_children = overlay_children;//These are also trees
             this.overlay_children.forEach(c => {
                 c.parent = this;
             });

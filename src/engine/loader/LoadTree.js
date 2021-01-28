@@ -102,6 +102,10 @@ class LoadTree extends Tree {
         //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
 
+    hash(){
+        return this.path;
+    }
+
     //TODO REFACTOR move this and the scan_selector loading code into the File Manager layer
     //TODO refactor This needs to be decoupled from the current loader
     //TODO refactor the load state handling into seperate predicate and state transition functions

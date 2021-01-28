@@ -9,7 +9,7 @@ const THREE = {
     ...VertexNormalsHelper
 };
 */
-
+import SceneGraph from './SceneGraph';
 import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
@@ -32,32 +32,16 @@ function getLandmarkPoint(landmark_mesh){
 //TODO refactor parts of this class so its more readable and consistent in naming
 //Centralizing the uuid LUTS and related functions will be nice for future work
 class SceneManager {
-    constructor(scene, processed_loadTreeList){
-        this.scene_ref = scene;
+    // processLoadedTree :: LOADED LoadTree -> SceneGraph
+    processLoadedTree(file_manager_ref, loadTree, scene_parent=undefined){
+        // let root_object = file_manager_ref.cloneCachedHash(loadTree.hash(), true);
+        let root_object = file_manager_ref.getCachedDirect(loadTree.hash());
 
-        //TODO refactor this for a file loading layer. OBJs should stay resident in memory.
-        this.__processed_loadTreeList = processed_loadTreeList;
-        this.flush_flag = false;
+        let scene_graph = new SceneGraph(loadTree, root_object);
 
-
-        //This handles the raw loadTree
-        //Processed LoadTree shouldn't be touched otherwise except for stashing parsed obj's
-        //for later use if they're removed from the scene.
-        //Additionally response object should never be touched by the engine directly
-        this.objs = this.__processed_loadTreeList.map((t) => {
-            t.response_object.obj.loadtree = t;
-            return t.response_object.obj;
-        });
-
-        //This will be the dictionary for looking up objects by UUID.
-        //If anything gets removed from the scene its entry here should be removed.
-
-        //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript MAP
-        this.scene_uuids = {};
-        this.scene_landmark_by_uuids = {};
-
-        //indexed by parent uuid then landmark index
-        this.scene_landmarks = {};
+        if(scene_parent === undefined){
+            this.scene_graph_trees.push(scene_graph);
+        }
 
         let manager_scope = this;
         const bind_engine_watchers = function(obj) {
@@ -68,87 +52,89 @@ class SceneManager {
             })
         }
 
-        this.objs.forEach(o => {
+        //Add root object to scene and bind engine watchers.
+        if(scene_parent === undefined){
+            this.scene_ref.add( root_object );
+        }else{
+            scene_parent.add(root_object);
+        }
 
-            this.scene_ref.add( o );
-
-            //TODO make this togleable
-            if(o.children && o.children[0].name == "foot"){
-                //var normalhelper = new VertexNormalsHelper(o.children[0],2, 0x00ff00, 1 );
-                //console.log("Adding normal helper");
-                //normalhelper.matrixAutoUpdate = false;
-                //o.add(normalhelper)
-                // this.scene_ref.add(normalhelper);
-
-            }
-            this.scene_uuids[o.uuid] = o;
-            bind_engine_watchers(o);
-        });
+        //Register object UUID to scene manager
+        this.scene_uuids.set(root_object.uuid, root_object);
+        bind_engine_watchers(root_object);
 
 
-        let allMeshs = this.objs.flatMap(o => o.children);
+        let allMeshs = root_object.children;
+
+        //Filter for nonLandmarks and Camera Layer them as scans
+        //Register nonlandmark UUIDS
         allMeshs.filter(o => !o.name.includes("landmark")).forEach(o => {
-            this.scene_uuids[o.uuid] = o;
+            this.scene_uuids.set(o.uuid, o);
             o.layers.set(CONFIG.LAYERS_SCANS);
         });
 
+        //Find all landmark meshes 
         let allLandmarkMeshes = allMeshs.filter(o => o.name.includes("landmark"));
         allLandmarkMeshes.forEach(o => o.layers.set(CONFIG.LAYERS_LANDMARKS));
 
+        //Register landmarks by landmark_INDEX as per in the file and by their uuid
         allLandmarkMeshes.forEach(mesh => {
             let landmark_index = mesh.name.split("landmark_")[1];
 
-            if(this.scene_landmarks[mesh.parent.uuid] === undefined){
-                this.scene_landmarks[mesh.parent.uuid] = {};
+            if(this.scene_landmarks.get(mesh.parent.uuid) === undefined){
+                this.scene_landmarks.set(mesh.parent.uuid, {});
             }
 
-            this.scene_landmarks[mesh.parent.uuid][landmark_index] = mesh;
-            this.scene_landmark_by_uuids[mesh.uuid] = mesh;
+            this.scene_landmarks.get(mesh.parent.uuid)[landmark_index] = mesh;
+            this.scene_landmark_by_uuids.set(mesh.uuid, mesh);
 
 
         });
 
-        this.objs.forEach(o => {
-            this.__addMeasurementDataMeshes(o.uuid);
-        });
+        this.__addMeasurementDataMeshes(root_object.uuid);
+        //     //TASK ENGINE WORK Fix the defaulter so it correctly orrientates the model
+        //     //A simple heuristic that for the general length vs width should work.
+        //     //Figuring out heel end might be a bit rougher.
+        // }
+    }
 
-        if(processed_loadTreeList.every(g => g.config === undefined)){
-            // Distributed Positions
-            console.log("defaulting positions");
-            this.__setDefaultPositions();
-            // Rotations
-            console.log("defaulting rotations");
-            this.__setDefaultOrientations();
+    //TODO the resident scene graph should be decoupled from the initial load
+    //That way we can insert scene_graphs into the scene in arbitrary ways
+    constructor(scene){
+        this.scene_ref = scene;
+        this.flush_flag = false;
+        // this.objs = []; //:: [ThreeOBJ] References to the top items in the scene graph
 
+        this.scene_graph_trees = [];
+        //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
+        //Because WeakMap doesn't allow for enumeration we probably can't use that unless
+        //iterating over a list of keys into the WeakMap
+        this.scene_uuids = new Map(); // Map<uuid, three_obj>
+        this.scene_landmark_by_uuids = new Map();
 
-            //TASK ENGINE WORK Fix the defaulter so it correctly orrientates the model
-            //A simple heuristic that for the general length vs width should work.
-            //Figuring out heel end might be a bit rougher.
-        }
-
-
-
+        //indexed by parent uuid then landmark index
+        this.scene_landmarks = new Map();
     }
     __get_max_mesh_width(){
-        return Math.max.apply(Math, this.objs.map(o =>{
-            o.children[0].geometry.computeBoundingBox();
-            return o.children[0].geometry.boundingBox.getSize();
+        return Math.max.apply(Math, this.scene_graph_trees.map(g =>{
+            g.obj.children[0].geometry.computeBoundingBox();
+            return g.obj.children[0].geometry.boundingBox.getSize();
         }).map(v => v.x));
     }
     __setDefaultPositions(){
         let max_mesh_width = this.__get_max_mesh_width();
 
-        for(let i = 0; i < this.objs.length; i++){
-            this.objs[i].position.set(((-max_mesh_width*this.objs.length)/2) + i*max_mesh_width, -50, -50);
+        for(let i = 0; i < this.scene_graph_trees.length; i++){
+            this.scene_graph_trees[i].obj.position.set(((-max_mesh_width*this.scene_graph_trees.length)/2) + i*max_mesh_width, -50, -50);
         }
     }
     __setDefaultOrientations(){
         //Position the foot objs across the X axis in a distributed manner.
-        for(let i = 0; i < this.objs.length; i++){
+        for(let i = 0; i < this.scene_graph_trees.length; i++){
             //TASK Implement correct orrientation
 
 
-            this.objs[i].rotation.set(CONFIG.DEFAULT_ROTATION_X,
+            this.scene_graph_trees[i].obj.rotation.set(CONFIG.DEFAULT_ROTATION_X,
                 CONFIG.DEFAULT_ROTATION_Y,
                 CONFIG.DEFAULT_ROTATION_Z);
         }
@@ -156,18 +142,13 @@ class SceneManager {
 
     getBySceneUUID(uuid){
         //Returns a reference to the managed UUID that is in the scene
-        return this.scene_uuids[uuid];
+        return this.scene_uuids.get(uuid);
     }
 
     mapOverTopObjs(f){
-        this.objs.map(f);
+        this.scene_graph_trees.map(f);
     }
     
-    //TODO refactor, maybe get rid of this
-    forEachTopObjs(f){
-        this.objs.forEach(f);
-    }
-
     __isTopLevelObj(uuid){
         return this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
     }
@@ -193,6 +174,7 @@ class SceneManager {
 
     addFootDimensionData(uuid, feet_dimensions){
         //Find loadtree of uuid and append dimension data
+        //REFACTOR SCENE GRAPH
         this.getBySceneUUID(uuid).loadtree.dimensions = feet_dimensions;
         //caller should update the scene graph representation
     }
@@ -362,11 +344,12 @@ class SceneManager {
     }
 
     __addMeasurementDataMeshes(uuid){
-        let mesh = this.scene_uuids[uuid];
+        let mesh = this.scene_uuids.get(uuid);
 
 
         if(mesh.uuid in this.scene_landmarks){
 
+            //TODO unhardcode these and use a Object.freeze({symbols}) scheme for storing these numbers
             const landmarkNumbersInScene = (landmark_number, ...args) => {
                 return landmark_number in this.scene_landmarks[mesh.uuid] && (args.length ? landmarkNumbersInScene(...args) : true);
             }
@@ -424,7 +407,7 @@ class SceneManager {
         }
 
         //Remove from loadTreeList
-        let xs = this.__processed_loadTreeList.flatMap(g => g.traverseForUUID(uuid));
+        let xs = this.scene_graph_trees.flatMap(g => g.traverseForUUID(uuid));
         xs.forEach(o => {
             this.scene_ref.remove(o.getTHREEObj());
             if(o.parent){
@@ -432,7 +415,7 @@ class SceneManager {
                 o.parent.removeChild(o);
             }else{
                 //Apparently its the top of the tree or something
-                this.__processed_loadTreeList.splice(this.__processed_loadTreeList.indexOf(o), 1);
+                this.scene_graph_trees.splice(this.scene_graph_trees.indexOf(o), 1);
             }
         })
 

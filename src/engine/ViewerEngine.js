@@ -32,8 +32,29 @@ class ViewerEngine {
 
         //TODO refactor this to have a file loading Vuex Store layer.
         //EXTERNAL FACING OBJECTS
-        this.scene_manager = new SceneManager(this.scene, processed_loadGraphList);
-        this.file_manager = new FileManager(processed_loadGraphList, this.manager); //Refactor this processed_loadGraphList varname to InitialLoadTree
+        this.file_manager = new FileManager(); //Refactor this processed_loadGraphList varname to InitialLoadTree
+        this.scene_manager = new SceneManager(this.scene);
+
+        processed_loadGraphList.forEach(loadTree => {
+            let load_promise = this.file_manager.load(loadTree);
+
+            load_promise.then((results) => {
+                results.forEach((result) => {
+                    if(result.status === "fulfilled"){
+                        this.scene_manager.processLoadedTree(this.file_manager, loadTree);
+                        this.__render(); //Directly rerender after new load
+                    }else{
+                        console.log("This loadTree was unloadable");
+                        console.log(loadTree);
+                    }
+                });
+
+                this.scene_manager.__setDefaultPositions();
+                this.scene_manager.__setDefaultOrientations();
+            });
+        });
+        //Maybe we need to bind this.
+
 
         // CAMERA
         let screen_height = window.innerWidth;
@@ -85,6 +106,8 @@ class ViewerEngine {
         //First render is performed by appViewer.animateLoop(); in viewer_layout
         this.___setupController();
         THREEx.ResizeForWidthOffset(this.renderer, this.camera, target_element, this.controls);
+
+        console.timeEnd("EngineInit");
     }
 
     //This attaches the renderer to the dom element given during the class constructor.
@@ -441,7 +464,7 @@ class ViewerEngine {
         // The axes helper has an issue with being invisible on the first draw for some reason.
         // Don't know why threejs will draw it after a visibility toggle so hopefully this hotfix is enough for now.
         const toggleAll = () => {
-            this.manager.mapOverTopObjs(o => this.manager.toggleVisibility(o.uuid));
+            this.scene_manager.mapOverTopObjs(o => this.scene_manager.toggleVisibility(o.uuid));
             this.rerender("toggleVisibility");
             //TODO fix visibilty toggle not handling landmarks and circumference children
         }
@@ -463,9 +486,9 @@ class ViewerEngine {
     // This handles telling the viewer layout to query for a new version of the scene graph model.
     __manager_flush_change (force=false){
         //Setters applied to managed items can set the flush flag to true
-        if(force || this.manager.flush_flag){
+        if(force || this.scene_manager.flush_flag){
             this.fire_event_to_component('viewer_scene_graph_change');
-            this.manager.flush_flag = false;
+            this.scene_manager.flush_flag = false;
         }
     }
 

@@ -163,7 +163,8 @@ export default {
             this.__bindEngineInterface();
 
             //TODO this needs to be moved to a file loading layer
-            this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList); //TODO processed_loadTreeList This should be pushed down into the appViewer init based on the scene manager/file loader succesfully parsing landmarks.
+            //TODO REFACTOR DUE TO SCENE GRAPH REFACTOR
+            // this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList); //TODO processed_loadTreeList This should be pushed down into the appViewer init based on the scene manager/file loader succesfully parsing landmarks.
 
             //EVENTS
             this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel())); //TODO processed_loadTreeList This should be pushed down as well

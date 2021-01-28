@@ -176,15 +176,16 @@ export default {
             let LoadTreeList = LoadTreeListRawObject.map(LoadTreeFromObject);
 
             console.log("now loading...");
-            this.loading = true;
-            await sleep(1);
 
-            //TODO REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
-            LoadTreeList.forEach(LoadTree => LoadTree.startLoad());
-            while(LoadTreeList.some(g => g.notLoaded())){
-                await sleep(100);
-                LoadTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
-            }
+            // this.loading = true;
+            // await sleep(1);
+
+            // //TODO REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
+            // LoadTreeList.forEach(LoadTree => LoadTree.startLoad());
+            // while(LoadTreeList.some(g => g.notLoaded())){
+            //     await sleep(100);
+            //     LoadTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
+            // }
 
             this.stitchAndStartEngine(LoadTreeList);
 
@@ -193,10 +194,10 @@ export default {
 
         //PreCondition: No children in the LoadTreeList are awaiting on children to load.
         stitchAndStartEngine(LoadTreeList){
-            LoadTreeList.forEach(g => {
-                g.stitchSceneGraph(); //Work for the scene graph manager
-                g.applyConfig(); //Work for the scene graph manager
-            });
+            // LoadTreeList.forEach(g => {
+            //     g.stitchSceneGraph(); //Work for the scene graph manager
+            //     g.applyConfig(); //Work for the scene graph manager
+            // });
 
             this.loading = false;
             //CRITICAL SECTION FOR LOADING DUE TO VUEJS V-IF LIMITATIONS
@@ -207,6 +208,7 @@ export default {
             //Which will be handled by the FileLoader which generates a scene graph for the scene manager to hook up
             //We can move this loading code into a file loader
             this.$store.commit('loadTrees/setTrees', LoadTreeList);
+            console.time("EngineInit");
             this.$router.push('engine');
         },
 
