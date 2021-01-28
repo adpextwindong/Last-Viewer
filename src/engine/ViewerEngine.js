@@ -35,6 +35,7 @@ class ViewerEngine {
         this.file_manager = new FileManager(); //Refactor this processed_loadGraphList varname to InitialLoadTree
         this.scene_manager = new SceneManager(this.scene);
 
+        //TODO We can split this out to a function that takes scene_uuid as loadtree target and just call it on init.
         processed_loadGraphList.forEach(loadTree => {
             let load_promise = this.file_manager.load(loadTree);
 
