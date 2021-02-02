@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import OBJLoader from "../../../lib/vendor/three_loader_custom";
 import STLLoader from "../../../lib/vendor/STLLoader";
 
-import Tree from "../../types/Tree";
+import Tree from "../../types/tree";
 
 /*
 

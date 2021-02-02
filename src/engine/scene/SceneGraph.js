@@ -3,7 +3,7 @@
 
 //As of Tue, Jan 26, 2021  commit 7659857, the file loading is too tangled up
 //We use a 
-import Tree from "../../types/Tree";
+import Tree from "../../types/tree";
 import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
