@@ -37,7 +37,7 @@ class SceneManager {
         // let root_object = file_manager_ref.cloneCachedHash(loadTree.hash(), true);
         let root_object = file_manager_ref.getCachedDirect(loadTree.hash());
 
-        let scene_graph = new SceneGraph(loadTree, root_object);
+        let scene_graph = new SceneGraph(file_manager_ref, loadTree, scene_parent);
 
         if(scene_parent === undefined){
             this.scene_graph_trees.push(scene_graph);

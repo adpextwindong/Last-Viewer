@@ -8,15 +8,13 @@ import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
 class SceneGraph extends Tree {
-    constructor(loadTree, obj, scene_parent=undefined){
+    constructor(file_manager_ref, loadTree, scene_parent=undefined){
         super(
-            loadTree.overlay_children ? loadTree.overlay_children.map(child => new SceneGraph(child)) : undefined,
+            loadTree.overlay_children ? loadTree.overlay_children.map(child => new SceneGraph(file_manager_ref, child)) : undefined,
             scene_parent);
-
-        this.obj = obj;
-        this.scene_parent = scene_parent;
-
         this.__underlying_filehash = loadTree.hash();
+        this.obj = file_manager_ref.getCachedDirect(this.__underlying_filehash);
+        this.scene_parent = scene_parent;
 
         //Metadata
         this.metadata = {
@@ -45,7 +43,7 @@ class SceneGraph extends Tree {
             this.overlay_children.forEach(child => {
                 this.obj.add(child.obj);
                 //Recurse onto children
-                child.stitchSceneGraph();
+                child.__stitchSceneGraph();
             })
         }
     }
@@ -74,7 +72,7 @@ class SceneGraph extends Tree {
             })
         }
         if(recurse && this.overlay_children){
-            this.overlay_children.forEach(child => child.applyConfig(recurse));
+            this.overlay_children.forEach(child => child.__applyConfig(recurse));
         }
     }
 
