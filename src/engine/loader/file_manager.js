@@ -71,7 +71,7 @@ class FileManager{
             //ORIGINAL HASH DEFINITION
             let desired_path = load_tree_node.path;
             let fileHash = load_tree_node.hash();
-
+            let fileName = load_tree_node.name;
             //TODO implement caching
             if(this.file_map.has(fileHash)){
                 //Cached path.
@@ -79,7 +79,8 @@ class FileManager{
             }else if(!filesToLoad.has(fileHash)){
                 filesToLoad.add({
                     fileHash: fileHash,
-                    filePath: desired_path
+                    filePath: desired_path,
+                    fileName: fileName
                 });
             }
 
@@ -90,7 +91,7 @@ class FileManager{
         let FileManagerScope = this;
         //TODO write promise based loaders
         let loading_promises = [...filesToLoad].map((load_target) => {
-            let { filePath, fileHash } = load_target;
+            let { filePath, fileHash, fileName } = load_target;
 
             let loader;
             let file_ext = parse_file_type(filePath);
@@ -102,9 +103,21 @@ class FileManager{
                     loader = new STLLoader.STLLoader();
                     break;
                 default:
-                    loader = undefined;
-                    console.log("Unparsable filetype");
+                    file_ext = parse_file_type(fileName)
+                    switch(file_ext){
+                        case PARSABLE_FILETYPES.OBJ:
+                            loader = new OBJLoader();
+                            break;
+                        case PARSABLE_FILETYPES.STL:
+                            loader = new STLLoader.STLLoader();
+                            break;
+                        default:
+                            loader = undefined;
+                            break;
+                    }
+                    break;
             }
+
             //We need to determine the loader and use it in the promise
             return new Promise((resolve, reject)=>{
                 //TODO load file

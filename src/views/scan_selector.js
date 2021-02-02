@@ -9,8 +9,6 @@ const LoadTreeFromObject = (o) => {
     return new LoadTree(o.name, o.path, o.type, children, o.config);
 }
 
-const sleep = m => new Promise(r => setTimeout(r, m))
-
 export default {
     locales : {
         en: {
@@ -56,10 +54,6 @@ export default {
                 {{t('Drag and drop one or more files here.')}}
             </div>
         </div>
-        <div v-else class="loading_screen">
-            {{t('now loading')}}...
-        </div>
-
     </div>
     `,
     name: 'scan_selector',
@@ -176,37 +170,14 @@ export default {
             let LoadTreeList = LoadTreeListRawObject.map(LoadTreeFromObject);
 
             console.log("now loading...");
-
-            // this.loading = true;
-            // await sleep(1);
-
-            // //TODO REFACTOR ASYNC LOADER (this needs to be replaced with a totally async web worker based loader so it doesnt load things in serial)
-            // LoadTreeList.forEach(LoadTree => LoadTree.startLoad());
-            // while(LoadTreeList.some(g => g.notLoaded())){
-            //     await sleep(100);
-            //     LoadTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
-            // }
-
-            this.stitchAndStartEngine(LoadTreeList);
-
-            //TODO REFACTOR SCENE GRAPH, tree load schemes seem bugged now.
+            this.startEngine(LoadTreeList);
         },
 
-        //PreCondition: No children in the LoadTreeList are awaiting on children to load.
-        stitchAndStartEngine(LoadTreeList){
-            // LoadTreeList.forEach(g => {
-            //     g.stitchSceneGraph(); //Work for the scene graph manager
-            //     g.applyConfig(); //Work for the scene graph manager
-            // });
-
+        startEngine(LoadTreeList){
             this.loading = false;
             //CRITICAL SECTION FOR LOADING DUE TO VUEJS V-IF LIMITATIONS
             //component/viewer/viewer_layout.js::mounted() has notes on this.
 
-            //TODO SCENE GRAPH REFACTOR
-            //Since we just need to stash the initial set of LoadTrees into Vuex
-            //Which will be handled by the FileLoader which generates a scene graph for the scene manager to hook up
-            //We can move this loading code into a file loader
             this.$store.commit('loadTrees/setTrees', LoadTreeList);
             console.time("EngineInit");
             this.$router.push('engine');
@@ -238,21 +209,10 @@ export default {
                 }
               }
             }
-            
-            this.loading = true;
-            this.$forceUpdate();
-            await sleep(1);
 
             const awaitedPaths = await Promise.all(obj_urls);
             const awaitedTreeList = awaitedPaths.map((o) => new LoadTree(o.name, o.path, o.type));
-
-            awaitedTreeList.forEach(LoadTree => LoadTree.startLoad());
-            while(awaitedTreeList.some(g => g.notLoaded())){
-                await sleep(100);
-                awaitedTreeList.filter(g => g.notLoaded()).forEach(g => g.updateBasedOnAwaitingChildren());
-            }
-
-            this.stitchAndStartEngine(awaitedTreeList);
+            this.startEngine(awaitedTreeList);
           }
     }
 }
