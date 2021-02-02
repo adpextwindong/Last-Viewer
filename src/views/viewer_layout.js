@@ -41,7 +41,7 @@ export default {
 
             <view_controls v-bind:engine_interface="engine_interface"></view_controls>
 
-            <scene_graph_hiearchy v-if="app_settings.DEBUG"
+            <scene_graph_hiearchy
                 v-bind:scene_graph_representation="scene_graph_representation"
                 v-bind:engine_interface="engine_interface"
             />

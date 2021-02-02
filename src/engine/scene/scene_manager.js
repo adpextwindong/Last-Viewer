@@ -34,7 +34,8 @@ class SceneManager {
 
         let scene_graph = new SceneGraph(file_manager_ref, loadTree, scene_parent);
 
-        if(scene_parent === undefined){
+        if(scene_parent === undefined && loadTree.parent === undefined){
+            console.log("Pushing new top level tree");
             this.scene_graph_trees.push(scene_graph);
         }
 

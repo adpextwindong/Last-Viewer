@@ -3,25 +3,7 @@ import * as THREE from 'three';
 import OBJLoader from "../../../lib/vendor/three_loader_custom";
 import STLLoader from "../../../lib/vendor/STLLoader";
 
-//The file manager should have an api for reading a loadtree, building a list of files to load asyncronously.
-//Then it should hand the loaded obj's off to the SceneManager for it to manage
-
-//It should crawl the loadTree, build a list of nodes.
-//Use a promise based async loader
-//Once all promises are done pass it off to the SceneManager
-
-//Scene Manager accepts a LoadTree and scene UUID that can be undefined. If its defined then that UUID is the parent for the subLoadTree.
-//This will allow for loading during presentation in a later stage.
-
-//In the file manager we just need to store a HashMap<FileName, File>
-//The scene manager can manage the metadata of HashMap<UUID, FileName>
-//I want original files in this layer, THREE.obj's in the scene manager.
-
-//Ontop of those features
 //I'd like to centralize metadata, file caching, seperate network loading details away from the LoadTree.
-
-//I would like this to be uncoupled from the scene_manager as much as possib le.
-
 
 const FILE_REGEXPS = Object.freeze({
     wavefront_obj : /\w+(\.obj)$/i,
@@ -60,7 +42,6 @@ class FileManager{
     //Traverses the tree for all files to load
     //Loads them in a webworker
     //On completion the Tree is fully loaded and ready for the scene manager
-
 
     //NOTE HASHS FOR NOW ARE JUST FILE PATHS
     load(loadTree){
@@ -103,7 +84,7 @@ class FileManager{
                     loader = new STLLoader.STLLoader();
                     break;
                 default:
-                    file_ext = parse_file_type(fileName)
+                    file_ext = parse_file_type(fileName); //Fallback onto filename for DragNDrop loader
                     switch(file_ext){
                         case PARSABLE_FILETYPES.OBJ:
                             loader = new OBJLoader();
@@ -156,16 +137,6 @@ class FileManager{
         });
 
         return Promise.allSettled(loading_promises);
-        //Map over filesToLoadSet and chain it to a single promise.
-
-        //Lets use a map because I don't want to load the same file twice, we can iterate over the map too.
-        //Map files to load to Promises loaded by their respective loaders
-
-        //Make sure each file gets mapped into the file map
-        //Return the tree as a promise to be handled by the scene manager
-
-        //TODO !unimplemented()
-        //TODO SceneManager side of processing a loaded tree
     }
 
     //Only to be used with a Loaded LoadTree
@@ -173,6 +144,8 @@ class FileManager{
     //.clone ( recursive : Boolean ) : Object3D
     //recursive -- if true, descendants of the object are also cloned. Default is true.
     //Returns a clone of this object and optionally all descendants.
+
+    //TODO Figure out why this isn't working. We might need to do a deep copy or something.
     cloneCachedHash(hash, ...args){
         console.assert(this.file_map.has(hash), "This hash is not cached %s", hash);
         return this.file_map.get(hash).clone(args);

@@ -42,15 +42,14 @@ class ViewerEngine {
 
             load_promise.then((results) => {
                 results.forEach((result) => {
-                    if(result.status === "fulfilled"){
-                        this.scene_manager.processLoadedTree(this.file_manager, loadTree);
-                        this.__render(); //Directly rerender after new load
-                    }else{
-                        console.error("This loadTree was unloadable");
+                    if(result.status !== "fulfilled"){
+                        console.error("There was an unloadable section of the loadTree");
                         console.log(loadTree);
                     }
                 });
 
+                this.scene_manager.processLoadedTree(this.file_manager, loadTree, loadTree.parent);
+                this.__render(); //Directly rerender after new load
                 this.scene_manager.__setDefaultPositions();
                 this.scene_manager.__setDefaultOrientations();
                 this.fire_event_to_component(ENGINE_EVENTS.scene_graph_change);

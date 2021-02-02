@@ -1,8 +1,8 @@
-//NOT A WORKING CLASS YET, JUST OLD CODE FROM THE LoadTree before we split out the scene manager related stuff.
-//Lets centralize details about the scene graph representation stuff here.
+//This SceneGraph tree type is to decouple file loading from the THREE.scene managment.
+//Files get loaded into the file manager and are cached there.
+//This lets us manipulate the scene independent of how the loadTree was handled in the first place.
+//This way we can append to the tree later on in the runtime.
 
-//As of Tue, Jan 26, 2021  commit 7659857, the file loading is too tangled up
-//We use a 
 import Tree from "../../types/tree";
 import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
@@ -13,6 +13,8 @@ class SceneGraph extends Tree {
             loadTree.overlay_children ? loadTree.overlay_children.map(child => new SceneGraph(file_manager_ref, child)) : undefined,
             scene_parent);
         this.__underlying_filehash = loadTree.hash();
+
+        //TODO figure out why cloning a THREE object with the clone function directly doesn't work.
         this.obj = file_manager_ref.getCachedDirect(this.__underlying_filehash);
         this.scene_parent = scene_parent;
 
@@ -76,15 +78,7 @@ class SceneGraph extends Tree {
         }
     }
 
-    
-//Until now this was the scene_repr model
-//The load tree handled it when it was touching THREEjs scene objects
-//When the scene_manager should be doing that or something.
-
 //Builds a simple model for the Viewer Layout Vue Component of the load graph.
-//We might be able to convert this class into a scene graph manager and use the GraphRepresentationModel to aid with
-//scene graph tree traversals when we want to edit the scene from the Vue layer.
-
     buildTreeRepresentationModel(){
         return {
             "name" : this.metadata.name,
