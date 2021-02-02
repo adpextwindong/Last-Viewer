@@ -99,10 +99,11 @@ class SceneManager {
         return this.scene_graph_trees.map(t => t.buildTreeRepresentationModel());
     }
 
-    constructor(scene, component_event_emitter_ref){
+    constructor(scene, component_event_emitter_ref, rerender_ref){
         this.scene_ref = scene;
         this.scene_graph_trees = []; //[SceneGraph]
         this.component_event_emitter_ref = component_event_emitter_ref;
+        this.rerender_ref = rerender_ref;
         //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
         //Because WeakMap doesn't allow for enumeration we probably can't use that unless
         //iterating over a list of keys into the WeakMap
@@ -418,6 +419,7 @@ class SceneManager {
             }
         })
         this.component_event_emitter_ref(ENGINE_EVENTS.scene_graph_change);
+        this.rerender_ref("FORCE", "Scene Manager Remove UUID");
     }
 }
 

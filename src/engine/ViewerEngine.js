@@ -34,7 +34,7 @@ class ViewerEngine {
         //TODO refactor this to have a file loading Vuex Store layer.
         //EXTERNAL FACING OBJECTS
         this.file_manager = new FileManager(); //Refactor this processed_loadGraphList varname to InitialLoadTree
-        this.scene_manager = new SceneManager(this.scene, component_event_emitter);
+        this.scene_manager = new SceneManager(this.scene, component_event_emitter, this.rerender.bind(this));
 
         //TODO We can split this out to a function that takes scene_uuid as loadtree target and just call it on init.
         processed_loadGraphList.forEach(loadTree => {
@@ -489,7 +489,6 @@ class ViewerEngine {
         //Setters applied to managed items can set the flush flag to true
         if(force){
             this.fire_event_to_component(ENGINE_EVENTS.viewer_scene_graph_change);
-            this.scene_manager.flush_flag = false;
         }
     }
 
