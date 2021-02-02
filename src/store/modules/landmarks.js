@@ -5,6 +5,7 @@ import APP_SETTINGS from "../../app_settings";
 
 const state = {
     //Indexed by obj.name of top level scan objects
+    //TODO map this to Map<FileHash, Map<Index, Landmark>>
     landmarks : {},
 
     highlighted_landmark : {
