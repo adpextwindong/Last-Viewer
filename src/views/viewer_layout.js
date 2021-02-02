@@ -3,6 +3,7 @@
 import vueclickaway from 'vue-clickaway';
 
 import ViewerEngine from '../engine/ViewerEngine';
+import ENGINE_EVENTS from "../engine/engine_events";
 var appViewer;
 
 import APP_SETTINGS from "../app_settings";
@@ -113,13 +114,13 @@ export default {
     },
 
    created() {
-           this.$on('contextmenu_selected_uuids', function(uuids){
+           this.$on(ENGINE_EVENTS.contextmenu_selected_uuids, function(uuids){
             //    console.log("Recieved selected uuids for context menu interaction");
                 console.log(uuids);
            });
 
            //POSITIONING
-           this.$on('viewer_context_menu_position', function(context_menu_position_v2){
+           this.$on(ENGINE_EVENTS.viewer_context_menu_position, function(context_menu_position_v2){
                this.context_menu_active = true;
                this.context_menu_el = document.querySelector('#context_menu');
                this.context_menu_el.style["left"] = (context_menu_position_v2.x + 20) + "px";
@@ -137,7 +138,7 @@ export default {
 
                 addFootDimensionData: function(uuid, dimensions){
                     appViewer.scene_manager.addFootDimensionData(uuid, dimensions);
-                    this.$emit('viewer_scene_graph_change');
+                    this.$emit(ENGINE_EVENTS.scene_graph_change);
                 }.bind(this),
 
                 //TODO viewerScope.rerender();
@@ -166,22 +167,19 @@ export default {
             //TODO REFACTOR DUE TO SCENE GRAPH REFACTOR
             // this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList); //TODO processed_loadTreeList This should be pushed down into the appViewer init based on the scene manager/file loader succesfully parsing landmarks.
 
+            let layout_scope = this;
+            const rebuild_scene_graph = function(){
+                layout_scope.$set(layout_scope, 'scene_graph_representation', appViewer.scene_manager.buildSceneGraphModels());
+            }
             //EVENTS
-            this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel())); //TODO processed_loadTreeList This should be pushed down as well
-            //TODO appViewer.scene_manager.buildScreenGraphRepresentationModel()
-
+            
             //This is the event handler that queries the loadTreeList for updates on the scene graph model.
-            //TODO the scene manager should be handling ownership/managment of this processed_loadTreeList variable
-            this.$on('viewer_scene_graph_change', function(){
+            this.$on(ENGINE_EVENTS.scene_graph_change, function(){
                 console.log("Scene Graph change recieved");
-                //Provide this through appViewer scene_manager
-                this.$set(this, 'scene_graph_representation', processed_loadTreeList.map(t=> t.buildTreeRepresentationModel()));
-                
-                //TODO processed_loadTreeList this is too detailed of an interaction for this layer.
-                //TODO appViewer.scene_manager.buildScreenGraphRepresentationModel()
+                rebuild_scene_graph();
             });
 
-            this.$on('scene_graph_component_remove_uuid_request', function(uuid){
+            this.$on(ENGINE_EVENTS.scene_graph_component_remove_uuid_request, function(uuid){
                 appViewer.scene_manager.removeUUID(uuid);
             });
 

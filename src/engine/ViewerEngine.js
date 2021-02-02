@@ -9,6 +9,7 @@ _THREEX_KEYBOARD(THREEx);
 
 var keyboard = new THREEx.KeyboardState();
 
+import ENGINE_EVENTS from "./engine_events";
 import configuration from "./config";
 var CONFIG = new configuration();
 
@@ -33,7 +34,7 @@ class ViewerEngine {
         //TODO refactor this to have a file loading Vuex Store layer.
         //EXTERNAL FACING OBJECTS
         this.file_manager = new FileManager(); //Refactor this processed_loadGraphList varname to InitialLoadTree
-        this.scene_manager = new SceneManager(this.scene);
+        this.scene_manager = new SceneManager(this.scene, component_event_emitter);
 
         //TODO We can split this out to a function that takes scene_uuid as loadtree target and just call it on init.
         processed_loadGraphList.forEach(loadTree => {
@@ -52,6 +53,7 @@ class ViewerEngine {
 
                 this.scene_manager.__setDefaultPositions();
                 this.scene_manager.__setDefaultOrientations();
+                this.fire_event_to_component(ENGINE_EVENTS.scene_graph_change);
             });
         });
         //Maybe we need to bind this.
@@ -172,7 +174,7 @@ class ViewerEngine {
                 y: e.clientY,
             };
             if(CONFIG.CONTEXT_MENU_ENABLED){
-                this.fire_event_to_component("viewer_context_menu_position", vector);
+                this.fire_event_to_component(ENGINE_EVENTS.viewer_context_menu_position, vector);
             }
             this.__state_mouse_handle_contextmenu_event = e;
         }.bind(this));
@@ -322,7 +324,6 @@ class ViewerEngine {
     }
     __update(){
         this.controls.update();
-        this.__manager_flush_change();
     }
     __render() {
         this.renderer.render( this.scene, this.camera );
@@ -351,7 +352,7 @@ class ViewerEngine {
             //We should add handling for a context enum that can handle different context situations and obj interactions.
             if(!CONFIG.CONTEXT_MOBILE){
                 this.pickHelper.handle_click_selection(this.__state_mouse_handle_click_event, true, true);
-                this.fire_event_to_component("contextmenu_selected_uuids", this.pickHelper.selection.map(o => o.obj.uuid));
+                this.fire_event_to_component(ENGINE_EVENTS.contextmenu_selected_uuids, this.pickHelper.selection.map(o => o.obj.uuid));
             }
 
             this.__state_mouse_handle_contextmenu_event = false;
@@ -487,8 +488,8 @@ class ViewerEngine {
     // This handles telling the viewer layout to query for a new version of the scene graph model.
     __manager_flush_change (force=false){
         //Setters applied to managed items can set the flush flag to true
-        if(force || this.scene_manager.flush_flag){
-            this.fire_event_to_component('viewer_scene_graph_change');
+        if(force){
+            this.fire_event_to_component(ENGINE_EVENTS.viewer_scene_graph_change);
             this.scene_manager.flush_flag = false;
         }
     }

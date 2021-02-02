@@ -2,14 +2,9 @@
 //interactions via UUIDS should be done through this class.
 
 import * as THREE from "three";
-/*
-import VertexNormalsHelper from "three/examples/jsm/helpers/VertexNormalsHelper.js";
-const THREE = {
-    ...THREE_,
-    ...VertexNormalsHelper
-};
-*/
 import SceneGraph from './SceneGraph';
+
+import ENGINE_EVENTS from "../engine_events";
 import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
@@ -47,7 +42,7 @@ class SceneManager {
         const bind_engine_watchers = function(obj) {
             Object.defineProperty(obj, 'visible', {
                 set: function(){
-                    manager_scope.flush_flag = true;
+                    manager_scope.component_event_emitter_ref(ENGINE_EVENTS.scene_graph_change);
                 }
             })
         }
@@ -98,14 +93,15 @@ class SceneManager {
         // }
     }
 
-    //TODO the resident scene graph should be decoupled from the initial load
-    //That way we can insert scene_graphs into the scene in arbitrary ways
-    constructor(scene){
-        this.scene_ref = scene;
-        this.flush_flag = false;
-        // this.objs = []; //:: [ThreeOBJ] References to the top items in the scene graph
+    buildSceneGraphModels(){
+        //ENGINE_EVENTS.scene_graph_change;
+        return this.scene_graph_trees.map(t => t.buildTreeRepresentationModel());
+    }
 
-        this.scene_graph_trees = [];
+    constructor(scene, component_event_emitter_ref){
+        this.scene_ref = scene;
+        this.scene_graph_trees = []; //[SceneGraph]
+        this.component_event_emitter_ref = component_event_emitter_ref;
         //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
         //Because WeakMap doesn't allow for enumeration we probably can't use that unless
         //iterating over a list of keys into the WeakMap
@@ -170,6 +166,7 @@ class SceneManager {
         toggleSelfAndFirstChild(o);
 
         this.flush_flag = true;
+        this.component_event_emitter_ref(ENGINE_EVENTS.scene_graph_change);
     }
 
     addFootDimensionData(uuid, feet_dimensions){
@@ -418,8 +415,7 @@ class SceneManager {
                 this.scene_graph_trees.splice(this.scene_graph_trees.indexOf(o), 1);
             }
         })
-
-        this.flush_flag = true;
+        this.component_event_emitter_ref(ENGINE_EVENTS.scene_graph_change);
     }
 }
 
