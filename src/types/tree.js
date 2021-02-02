@@ -33,25 +33,7 @@ class Tree {
     }
     //TODO rewrite __pendingChildren()
 
-    //TODO REFACTOR SCENE GRAPH
-    //This should be traverse for
-    //With a partially applied method for uuid
 
-    //Tree Traversal for uuid
-    //Can return empty list representing no uuid in tree
-    //This list interface is awkward because of the children case potentially returning the uuid
-    //across multiple children due to the lack of ownership semantics/invariants.
-    traverseForUUID(target_uuid){
-        if(this.response_object.obj.uuid === target_uuid){
-            return [this];
-        }else{
-            if(this.overlay_children){
-                return this.overlay_children.flatMap(g => g.traverseForUUID(target_uuid))
-            }else{
-                return [];
-            }
-        }
-    }
 
     //TODO testing
     traverseFor(property, ...args){

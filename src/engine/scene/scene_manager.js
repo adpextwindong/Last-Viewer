@@ -147,7 +147,7 @@ class SceneManager {
     }
     
     __isTopLevelObj(uuid){
-        return this.objs.map(o => o.uuid).indexOf(uuid) !== -1;
+        return this.scene_graph_trees.map(o => o.uuid).indexOf(uuid) !== -1;
     }
 
     toggleVisibility(uuid){
@@ -387,6 +387,7 @@ class SceneManager {
         }
     }
 
+    //TODO yeah fix this
     removeUUID(uuid){
 
         //Remove from scene and assoc tables
@@ -407,9 +408,9 @@ class SceneManager {
         //Remove from loadTreeList
         let xs = this.scene_graph_trees.flatMap(g => g.traverseForUUID(uuid));
         xs.forEach(o => {
-            this.scene_ref.remove(o.getTHREEObj());
+            this.scene_ref.remove(o.obj);
             if(o.parent){
-                o.parent.getTHREEObj().remove(o.getTHREEObj());
+                o.parent.obj.remove(o.obj);
                 o.parent.removeChild(o);
             }else{
                 //Apparently its the top of the tree or something
