@@ -27,7 +27,10 @@ module.exports = {
             let landmark = {
                 'description': line_pair[0] ? line_pair[0].slice(2).trim() : "",
                 'group_name': line_pair[1] ? line_pair[1].slice(2).trim() : "",
-                'isActive': false //Handling is done in store/modules/landmarks.js
+                //TODO REFACTOR LANDMARK METADATA 
+                //This isActive stuff should be a Vuex level detail
+                //TODO MOVE THIS
+                //'isActive': false //Handling is done in store/modules/landmarks.js
             };
 
             console.log(landmark.description);

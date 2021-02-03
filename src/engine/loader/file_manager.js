@@ -117,9 +117,7 @@ class FileManager{
 
                     if(file_ext === PARSABLE_FILETYPES.OBJ){
                         loader.load(filePath, function(response_text_obj_pair){
-                            obj = response_text_obj_pair.obj;
-                            let text = response_text_obj_pair.text;
-
+                            let {obj, text} = response_text_obj_pair;
                             FileManagerScope.response_text_map.set(fileHash, text);
                             //TODO REFACTOR METADATA LANDMARK handle metadata such as MODEL TYPE, name, TEXT
                             FileManagerScope.file_map.set(fileHash, obj);
