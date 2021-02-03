@@ -1,5 +1,7 @@
 import {mapState} from 'vuex';
 
+//These fields in highlighted_landmark correspond to the Vuex Landmark store's highlighted_landmark structure
+
 export default {
     template: `
         <div id="landmark_nametag_wrapper">

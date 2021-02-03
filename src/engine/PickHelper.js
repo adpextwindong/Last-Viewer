@@ -162,7 +162,7 @@ class PickHelper {
             if(this.triggerHoverOffForLastEmitted){
                 if(this.lastEmittedPickedObject){
                     this.$store.commit("landmarks/highlighted_landmark_hover_off", 
-                        this.lastEmittedPickedObject.parent["name"] ,this.lastEmittedPickedObject.name);
+                        this.lastEmittedPickedObject.parent.__underlying_filehash ,this.lastEmittedPickedObject.name);
                 }
                 
                 this.triggerHoverOffForLastEmitted = false;
@@ -170,7 +170,7 @@ class PickHelper {
 
             if(this.pickedObject){
                 this.$store.commit("landmarks/highlighted_landmark_hover_off",
-                    this.pickedObject.parent["name"] ,this.pickedObject.name);
+                    this.pickedObject.parent.__underlying_filehash ,this.pickedObject.name);
                 
                 this.lastEmittedPickedObject = this.pickedObject;
                 this.triggerHoverOffForLastEmitted = true;

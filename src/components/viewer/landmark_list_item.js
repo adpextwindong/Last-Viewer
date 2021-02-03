@@ -1,4 +1,6 @@
-module.exports = {
+//This module refers to fields in SceneLandmark
+
+export default {
     locales : {
         en: {
             'LM20' : 'Medial point of Heel Breadth',
@@ -77,4 +79,4 @@ module.exports = {
         </ul>
     `,
     props: ['landmark_group'],
-}
+};

@@ -1,21 +1,26 @@
 import Vue from "vue";
-import LandmarkParser from '../../parser/landmark_parser';
+import { Landmark } from '../../parser/landmark_parser';
 
 import APP_SETTINGS from "../../app_settings";
 
-
-//TODO landmarks refactor
-//This landmarks VUEX store should be like a materialized view to Landmarks (stored in filemanager) that are in the scene graph
 //The file manager is the source of truth for scene objects
 //This vuex state is a model for VueJS views
 //The scene manager should handle updating this
 
-//Loading of the landmark metadata should be pushed down to the engine/loader/metadata layer
-//This layer should just be a Vuex cache for that
+//This class extends Landmark to handle in scene details
+class SceneLandmark extends Landmark{
+    //Base landmark is defined, as parsed by, the landmark_parser.js
+    constructor(base_landmark, ){
+        super(base_landmark.description, base_landmark.group_name);
+
+        //Used for VueJS level UI handling
+        this.isActive = false;
+    }
+}
+
 const state = {
-    //Indexed by obj.name of top level scan objects
-    //TODO map this to Map<FileHash, Map<Index, Landmark>>
-    landmarks : {},
+    landmarks : {}, //This should be treated as a {FileHash: [SceneLandmark]}
+    //NOTE: Vuejs 2 doesn't support Map because of reactivity issues
 
     //TODO Probably needs a parent uuid
     highlighted_landmark : {
@@ -33,36 +38,27 @@ const getters = {
 
 };
 
-//TODO consider pushing this landmark loading into a LOADER class so the landmarks text file handling is inline w/ OBJ loading
-function initLandmarks(state, processed_loadTreeList){
-    //TODO make this more robust for when the model doesnt have landmarks
-    let initLandmarkTexts = (parent_obj_name, text) => {
-        Vue.set(state.landmarks, parent_obj_name, []);
-        state.landmarks[parent_obj_name].push(...LandmarkParser.parseLandmarkTextToList(text));
-    };
+function addLandmarksForSceneObject(state, scene_graph, recurse=true){
+    if(scene_graph.metadata.has.landmarks){
+        let scene_landmarks = scene_graph.metadata.landmarks.map(base_landmark => new SceneLandmark(base_landmark));
+        let hash = scene_graph.__underlying_hash;
 
-    let addLandmarks = tree_node => {
-        //TODO refactor this
-        //state.landmarks should be a map
-        //key should be the file hash()
-        //We should use a file manager.
-
-        let {text, obj} = tree_node.response_object;
-        initLandmarkTexts(obj["name"],text);
-        
-        if(tree_node.overlay_children){
-            tree_node.overlay_children.forEach(child => {
-                addLandmarks(child);
-            })
-        }
+        Vue.set(state.landmarks, hash, scene_landmarks);
     }
-    processed_loadTreeList.forEach(t => addLandmarks(t));
+
+    if(recurse && scene_graph.overlay_children){
+        scene_graph.overlay_children.forEach(child_scene_graph => {
+            addLandmarksForSceneObject(state, child_scene_graph, recurse);
+        });
+    }
 }
 
-//Applies f given it exists and has an index in landmarks[parent_key]
-const applyIfExistingLandmark = (landmarks) => (parent_key, viewer_group_name, f) => {
-    if(landmarks[parent_key]){
-        let ind = landmarks[parent_key].findIndex(element => element.group_name === viewer_group_name);
+//TODO This is brittle to adding new landmarks in the engine as its just a list.
+
+//Applies f given it exists and has an index in landmarks[parent_hash]
+const applyIfExistingLandmark = (landmarks) => (parent_hash, viewer_group_name, f) => {
+    if(landmarks[parent_hash]){
+        let ind = landmarks[parent_hash].findIndex(element => element.group_name === viewer_group_name);
         if(ind !== -1){
             f(ind);
         }
@@ -71,22 +67,30 @@ const applyIfExistingLandmark = (landmarks) => (parent_key, viewer_group_name, f
 
 //This module handles pushing state changes (like the scene picker highlight changes) into the VueJS related components
 const mutations = {
-    initializeLandmarks(state, processed_loadTreeList){
-        initLandmarks(state, processed_loadTreeList);
+    addLandmarks(state, scene_graph){
+        addLandmarksForSceneObject(state, scene_graph, true); //Adds landmarks recursively to landmarks dict
     },
 
-    highlighted_landmark_hover_on(state, parent_key, viewer_group_name){
-        applyIfExistingLandmark(state.landmarks, parent_key, viewer_group_name, (ind) =>{
-            state.landmarks[parent_key][ind].isActive = true;
+    removeLandmarks(state, hash){
+        Vue.set(state.landmarks, hash, undefined);
+        //TODO test this. It should only be used by the scene manager
+        //We might need to remove that hash property on the landmarks object
+    },
+    ///
+    //Used by engine/PickHelper.js
+    ///
+    highlighted_landmark_hover_on(state, parent_hash, viewer_group_name){
+        applyIfExistingLandmark(state.landmarks, parent_hash, viewer_group_name, (ind) =>{
+            state.landmarks[parent_hash][ind].isActive = true;
             let group_name = APP_SETTINGS.APP_DEBUG ? viewer_group_name : "";
 
-            Vue.set(state.highlighted_landmark, 'name', group_name + " " + Vue.t(state.landmarks[parent_key][ind].description));
+            Vue.set(state.highlighted_landmark, 'name', group_name + " " + Vue.t(state.landmarks[parent_hash][ind].description));
         });
     },
 
-    highlighted_landmark_hover_off(state, parent_key, viewer_group_name){
-        applyIfExistingLandmark(state.landmarks, parent_key, viewer_group_name, (ind) =>{
-            state.landmarks[parent_key][ind].isActive = false;
+    highlighted_landmark_hover_off(state, parent_hash, viewer_group_name){
+        applyIfExistingLandmark(state.landmarks, parent_hash, viewer_group_name, (ind) =>{
+            state.landmarks[parent_hash][ind].isActive = false;
             Vue.set(state.highlighted_landmark, 'name', "");
         });
     },
@@ -94,9 +98,8 @@ const mutations = {
     highlighted_set_position(state, position_v2){
         Vue.set(state.highlighted_landmark, 'position', position_v2);
     },
-    highlighted_set_name(state, name){
-        Vue.set(state.highlighted_landmark, 'name', name);
-    },
+    ///
+    ///
 
     toggle_landmark_list(state){
         Vue.set(state,'landmark_list_visible',!state.landmark_list_visible);

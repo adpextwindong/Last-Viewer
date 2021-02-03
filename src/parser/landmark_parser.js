@@ -3,11 +3,17 @@ const zip = (arr, ...arrs) => {
     return arr.map((val, i) => arrs.reduce((a, arr) => [...a, arr[i]], [val]));
 }
 
-module.exports = {
+class Landmark {
+    constructor(description, group_name){
+        this.description = description;
+        this.group_name = group_name;
+    }
+}
 
-    // type landmark = (String `description`, String `group_name`, Bool `isActive` FOR CSS )
-    // parseLandmarkTextToList :: text (OBJ file w/ landmarks) -> (()) 
-    parseLandmarkTextToList(text){
+// type landmark = (String `description`, String `group_name`)
+// parseLandmarkTextToList :: text (OBJ file w/ landmarks) -> [Landmark]
+const LandmarkParser = {
+    parseLandmarks(text){
         //Parses the obj textfile for the landmark descriptions and group names.
         //This assumes all landmark groups are always preceeded by a description line
         //# Pternion     -> Evens
@@ -24,14 +30,14 @@ module.exports = {
         //landmarks schema
 
         return zip(evens,odds).map((line_pair) => {
-            let landmark = {
-                'description': line_pair[0] ? line_pair[0].slice(2).trim() : "",
-                'group_name': line_pair[1] ? line_pair[1].slice(2).trim() : "",
-                //TODO REFACTOR LANDMARK METADATA 
-                //This isActive stuff should be a Vuex level detail
-                //TODO MOVE THIS
-                //'isActive': false //Handling is done in store/modules/landmarks.js
-            };
+            let landmark = new Landmark(
+                line_pair[0] ? line_pair[0].slice(2).trim() : "", //'description'
+                line_pair[1] ? line_pair[1].slice(2).trim() : ""  //'group_name'
+            );
+            //TODO REFACTOR LANDMARK METADATA 
+            //This isActive stuff should be a Vuex level detail
+            //TODO MOVE THIS
+            //'isActive': false //Handling is done in store/modules/landmarks.js
 
             console.log(landmark.description);
             console.log(landmark.group_name);
@@ -42,3 +48,8 @@ module.exports = {
         });
     }
 }
+
+export {
+    Landmark,
+    LandmarkParser
+};

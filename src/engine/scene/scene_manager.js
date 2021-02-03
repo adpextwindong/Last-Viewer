@@ -30,9 +30,12 @@ class SceneManager {
     // processLoadedTree :: LOADED LoadTree -> SceneGraph
     processLoadedTree(file_manager_ref, loadTree, scene_parent=undefined){
         // let root_object = file_manager_ref.cloneCachedHash(loadTree.hash(), true);
-        let root_object = file_manager_ref.getCachedDirect(loadTree.hash());
+        let root_object = file_manager_ref.getFileCachedDirect(loadTree.hash());
 
         let scene_graph = new SceneGraph(file_manager_ref, loadTree, scene_parent);
+        //TODO push new SceneLandmarks to Vuex store
+        this.store_ref.commit("landmarks/addLandmarks", scene_graph);
+        //Needs to be handled in the uuid remover too
 
         if(scene_parent === undefined && loadTree.parent === undefined){
             console.log("Pushing new top level tree");
@@ -99,11 +102,12 @@ class SceneManager {
         return this.scene_graph_trees.map(t => t.buildTreeRepresentationModel());
     }
 
-    constructor(scene, component_event_emitter_ref, rerender_ref){
+    constructor(scene, component_event_emitter_ref, rerender_ref, store_ref){
         this.scene_ref = scene;
         this.scene_graph_trees = []; //[SceneGraph]
         this.component_event_emitter_ref = component_event_emitter_ref;
         this.rerender_ref = rerender_ref;
+        this.store_ref = store_ref;
         //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
         //Because WeakMap doesn't allow for enumeration we probably can't use that unless
         //iterating over a list of keys into the WeakMap

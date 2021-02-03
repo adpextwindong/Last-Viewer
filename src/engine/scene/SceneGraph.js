@@ -15,8 +15,26 @@ class SceneGraph extends Tree {
         this.__underlying_filehash = loadTree.hash();
 
         //TODO figure out why cloning a THREE object with the clone function directly doesn't work.
-        this.obj = file_manager_ref.getCachedDirect(this.__underlying_filehash);
+        this.obj = file_manager_ref.getFileCachedDirect(this.__underlying_filehash);
+        this.obj.__underlying_filehash = this.__underlying_filehash;
         this.scene_parent = scene_parent;
+
+        //Metadata prep
+        let meta_HAS = {
+            landmarks : false,
+            dimensions : false,
+        };
+        let landmarks = undefined;
+        if(file_manager_ref.landmarks.has(this.__underlying_filehash)){
+            landmarks = file_manager_ref.landmarks.get(this.__underlying_filehash);
+            meta_HAS.landmarks = true;
+        }
+
+        let dimensions = undefined;
+        if(file_manager_ref.dimensions_metadata.has(this.__underlying_filehash)){
+            dimensions = file_manager_ref.dimensions_metadata.get(this.__underlying_filehash);
+            meta_HAS.dimensions = true;
+        }
 
         //Metadata
         this.metadata = {
@@ -24,11 +42,14 @@ class SceneGraph extends Tree {
             type : loadTree.type, //Scan Type
             file_ext : loadTree.file_ext,
 
+            has : meta_HAS,//Flags for these optional metadata's set bellow.
             //This might need to go to the FileManager layer for caching
-            dimensions : undefined,
-            landmarks : undefined, //This needs to map to the File Manager landmark
+            dimensions : dimensions,
+            landmarks : landmarks, //This needs to map to the File Manager landmark
             //This should be copy on write if anything needs to happen
         }
+
+
         if(loadTree.config){
             this.config = JSON.parse(JSON.stringify(loadTree.config)); //Deep clone so we can edit the Scene Object's config for saving
         }

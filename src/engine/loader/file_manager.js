@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import OBJLoader from "../../../lib/vendor/three_loader_custom";
 import STLLoader from "../../../lib/vendor/STLLoader";
+import { LandmarkParser } from "../../parser/landmark_parser";
 
 //I'd like to centralize metadata, file caching, seperate network loading details away from the LoadTree.
 
@@ -68,6 +69,9 @@ class FileManager{
     constructor(){
         this.file_map = new Map(); //We can use filename keys for now as long as this is centralized.
         this.response_text_map = new Map();
+        //Metadata maps
+        this.landmarks = new Map(); //Base Landmarks for a given file if they exist
+        this.dimensions_metadata = new Map();
     }
 
     //load :: LoadTree -> Promise.allSettled([Promise IO()])
@@ -120,11 +124,14 @@ class FileManager{
                             let {obj, text} = response_text_obj_pair;
                             FileManagerScope.response_text_map.set(fileHash, text);
                             //TODO REFACTOR METADATA LANDMARK handle metadata such as MODEL TYPE, name, TEXT
+                            let landmarks = LandmarkParser.parseLandmarks(text);
+                            FileManagerScope.landmarks.set(fileHash, landmarks);
                             FileManagerScope.file_map.set(fileHash, obj);
                             resolve(obj);
                         });
                     }else if(file_ext === PARSABLE_FILETYPES.STL){
                         loader.load(filePath, function(result){
+                            //TODO store the original STL text file in the response_text_map
                             const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
                             const model = new THREE.Mesh(result, material);
                             const group = new THREE.Group();
@@ -155,7 +162,7 @@ class FileManager{
         return this.file_map.get(hash).clone(args);
     }
 
-    getCachedDirect(hash){
+    getFileCachedDirect(hash){
         return this.file_map.get(hash);
     }
 
