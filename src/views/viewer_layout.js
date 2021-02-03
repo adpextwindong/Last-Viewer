@@ -162,11 +162,6 @@ export default {
 
             appViewer = new ViewerEngine(target_element, viewer_component_event_handle, this.$store, processed_loadTreeList);
             this.__bindEngineInterface();
-
-            //TODO this needs to be moved to a file loading layer
-            //TODO REFACTOR DUE TO SCENE GRAPH REFACTOR
-            // this.$store.commit("landmarks/initializeLandmarks", processed_loadTreeList); //TODO processed_loadTreeList This should be pushed down into the appViewer init based on the scene manager/file loader succesfully parsing landmarks.
-
             let layout_scope = this;
             const rebuild_scene_graph = function(){
                 layout_scope.$set(layout_scope, 'scene_graph_representation', appViewer.scene_manager.buildSceneGraphModels());

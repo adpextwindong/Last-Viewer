@@ -41,7 +41,7 @@ const getters = {
 function addLandmarksForSceneObject(state, scene_graph, recurse=true){
     if(scene_graph.metadata.has.landmarks){
         let scene_landmarks = scene_graph.metadata.landmarks.map(base_landmark => new SceneLandmark(base_landmark));
-        let hash = scene_graph.__underlying_hash;
+        let hash = scene_graph.__underlying_filehash;
 
         Vue.set(state.landmarks, hash, scene_landmarks);
     }
