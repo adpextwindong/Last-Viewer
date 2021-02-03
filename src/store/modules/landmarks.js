@@ -3,11 +3,21 @@ import LandmarkParser from '../../parser/landmark_parser';
 
 import APP_SETTINGS from "../../app_settings";
 
+
+//TODO landmarks refactor
+//This landmarks VUEX store should be like a materialized view to Landmarks (stored in filemanager) that are in the scene graph
+//The file manager is the source of truth for scene objects
+//This vuex state is a model for VueJS views
+//The scene manager should handle updating this
+
+//Loading of the landmark metadata should be pushed down to the engine/loader/metadata layer
+//This layer should just be a Vuex cache for that
 const state = {
     //Indexed by obj.name of top level scan objects
     //TODO map this to Map<FileHash, Map<Index, Landmark>>
     landmarks : {},
 
+    //TODO Probably needs a parent uuid
     highlighted_landmark : {
         position : { 
             x: -1000,
@@ -32,6 +42,11 @@ function initLandmarks(state, processed_loadTreeList){
     };
 
     let addLandmarks = tree_node => {
+        //TODO refactor this
+        //state.landmarks should be a map
+        //key should be the file hash()
+        //We should use a file manager.
+
         let {text, obj} = tree_node.response_object;
         initLandmarkTexts(obj["name"],text);
         

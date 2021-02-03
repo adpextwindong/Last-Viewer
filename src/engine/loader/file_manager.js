@@ -30,6 +30,39 @@ const parse_file_type = (path) => {
     return PARSABLE_FILETYPES.INVALID;
 };
 
+function determine_loader(filePath, fileName){
+    //Determines extension from filePath first then falls back to fileName.
+    //Returns undefined for non-loadable file extension.
+    let file_ext = parse_file_type(filePath);
+    let loader = undefined;
+    switch(file_ext){
+        case PARSABLE_FILETYPES.OBJ:
+            loader = new OBJLoader();
+            break;
+        case PARSABLE_FILETYPES.STL:
+            loader = new STLLoader.STLLoader();
+            break;
+        default:
+            file_ext = parse_file_type(fileName); //Fallback onto filename for DragNDrop loader
+            switch(file_ext){
+                case PARSABLE_FILETYPES.OBJ:
+                    loader = new OBJLoader();
+                    break;
+                case PARSABLE_FILETYPES.STL:
+                    loader = new STLLoader.STLLoader();
+                    break;
+                default: //Unloadable file extension
+                    loader = undefined;
+                    break;
+            }
+            break;
+    }
+
+    return {
+        file_ext : file_ext,
+        loader : loader
+    };
+}
 
 class FileManager{
     constructor(){
@@ -53,7 +86,7 @@ class FileManager{
             let desired_path = load_tree_node.path;
             let fileHash = load_tree_node.hash();
             let fileName = load_tree_node.name;
-            //TODO implement caching
+            
             if(this.file_map.has(fileHash)){
                 //Cached path.
                 //Do nothing.
@@ -73,33 +106,8 @@ class FileManager{
         //TODO write promise based loaders
         let loading_promises = [...filesToLoad].map((load_target) => {
             let { filePath, fileHash, fileName } = load_target;
-
-            let loader;
-            let file_ext = parse_file_type(filePath);
-            switch(file_ext){
-                case PARSABLE_FILETYPES.OBJ:
-                    loader = new OBJLoader();
-                    break;
-                case PARSABLE_FILETYPES.STL:
-                    loader = new STLLoader.STLLoader();
-                    break;
-                default:
-                    file_ext = parse_file_type(fileName); //Fallback onto filename for DragNDrop loader
-                    switch(file_ext){
-                        case PARSABLE_FILETYPES.OBJ:
-                            loader = new OBJLoader();
-                            break;
-                        case PARSABLE_FILETYPES.STL:
-                            loader = new STLLoader.STLLoader();
-                            break;
-                        default:
-                            loader = undefined;
-                            break;
-                    }
-                    break;
-            }
-
-            //We need to determine the loader and use it in the promise
+            let {file_ext, loader} = determine_loader(filePath, fileName); //We need to determine the loader and use it in the promise
+            
             return new Promise((resolve, reject)=>{
                 //TODO load file
                 if(loader === undefined){
@@ -112,10 +120,8 @@ class FileManager{
                             obj = response_text_obj_pair.obj;
                             let text = response_text_obj_pair.text;
 
-                            //TODO this should probably trigger a Vuex command for the landmark store to handle them or something in the scene manager
                             FileManagerScope.response_text_map.set(fileHash, text);
-                            //TODO handle metadata such as MODEL TYPE, name, TEXT
-
+                            //TODO REFACTOR METADATA LANDMARK handle metadata such as MODEL TYPE, name, TEXT
                             FileManagerScope.file_map.set(fileHash, obj);
                             resolve(obj);
                         });
