@@ -26,6 +26,8 @@ class SceneGraph extends Tree {
 
             //This might need to go to the FileManager layer for caching
             dimensions : undefined,
+            landmarks : undefined, //This needs to map to the File Manager landmark
+            //This should be copy on write if anything needs to happen
         }
         if(loadTree.config){
             this.config = JSON.parse(JSON.stringify(loadTree.config)); //Deep clone so we can edit the Scene Object's config for saving
