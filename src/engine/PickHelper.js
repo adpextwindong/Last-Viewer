@@ -161,16 +161,20 @@ class PickHelper {
 
             if(this.triggerHoverOffForLastEmitted){
                 if(this.lastEmittedPickedObject){
-                    this.$store.commit("landmarks/highlighted_landmark_hover_off", 
-                        this.lastEmittedPickedObject.parent.__underlying_filehash ,this.lastEmittedPickedObject.name);
+                    this.$store.commit("landmarks/highlighted_landmark_hover_off", {
+                        hash:  this.lastEmittedPickedObject.parent.__underlying_filehash,
+                        name: this.lastEmittedPickedObject.name
+                    });
                 }
                 
                 this.triggerHoverOffForLastEmitted = false;
             }
 
             if(this.pickedObject){
-                this.$store.commit("landmarks/highlighted_landmark_hover_off",
-                    this.pickedObject.parent.__underlying_filehash ,this.pickedObject.name);
+                this.$store.commit("landmarks/highlighted_landmark_hover_off", {
+                    hash: this.pickedObject.parent.__underlying_filehash ,
+                    name: this.pickedObject.name
+                });
                 
                 this.lastEmittedPickedObject = this.pickedObject;
                 this.triggerHoverOffForLastEmitted = true;
@@ -196,6 +200,10 @@ class PickHelper {
             if(highlight_position !== this.cached_highlight_position){
                 if(this.cached_highlight_position === undefined ||highlight_position !== this.cached_highlight_position){
                    this.$store.commit('landmarks/highlighted_set_position', highlight_position);
+                   this.$store.commit('landmarks/highlighted_landmark_hover_on', {
+                       hash: this.pickedObject.parent.__underlying_filehash,
+                       name: this.pickedObject.name
+                   });
                 }
                 this.cached_highlight_position = highlight_position;
             }

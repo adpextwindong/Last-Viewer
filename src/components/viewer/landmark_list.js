@@ -36,8 +36,7 @@ export default {
         if(this.test_visible){
             // console.error("Debug my ass");
             return h('section',
-                {   id: "LandmarksList",
-                    key: this.landmarks},
+                { attrs:{id: "LandmarksList"} },
                 renderLandmarkList(h, this.landmarks)
             );
         }

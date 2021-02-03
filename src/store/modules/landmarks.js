@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { Landmark } from '../../parser/landmark_parser';
 
-import APP_SETTINGS from "../../app_settings";
+// import APP_SETTINGS from "../../app_settings";
 
 //The file manager is the source of truth for scene objects
 //This vuex state is a model for VueJS views
@@ -56,14 +56,14 @@ function addLandmarksForSceneObject(state, scene_graph, recurse=true){
 //TODO This is brittle to adding new landmarks in the engine as its just a list.
 
 //Applies f given it exists and has an index in landmarks[parent_hash]
-const applyIfExistingLandmark = (landmarks) => (parent_hash, viewer_group_name, f) => {
+function applyIfExistingLandmark (landmarks, parent_hash, viewer_group_name, f){
     if(landmarks[parent_hash]){
         let ind = landmarks[parent_hash].findIndex(element => element.group_name === viewer_group_name);
         if(ind !== -1){
             f(ind);
         }
     }
-};
+}
 
 //This module handles pushing state changes (like the scene picker highlight changes) into the VueJS related components
 const mutations = {
@@ -79,18 +79,20 @@ const mutations = {
     ///
     //Used by engine/PickHelper.js
     ///
-    highlighted_landmark_hover_on(state, parent_hash, viewer_group_name){
-        applyIfExistingLandmark(state.landmarks, parent_hash, viewer_group_name, (ind) =>{
-            state.landmarks[parent_hash][ind].isActive = true;
-            let group_name = APP_SETTINGS.APP_DEBUG ? viewer_group_name : "";
+    highlighted_landmark_hover_on(state, hover_pair){
+        let { hash, name } = hover_pair;
+        applyIfExistingLandmark(state.landmarks, hash, name, (ind) =>{
+            state.landmarks[hash][ind].isActive = true;
+            let group_name = name;
 
-            Vue.set(state.highlighted_landmark, 'name', group_name + " " + Vue.t(state.landmarks[parent_hash][ind].description));
+            Vue.set(state.highlighted_landmark, 'name', group_name + " " + state.landmarks[hash][ind].description);
         });
     },
 
-    highlighted_landmark_hover_off(state, parent_hash, viewer_group_name){
-        applyIfExistingLandmark(state.landmarks, parent_hash, viewer_group_name, (ind) =>{
-            state.landmarks[parent_hash][ind].isActive = false;
+    highlighted_landmark_hover_off(state, hover_pair){
+        let { hash, name } = hover_pair;
+        applyIfExistingLandmark(state.landmarks, hash, name, (ind) =>{
+            state.landmarks[hash][ind].isActive = false;
             Vue.set(state.highlighted_landmark, 'name', "");
         });
     },
