@@ -29,17 +29,17 @@ function getLandmarkPoint(landmark_mesh){
 class SceneManager {
     constructor(scene, component_event_emitter_ref, rerender_ref, store_ref){
         this.scene_ref = scene;
-        this.scene_graph_trees = []; //[SceneGraph]
         this.component_event_emitter_ref = component_event_emitter_ref;
         this.rerender_ref = rerender_ref;
         this.store_ref = store_ref;
-        //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
-        //Because WeakMap doesn't allow for enumeration we probably can't use that unless
-        //iterating over a list of keys into the WeakMap
+        
+        this.scene_graph_trees = []; //[SceneGraph]
+
         this.scene_uuids = new Map(); // Map<uuid, three_obj>
-        this.scene_landmark_by_uuids = new Map();
+        this.scene_landmark_by_uuids = new Map(); //Map<Landmark Mesh UUID, Mesh Object>
 
         //indexed by parent uuid then landmark index
+        //Map<uuid, [landmark_index]>
         this.scene_landmarks = new Map();
     }
     // processLoadedTree :: LOADED LoadTree -> SceneGraph
