@@ -8,6 +8,8 @@ import ENGINE_EVENTS from "../engine_events";
 import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
+import { genLandmarkFeatures } from "./landmark_utils";
+
 function getValueOfLowestVert(mesh, axis){
     let verts = mesh.geometry.attributes.position.array;
     let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
@@ -103,6 +105,13 @@ class SceneManager {
             this.scene_landmark_by_uuids.set(mesh.uuid, mesh);
 
 
+        });
+
+        let features = genLandmarkFeatures(root_object, this.scene_landmarks);
+        root_object.add(...features);
+        //Register landmark feature UUIDS in scene uuid registry
+        features.forEach(ft => {
+            this.scene_uuids[ft.uuid] = ft;
         });
 
         this.__addMeasurementDataMeshes(root_object.uuid);
@@ -346,6 +355,7 @@ class SceneManager {
         }
     }
 
+    //TODO split out
     __addMeasurementDataMeshes(uuid){
         let mesh = this.scene_uuids.get(uuid);
 

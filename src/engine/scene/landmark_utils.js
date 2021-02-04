@@ -1,12 +1,12 @@
-//As defined in http://dl.iwl.jp/pdf_files/infoot_measurement_point_and_items_e.pdf
+import configuration from "../config";
+var CONFIG = CONFIG || new configuration();
 
+//As defined in http://dl.iwl.jp/pdf_files/infoot_measurement_point_and_items_e.pdf
 const LANDMARK_LUT = Object.freeze({
     "0" : "Pternion", "Pternion": "0",
-
-
     //TODO finish this lookup table
-    "25" : "Highest Point Ball Girth"
-    "27" : "Foot length point Pternion-CP axis"
+    "25" : "Highest Point Ball Girth", "Highest Point Ball Girth" : "25",
+    "27" : "Foot length point Pternion-CP axis", "Foot length point Pternion-CP axis" : "27",
  });
 
 const FEATURE_TYPE = Object.freeze({
@@ -15,6 +15,7 @@ const FEATURE_TYPE = Object.freeze({
 
 });
 
+/*
 {
     name : "",
     type : FEATURE_TYPE,
@@ -25,6 +26,7 @@ const FEATURE_TYPE = Object.freeze({
 
     }
 }
+*/
 
 //genLandmarkFeatures handles applying these custom functions
 //This is to provide flexibility incase I need to do extra math like extending lines past landmarks
@@ -64,7 +66,7 @@ const FOOT_FEATURES = Object.freeze([
     }
 ]);
 
-
+/*
 if(landmarkNumbersInScene(20,21)){
     console.log("Adding heel breadth line");
     this.__addLineToMeshAndRegister(mesh, 20, 21, "Z");
@@ -84,6 +86,8 @@ if(landmarkNumbersInScene(1,44)){
     console.log("Adding Heel Girth circumference line");
     this.__addHeelGirthCircumference(mesh);
 }
+
+*/
 
 
 function landmarkNumbersInScene(mesh_landmarks, landmark_number, ...args){
@@ -106,9 +110,9 @@ function genLandmarkFeatures(mesh, scene_landmarks){
 
     if(mesh.uuid in scene_landmarks){
         let mesh_landmarks = scene_landmarks[mesh.uuid];
-        let avalible_features = avalible_features(mesh_landmarks);
+        let candidate_features = avalible_features(mesh_landmarks);
 
-        let generated_features = avalible_features.map(feature => {
+        let generated_features = candidate_features.map(feature => {
             return feature.f(mesh, mesh_landmarks, feature.name, feature.type);
         });
 
@@ -264,3 +268,5 @@ function CircumferenceLineFromCutPlane(mesh, point_a, point_b, point_c){
         console.error("Haven't hit this case for a circumference");
     }
 }
+
+export default genLandmarkFeatures;
