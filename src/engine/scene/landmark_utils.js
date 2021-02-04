@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import configuration from "../config";
 var CONFIG = CONFIG || new configuration();
 
@@ -5,8 +7,13 @@ var CONFIG = CONFIG || new configuration();
 const LANDMARK_LUT = Object.freeze({
     "0" : "Pternion", "Pternion": "0",
     //TODO finish this lookup table
+    "20" : "Medial point of Heel Breadth", "Medial point of Heel Breadth" : "20",
+    "21" : "Lateral point of Heel Breadth", "Lateral point of Heel Breadth" : "21",
     "25" : "Highest Point Ball Girth", "Highest Point Ball Girth" : "25",
     "27" : "Foot length point Pternion-CP axis", "Foot length point Pternion-CP axis" : "27",
+    "28" : "Most medial point of BallGirth", "Most medial point of BallGirth" : "28",
+    "29" : "Most Lateral point of BallGirth", "Most Lateral point of BallGirth": "29",
+    "44" : "Junction Point", "Junction Point": "44",
  });
 
 const FEATURE_TYPE = Object.freeze({
@@ -15,12 +22,12 @@ const FEATURE_TYPE = Object.freeze({
 
 });
 
-/*
+/* Schema
 {
     name : "",
     type : FEATURE_TYPE,
     args : [],
-    f : (mesh, scene_landmarks, name, type) => {
+    f : (mesh, scene_landmarks) => {
 
         let feature_mesh;
 
@@ -28,6 +35,10 @@ const FEATURE_TYPE = Object.freeze({
 }
 */
 
+function bindMetadata(feature, mut_mesh){
+    mut_mesh.name = feature.name;
+    mut_mesh.feature_type = feature.type;
+}
 //genLandmarkFeatures handles applying these custom functions
 //This is to provide flexibility incase I need to do extra math like extending lines past landmarks
 const FOOT_FEATURES = Object.freeze([
@@ -35,15 +46,13 @@ const FOOT_FEATURES = Object.freeze([
         name : "Foot Length Pternion CP Axis Line",
         type : FEATURE_TYPE.Line,
         args : [0,27,"Z"],
-        f : (mesh, mesh_landmarks, name, type) => {
+        f : (mesh, mesh_landmarks) => {
             let pternion = mesh_landmarks[0];
             //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
             let center_point_foot_length = mesh_landmarks[27];
 
             let feature_mesh = LineBetweenLandmarks(mesh, pternion, center_point_foot_length, "Z");
-            
-            feature_mesh.name = name;
-            feature_mesh.feature_type = type;
+            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -51,7 +60,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Ball Girth Circumference Line",
         type : FEATURE_TYPE.Circumference,
         args : [25, 28, 29],
-        f : (mesh, mesh_landmarks, name, type) => {
+        f : (mesh, mesh_landmarks) => {
             let highest_point_ball_girth = new THREE.Vector3(...extractLandmarkPoint(mesh_landmarks[25]));
             let most_medial_point_ball_girth = new THREE.Vector3(...extractLandmarkPoint(mesh_landmarks[28]));
             let most_lateral_point_ball_girth = new THREE.Vector3(...extractLandmarkPoint(mesh_landmarks[29]));
@@ -59,36 +68,68 @@ const FOOT_FEATURES = Object.freeze([
             let feature_mesh = CircumferenceLineFromCutPlane(mesh,  highest_point_ball_girth,
                                                                     most_medial_point_ball_girth,
                                                                     most_lateral_point_ball_girth);
-            feature_mesh.name = name;
-            feature_mesh.feature_type = type;
+            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
-    }
+    },
+    {
+        name : "Heel Breadth",
+        type : FEATURE_TYPE.Line,
+        args : [20,21,"Z"],
+        f : (mesh, mesh_landmarks) => {
+            let heel_breadth_medial_pt = mesh_landmarks[20];
+            let heel_breath_lateral_pt = mesh_landmarks[21];
+
+            let feature_mesh = LineBetweenLandmarks(mesh, heel_breadth_medial_pt, heel_breath_lateral_pt, "Z");
+            bindMetadata(this, feature_mesh);
+            return feature_mesh;
+        }
+    },
+    {
+        name : "MT & Medial Heel Breadth Toe Angle Base Line",
+        type : FEATURE_TYPE.Line,
+        args : [20,28],
+        f : (mesh, mesh_landmarks) => {
+            let heel_breadth_medial_pt = mesh_landmarks[20];
+            let most_medial_pt_of_ball_girth = mesh_landmarks[28];
+
+            let feature_mesh = LineBetweenLandmarks(mesh, heel_breadth_medial_pt, most_medial_pt_of_ball_girth);
+            bindMetadata(this, feature_mesh);
+            return feature_mesh;
+        }
+    },
+    {
+        name : "MT & Lateral Heelbreadth Toe Angle Base Line",
+        type : FEATURE_TYPE.Line,
+        args : [21, 29],
+        f : (mesh, mesh_landmarks) => {
+            let heel_breadth_lateral_pt = mesh_landmarks[21];
+            let most_lateral_pt_of_ball_girth = mesh_landmarks[29];
+
+            let feature_mesh = LineBetweenLandmarks(mesh, heel_breadth_lateral_pt, most_lateral_pt_of_ball_girth, "Z");
+            bindMetadata(this, feature_mesh);
+            return feature_mesh;
+        }
+    },
+    {
+        name : "Heel Girth Circumference Line",
+        type : FEATURE_TYPE.Circumference,
+        args : [1,44],
+        f : (mesh, mesh_landmarks) => {
+            let landing_pontis = mesh_landmarks[1];
+            let junction_pt = mesh_landmarks[44];
+
+            let coplanar_point = midPointBetweenTwoPoints(landing_pontis, junction_pt);
+            //Arbitrary distance away from the center line axis of the foot to get a coplanar point (instead of having a point along the pt junction axis)
+            coplanar_point.setY(coplanar_point.y + 50);
+
+            let feature_mesh = CircumferenceLineFromCutPlane(mesh, landing_pontis, junction_pt, coplanar_point);
+            bindMetadata(this, feature_mesh);
+            return feature_mesh;
+        }
+    },
 ]);
-
-/*
-if(landmarkNumbersInScene(20,21)){
-    console.log("Adding heel breadth line");
-    this.__addLineToMeshAndRegister(mesh, 20, 21, "Z");
-}
-
-if(landmarkNumbersInScene(20,28)){
-    console.log("Adding MT & Medial Heelbreadth Toe Angle Base Line");
-    this.__addLineToMeshAndRegister(mesh, 20, 28);
-}
-
-if(landmarkNumbersInScene(21,29)){
-    console.log("Adding MT & Lateral Heelbreadth Toe Angle Base Line");
-    this.__addLineToMeshAndRegister(mesh, 21, 29);
-}
-
-if(landmarkNumbersInScene(1,44)){
-    console.log("Adding Heel Girth circumference line");
-    this.__addHeelGirthCircumference(mesh);
-}
-
-*/
-
+//Note these functions must be bound to the feature before use.
 
 function landmarkNumbersInScene(mesh_landmarks, landmark_number, ...args){
     return landmark_number in mesh_landmarks &&
@@ -102,9 +143,9 @@ function avalible_features(mesh_landmarks){
     });
 }
 
-//This function should be pure
-//Handler needs to make sure the feature uuids get registered
+//Caller needs to make sure the feature uuids get registered
 //SceneLandmarks Map<UUID, [Landmarks]>
+//This is the entry point of this file
 function genLandmarkFeatures(mesh, scene_landmarks){
     //WISHLIST consider adding functionality to extend past to a certain distance for stuff like Toe Angle Base Lines
 
@@ -113,7 +154,8 @@ function genLandmarkFeatures(mesh, scene_landmarks){
         let candidate_features = avalible_features(mesh_landmarks);
 
         let generated_features = candidate_features.map(feature => {
-            return feature.f(mesh, mesh_landmarks, feature.name, feature.type);
+            //Binding is required for the relevant metadata to be added to the mesh.
+            return feature.f.bind(feature)(mesh, mesh_landmarks);
         });
 
         return generated_features;
@@ -121,8 +163,6 @@ function genLandmarkFeatures(mesh, scene_landmarks){
         return [];
     }
 }
-
-
 
 ///
 /// Helpers
@@ -142,6 +182,19 @@ function extractLandmarkPoint(landmark_mesh){
     return [float_32_array[0], float_32_array[1], float_32_array[2]];
 }
 
+function midPointBetweenTwoPoints(point_a, point_b){
+    let v_ab = new THREE.Vector3(
+            point_b.x - point_a.x,
+            point_b.y - point_a.y,
+            point_b.z - point_a.z
+    );
+    v_ab.multiplyScalar(0.5);
+
+    return new THREE.Vector3(
+            point_a.x + v_ab.x,
+            point_a.y + v_ab.y,
+            point_a.z + v_ab.z);
+}
 ///
 /// FEATURE PRIMITIVES
 ///
@@ -265,8 +318,12 @@ function CircumferenceLineFromCutPlane(mesh, point_a, point_b, point_c){
         // console.log("Adding lines layer, hope it works");
         return line;
     }else{
+        //Test this on STL files
         console.error("Haven't hit this case for a circumference");
     }
 }
 
-export default genLandmarkFeatures;
+export {
+    genLandmarkFeatures,
+    LANDMARK_LUT
+};
