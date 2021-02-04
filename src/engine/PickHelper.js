@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import configuration from "./config";
 var CONFIG = CONFIG || new configuration();
 
+///
+/// Implements 3D picking for the THREEjs scene. Emits events to the landmark VUEX store during hover events.
+///
 class PickHelper {
     constructor(store) {
       this.$store = store;
