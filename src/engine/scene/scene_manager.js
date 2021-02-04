@@ -27,6 +27,21 @@ function getLandmarkPoint(landmark_mesh){
 //TODO refactor parts of this class so its more readable and consistent in naming
 //Centralizing the uuid LUTS and related functions will be nice for future work
 class SceneManager {
+    constructor(scene, component_event_emitter_ref, rerender_ref, store_ref){
+        this.scene_ref = scene;
+        this.scene_graph_trees = []; //[SceneGraph]
+        this.component_event_emitter_ref = component_event_emitter_ref;
+        this.rerender_ref = rerender_ref;
+        this.store_ref = store_ref;
+        //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
+        //Because WeakMap doesn't allow for enumeration we probably can't use that unless
+        //iterating over a list of keys into the WeakMap
+        this.scene_uuids = new Map(); // Map<uuid, three_obj>
+        this.scene_landmark_by_uuids = new Map();
+
+        //indexed by parent uuid then landmark index
+        this.scene_landmarks = new Map();
+    }
     // processLoadedTree :: LOADED LoadTree -> SceneGraph
     processLoadedTree(file_manager_ref, loadTree, scene_parent=undefined){
         // let root_object = file_manager_ref.cloneCachedHash(loadTree.hash(), true);
@@ -102,21 +117,6 @@ class SceneManager {
         return this.scene_graph_trees.map(t => t.buildTreeRepresentationModel());
     }
 
-    constructor(scene, component_event_emitter_ref, rerender_ref, store_ref){
-        this.scene_ref = scene;
-        this.scene_graph_trees = []; //[SceneGraph]
-        this.component_event_emitter_ref = component_event_emitter_ref;
-        this.rerender_ref = rerender_ref;
-        this.store_ref = store_ref;
-        //TODO REFACTOR SCENE_GRAPH Redo this stuff w/ Javascript Map
-        //Because WeakMap doesn't allow for enumeration we probably can't use that unless
-        //iterating over a list of keys into the WeakMap
-        this.scene_uuids = new Map(); // Map<uuid, three_obj>
-        this.scene_landmark_by_uuids = new Map();
-
-        //indexed by parent uuid then landmark index
-        this.scene_landmarks = new Map();
-    }
     __get_max_mesh_width(){
         return Math.max.apply(Math, this.scene_graph_trees.map(g =>{
             g.obj.children[0].geometry.computeBoundingBox();
