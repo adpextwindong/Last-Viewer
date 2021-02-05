@@ -160,6 +160,31 @@ const FOOT_FEATURES = Object.freeze([
         }
     },
     {
+        name : "Instep Length",
+        type : FEATURE_TYPE.Line,
+        args : [0,27,"% of Foot Length CONFIG"],
+        f : (mesh, mesh_landmarks) => {
+            let pternion = mesh_landmarks[0];
+            //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
+            let center_point_foot_length = mesh_landmarks[27];
+
+            let v_pt = new THREE.Vector3(...extractLandmarkPoint(pternion));
+            let v_cpfl = new THREE.Vector3(...extractLandmarkPoint(center_point_foot_length));
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+            v_pt.setZ(floor);
+            v_cpfl.setZ(v_cpfl);
+            
+            let delta = new THREE.Vector3().subVectors(v_pt, v_cpfl);
+            delta.multiplyScalar(CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
+
+            let instep_landmark = center_point_foot_length.clone();
+            instep_landmark.geometry.translate(delta.x, delta.y, delta.z);
+
+            return LineBetweenLandmarks(mesh, pternion, instep_landmark, "Z");
+        }
+    },
+
+    {
         name : "MT & Medial Heel Breadth Toe Angle Base Line",
         type : FEATURE_TYPE.Line,
         args : [20,28],
