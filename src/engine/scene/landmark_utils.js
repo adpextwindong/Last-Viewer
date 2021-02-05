@@ -98,9 +98,9 @@ const FOOT_FEATURES = Object.freeze([
         type : FEATURE_TYPE.Circumference,
         args : [25, 28, 29],
         f : (mesh, mesh_landmarks) => {
-            let highest_point_ball_girth = new THREE.Vector3(...extractLandmarkPoint(mesh_landmarks[25]));
-            let most_medial_point_ball_girth = new THREE.Vector3(...extractLandmarkPoint(mesh_landmarks[28]));
-            let most_lateral_point_ball_girth = new THREE.Vector3(...extractLandmarkPoint(mesh_landmarks[29]));
+            let highest_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[25]);
+            let most_medial_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[28]);
+            let most_lateral_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[29]);
 
             let feature_mesh = CircumferenceLineFromCutPlane(mesh,  highest_point_ball_girth,
                                                                     most_medial_point_ball_girth,
@@ -168,8 +168,8 @@ const FOOT_FEATURES = Object.freeze([
             //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
             let center_point_foot_length = mesh_landmarks[27];
 
-            let v_pt = new THREE.Vector3(...extractLandmarkPoint(pternion));
-            let v_cpfl = new THREE.Vector3(...extractLandmarkPoint(center_point_foot_length));
+            let v_pt = extractVector3FromLandmarkPoint(pternion);
+            let v_cpfl = extractVector3FromLandmarkPoint(center_point_foot_length);
             let floor = getValueOfLowestVert(mesh.children[0], "Z");
             v_pt.setZ(floor);
             v_cpfl.setZ(v_cpfl);
@@ -213,8 +213,8 @@ const FOOT_FEATURES = Object.freeze([
         type : FEATURE_TYPE.Circumference,
         args : [1,44],
         f : (mesh, mesh_landmarks) => {
-            let landing_pontis = mesh_landmarks[1];
-            let junction_pt = mesh_landmarks[44];
+            let landing_pontis = extractVector3FromLandmarkPoint(mesh_landmarks[1]);
+            let junction_pt = extractVector3FromLandmarkPoint(mesh_landmarks[44]);
 
             let coplanar_point = midPointBetweenTwoPoints(landing_pontis, junction_pt);
             //Arbitrary distance away from the center line axis of the foot to get a coplanar point (instead of having a point along the pt junction axis)
@@ -270,11 +270,16 @@ function getValueOfLowestVert(mesh, axis){
     let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
 
     let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
-    let min = Math.min(filtered_verts);
-    return verts[verts.indexOf(min)];
+    let min = Math.min(...filtered_verts);
+    return min;
+    // return verts[verts.indexOf(min)];
 }
 
-function extractLandmarkPoint(landmark_mesh){
+function extractVector3FromLandmarkPoint(landmark_mesh){
+    return new THREE.Vector3(...__extractLandmarkPoint(landmark_mesh));
+}
+
+function __extractLandmarkPoint(landmark_mesh){
     let float_32_array = landmark_mesh.geometry.attributes.position.array;
 
     return [float_32_array[0], float_32_array[1], float_32_array[2]];
@@ -304,8 +309,8 @@ function LineBetweenLandmarks(mesh, landmark_a, landmark_b, project_down_onto_ax
     // let landmark_b = this.scene_landmarks[mesh.uuid][lm_number_b];
 
     let points = [];
-    points.push(new THREE.Vector3(...extractLandmarkPoint(landmark_a)));
-    points.push(new THREE.Vector3(...extractLandmarkPoint(landmark_b)));
+    points.push(extractVector3FromLandmarkPoint(landmark_a));
+    points.push(extractVector3FromLandmarkPoint(landmark_b));
 
     //WISHLIST See if projecting down is all we need
     if(project_down_onto_axis !== undefined &&
@@ -344,6 +349,7 @@ function LineBetweenLandmarks(mesh, landmark_a, landmark_b, project_down_onto_ax
 }
 
 
+//This function expects the points as THREE.Vector3()'s
 function CircumferenceLineFromCutPlane(mesh, point_a, point_b, point_c){
     //https://stackoverflow.com/questions/42348495/three-js-find-all-points-where-a-mesh-intersects-a-plane
     //https://jsfiddle.net/8uxw667m/4/
