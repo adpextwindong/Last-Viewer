@@ -7,7 +7,7 @@ var CONFIG = CONFIG || new configuration();
 const LANDMARK_LUT = Object.freeze({
     //Marker Positions
     "0" : "Pternion", "Pternion": "0",
-    "1" : "Landing Pointis" , "1" : "Landing Pointis" ,
+    "1" : "Landing Pointis" , "Landing Pointis" : "1",
     "2" : "The most medial point of medial malleolus", "The most medial point of medial malleolus" : "2" ,
     "3" : "Sphyrion", "Sphyrion" : "3" ,
     "4" : "The most lateral point of lateral malleolus",  "The most lateral point of lateral malleolus" : "4",
@@ -65,7 +65,7 @@ const FEATURE_TYPE = Object.freeze({
     name : "",
     type : FEATURE_TYPE,
     args : [],
-    f : (mesh, scene_landmarks) => {
+    f : (mesh, mesh_landmarks) => {
 
         let feature_mesh;
 
