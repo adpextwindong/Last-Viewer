@@ -120,9 +120,10 @@ const FOOT_FEATURES = Object.freeze([
             return feature_mesh;
         }
     },
+
     {
         name : "Instep Circumference",
-        type : FEATURE_TYPE.Line,
+        type : FEATURE_TYPE.Circumference,
         args : [0,27,"% of Foot Length CONFIG"],
         f : (mesh, mesh_landmarks) => {
             let pternion = mesh_landmarks[0];
@@ -130,17 +131,28 @@ const FOOT_FEATURES = Object.freeze([
             let center_point_foot_length = mesh_landmarks[27];
 
             //TODO delta points, scale vector by % of foot length, compute two adjacent points in the y plane
-            let v_pt = new THREE.Vector3(...extractLandmarkPoint(pternion));
-            let v_cpfl = new THREE.Vector3(...extractLandmarkPoint(center_point_foot_length));
+            let v_pt = extractVector3FromLandmarkPoint(pternion);
+            let v_cpfl = extractVector3FromLandmarkPoint(center_point_foot_length);
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+            v_pt.setZ(floor);
+            v_cpfl.setZ(floor);
+            
+            let delta = new THREE.Vector3().subVectors(v_pt, v_cpfl);
 
-            let delta = new THREE.Vector3().subVectors(v_pt, v_cpfl).multiplyScalar(CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
-            let instep_pt = v_pt + delta;
-            let instep_adjacent_a_pt = instep_pt.clone().setY(instep_pt.y + 50);
-            let instep_adjacent_b_pt = instep_pt.clone().setY(instep_pt.y - 50);
-            //TODO instep circumference plane cutting
+            console.assert(CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH !== undefined); //Need some defaulting mechanism
+            console.assert(CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH <= 1.0 && CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH >= 0.0);
+            delta.multiplyScalar(1.0 - CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
+
+            let instep_landmark = center_point_foot_length.clone(); //Dude I don't think this does an actual deep copy
+
+            let instep_pt = extractVector3FromLandmarkPoint(instep_landmark);
+            instep_pt.add(delta);
+            let instep_coplanar_a = new THREE.Vector3(instep_pt.x, instep_pt.y - 50, instep_pt.z + 10);
+            let instep_coplanar_b = new THREE.Vector3(instep_pt.x, instep_pt.y + 50, instep_pt.z + 10);
+            //boost these guys up the z axis to get 3 coplanar points
             let feature_mesh = CircumferenceLineFromCutPlane(mesh, instep_pt,
-                                                                   instep_adjacent_a_pt,
-                                                                   instep_adjacent_b_pt);
+                                                                   instep_coplanar_a,
+                                                                   instep_coplanar_b);
 
             return feature_mesh;
         }
@@ -175,7 +187,7 @@ const FOOT_FEATURES = Object.freeze([
             v_cpfl.setZ(v_cpfl);
             
             let delta = new THREE.Vector3().subVectors(v_pt, v_cpfl);
-            delta.multiplyScalar(CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
+            delta.multiplyScalar(1.0 - CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
 
             let instep_landmark = center_point_foot_length.clone();
             instep_landmark.geometry.translate(delta.x, delta.y, delta.z);
