@@ -41,8 +41,9 @@ const DEFAULTS = {
 
     LAYERS_SCANS : 1,
     LAYERS_LANDMARKS : 2,
-    LAYERS_MEASUREMENT_LINES : 3
+    LAYERS_MEASUREMENT_LINES : 3,
 
+    INSTEP_PERCENT_OF_FOOT : 0.55, //should be float from [0.0 to 1.0]
 };
 
 //This might end up in Vuex, not sure because of performance overhead.

@@ -121,6 +121,33 @@ const FOOT_FEATURES = Object.freeze([
         }
     },
     {
+        name : "Instep Circumference",
+        type : FEATURE_TYPE.Line,
+        args : [0,27,"% of Foot Length CONFIG"],
+        f : (mesh, mesh_landmarks) => {
+            let pternion = mesh_landmarks[0];
+            //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
+            let center_point_foot_length = mesh_landmarks[27];
+
+            //TODO delta points, scale vector by % of foot length, compute two adjacent points in the y plane
+            let v_pt = new THREE.Vector3(...extractLandmarkPoint(pternion));
+            let v_cpfl = new THREE.Vector3(...extractLandmarkPoint(center_point_foot_length));
+
+            let delta = new THREE.Vector3().subVectors(v_pt, v_cpfl).multiplyScalar(CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
+            let instep_pt = v_pt + delta;
+            let instep_adjacent_a_pt = instep_pt.clone().setY(instep_pt.y + 50);
+            let instep_adjacent_b_pt = instep_pt.clone().setY(instep_pt.y - 50);
+            //TODO instep circumference plane cutting
+            let feature_mesh = CircumferenceLineFromCutPlane(mesh, instep_pt,
+                                                                   instep_adjacent_a_pt,
+                                                                   instep_adjacent_b_pt);
+
+            return feature_mesh;
+        }
+    },
+
+
+    {
         name : "Heel Breadth",
         type : FEATURE_TYPE.Line,
         args : [20,21,"Z"],
