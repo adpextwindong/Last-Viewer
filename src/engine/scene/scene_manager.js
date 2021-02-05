@@ -96,8 +96,6 @@ class SceneManager {
         features.forEach(ft => {
             this.scene_uuids[ft.uuid] = ft;
         });
-
-        //this.__addMeasurementDataMeshes(root_object.uuid);
         //     //TASK ENGINE WORK Fix the defaulter so it correctly orrientates the model
         //     //A simple heuristic that for the general length vs width should work.
         //     //Figuring out heel end might be a bit rougher.
