@@ -52,7 +52,6 @@ const FOOT_FEATURES = Object.freeze([
             let center_point_foot_length = mesh_landmarks[27];
 
             let feature_mesh = LineBetweenLandmarks(mesh, pternion, center_point_foot_length, "Z");
-            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -68,7 +67,6 @@ const FOOT_FEATURES = Object.freeze([
             let feature_mesh = CircumferenceLineFromCutPlane(mesh,  highest_point_ball_girth,
                                                                     most_medial_point_ball_girth,
                                                                     most_lateral_point_ball_girth);
-            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -81,7 +79,6 @@ const FOOT_FEATURES = Object.freeze([
             let heel_breath_lateral_pt = mesh_landmarks[21];
 
             let feature_mesh = LineBetweenLandmarks(mesh, heel_breadth_medial_pt, heel_breath_lateral_pt, "Z");
-            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -94,7 +91,6 @@ const FOOT_FEATURES = Object.freeze([
             let most_medial_pt_of_ball_girth = mesh_landmarks[28];
 
             let feature_mesh = LineBetweenLandmarks(mesh, heel_breadth_medial_pt, most_medial_pt_of_ball_girth);
-            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -107,7 +103,6 @@ const FOOT_FEATURES = Object.freeze([
             let most_lateral_pt_of_ball_girth = mesh_landmarks[29];
 
             let feature_mesh = LineBetweenLandmarks(mesh, heel_breadth_lateral_pt, most_lateral_pt_of_ball_girth, "Z");
-            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -124,7 +119,6 @@ const FOOT_FEATURES = Object.freeze([
             coplanar_point.setY(coplanar_point.y + 50);
 
             let feature_mesh = CircumferenceLineFromCutPlane(mesh, landing_pontis, junction_pt, coplanar_point);
-            bindMetadata(this, feature_mesh);
             return feature_mesh;
         }
     },
@@ -149,13 +143,15 @@ function avalible_features(mesh_landmarks){
 function genLandmarkFeatures(mesh, scene_landmarks){
     //WISHLIST consider adding functionality to extend past to a certain distance for stuff like Toe Angle Base Lines
 
-    if(mesh.uuid in scene_landmarks){
-        let mesh_landmarks = scene_landmarks[mesh.uuid];
+    if(scene_landmarks.has(mesh.uuid)){
+        let mesh_landmarks = scene_landmarks.get(mesh.uuid);
         let candidate_features = avalible_features(mesh_landmarks);
 
         let generated_features = candidate_features.map(feature => {
             //Binding is required for the relevant metadata to be added to the mesh.
-            return feature.f.bind(feature)(mesh, mesh_landmarks);
+            let feature_mesh = feature.f(mesh, mesh_landmarks);
+            bindMetadata(feature, feature_mesh);
+            return feature_mesh;
         });
 
         return generated_features;
