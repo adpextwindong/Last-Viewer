@@ -109,6 +109,18 @@ const FOOT_FEATURES = Object.freeze([
         }
     },
     {
+        name : "Foot Breadth",
+        type : FEATURE_TYPE,
+        args : [28, 29, "Z"],
+        f : (mesh, mesh_landmarks) => {
+            let most_medial_pt_of_ball_girth = mesh_landmarks[28];
+            let most_lateral_point_ball_girth = mesh_landmarks[29];
+            let feature_mesh = LineBetweenLandmarks(mesh, most_medial_pt_of_ball_girth,
+                                                          most_lateral_point_ball_girth, "Z");
+            return feature_mesh;
+        }
+    },
+    {
         name : "Heel Breadth",
         type : FEATURE_TYPE.Line,
         args : [20,21,"Z"],
