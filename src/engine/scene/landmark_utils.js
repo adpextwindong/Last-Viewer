@@ -280,6 +280,32 @@ const FOOT_FEATURES = Object.freeze([
             return feature_mesh;
         }
     },
+    {
+        name: "Sphyrion Fibulare Height ",
+        type: FEATURE_TYPE.Line,
+        args: [5],
+        number: 14,
+        f : (mesh, mesh_landmarks) => {
+            let sphyrion_fibulare = mesh_landmarks[5];
+            let v_sf = extractVector3FromLandmarkPoint(sphyrion_fibulare);
+
+            let ymin = getValueOfLowestVert(mesh.children[0], "Y");
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+
+            let sf_height_top = sphyrion_fibulare.clone();
+            sf_height_top.geometry = sf_height_top.geometry.clone();
+            sf_height_top.translate(0.0, -v_sf.y,0.0);//Reset to midline
+            sf_height_top.translate(0.0, ymin, 0.0); //Shove to medial/lateral side
+
+            let sf_height_bottom = sf_height_top.clone();
+            sf_height_bottom.geometry = sf_height_bottom.geometry.clone();
+            sf_height_bottom.geometry.translate(0.0,0.0, -v_sf.z + floor);
+
+            let feature_mesh = LineBetweenLandmarks(mesh, sf_height_bottom, sf_height_top);
+            return feature_mesh;
+        }
+    },
+
 
     {
         name : "MT & Medial Heel Breadth Toe Angle Base Line",
