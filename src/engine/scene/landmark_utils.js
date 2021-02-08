@@ -306,6 +306,24 @@ const FOOT_FEATURES = Object.freeze([
         }
     },
 
+    {
+        name : "Sphyrion Height",
+        type: FEATURE_TYPE.Line,
+        args: [3],
+        number: 15,
+        f : (mesh, mesh_landmarks) => {
+            let sphyrion = mesh_landmarks[3];
+            let v_s = extractVector3FromLandmarkPoint(sphyrion);
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+
+            let sphyrion_height_bottom = sphyrion.clone();
+            sphyrion_height_bottom.geometry = sphyrion_height_bottom.geometry.clone();
+            sphyrion_height_bottom.geometry.translate(0.0,0.0, -v_s.z + floor);
+
+            let feature_mesh = LineBetweenLandmarks(mesh, sphyrion, sphyrion_height_bottom);
+            return feature_mesh;
+        }
+    },
 
     {
         name : "MT & Medial Heel Breadth Toe Angle Base Line",
