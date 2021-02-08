@@ -199,6 +199,7 @@ const FOOT_FEATURES = Object.freeze([
             delta.multiplyScalar(1.0 - CONFIG.INSTEP_PERCENT_OF_FOOT_LENGTH);
 
             let instep_landmark = center_point_foot_length.clone();
+            instep_landmark.geometry = instep_landmark.geometry.clone();
             instep_landmark.geometry.translate(delta.x, delta.y, delta.z);
 
             return LineBetweenLandmarks(mesh, pternion, instep_landmark, "Z");
