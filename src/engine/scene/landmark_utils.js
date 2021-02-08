@@ -205,6 +205,27 @@ const FOOT_FEATURES = Object.freeze([
             return LineBetweenLandmarks(mesh, pternion, instep_landmark, "Z");
         }
     },
+    {
+        name : "Fibulare Instep Length",
+        type : FEATURE_TYPE.Line,
+        args : [0,9,27],
+        number: 6,
+        f : (mesh, mesh_landmarks) => {
+            let pternion = mesh_landmarks[0];
+            let metatarsal_fibulare = mesh_landmarks[9];
+
+            let v_mf = extractVector3FromLandmarkPoint(metatarsal_fibulare);
+            let center_point_foot_length = mesh_landmarks[27];
+            let v_cpfl = extractVector3FromLandmarkPoint(center_point_foot_length);
+            let delta = v_mf.sub(v_cpfl);
+
+            let pt_projected_out = pternion.clone();
+            pt_projected_out.geometry = pt_projected_out.geometry.clone();
+            pt_projected_out.geometry.translate(0.0,delta.y,0.0);
+
+            return LineBetweenLandmarks(mesh, pt_projected_out, metatarsal_fibulare);
+        }
+    },
 
     {
         name : "MT & Medial Heel Breadth Toe Angle Base Line",
