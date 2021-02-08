@@ -173,7 +173,23 @@ const FOOT_FEATURES = Object.freeze([
                                                                    instep_coplanar_a,
                                                                    instep_coplanar_b);
 
-            return feature_mesh;
+            let instep_height = getValueOfMaxVert(feature_mesh, "Z"); - floor;
+            let instep_height_bottom = instep_landmark.clone();
+            instep_height_bottom.geometry = instep_height_bottom.geometry.clone();
+            let reset_delta = extractVector3FromLandmarkPoint(instep_landmark);
+            instep_height_bottom.geometry.translate(-reset_delta.x, -reset_delta.y, -reset_delta.z);
+            instep_height_bottom.geometry.translate(instep_pt.x, instep_pt.y, floor);
+            
+            let instep_ymax = getValueOfMaxVert(feature_mesh, "Y");
+            //TODO we need some metadata on the foot on which portion of the y axis is medial/lateral.
+            instep_height_bottom.geometry.translate(0.0, instep_ymax - instep_pt.y, 0.0);
+
+            let instep_height_top = instep_height_bottom.clone();
+            instep_height_top.geometry = instep_height_top.geometry.clone();
+            instep_height_top.geometry.translate(0.0, 0.0, instep_height);
+
+            let instep_height_mesh = LineBetweenLandmarks(mesh, instep_height_bottom, instep_height_top);
+            return [feature_mesh, instep_height_mesh];
         }
     },
 
@@ -329,6 +345,15 @@ function getValueOfLowestVert(mesh, axis){
     let min = Math.min(...filtered_verts);
     return min;
     // return verts[verts.indexOf(min)];
+}
+
+function getValueOfMaxVert(mesh, axis){
+    let verts = mesh.geometry.attributes.position.array;
+    let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
+
+    let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
+    let max = Math.max(...filtered_verts);
+    return max;
 }
 
 function extractVector3FromLandmarkPoint(landmark_mesh){
