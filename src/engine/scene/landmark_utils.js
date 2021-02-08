@@ -101,7 +101,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Ball Girth Circumference Line",
         type : FEATURE_TYPE.Circumference,
         args : [25, 28, 29],
-        number: 1,
+        number: [1,7],
         f : (mesh, mesh_landmarks) => {
             let highest_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[25]);
             let most_medial_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[28]);
@@ -110,7 +110,19 @@ const FOOT_FEATURES = Object.freeze([
             let feature_mesh = CircumferenceLineFromCutPlane(mesh,  highest_point_ball_girth,
                                                                     most_medial_point_ball_girth,
                                                                     most_lateral_point_ball_girth);
-            return feature_mesh;
+
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+            let medial_landmark_bottom = mesh_landmarks[28].clone();
+            medial_landmark_bottom.geometry = medial_landmark_bottom.geometry.clone();
+            medial_landmark_bottom.geometry.translate(0.0,0.0,-(most_medial_point_ball_girth.z - floor));
+
+            let medial_landmark_top = medial_landmark_bottom.clone();
+            medial_landmark_top.geometry = medial_landmark_top.geometry.clone();
+            medial_landmark_top.geometry.translate(0.0,0.0, highest_point_ball_girth.z);
+
+            let highest_point_ball_girth_line = LineBetweenLandmarks(mesh, medial_landmark_bottom, medial_landmark_top);
+
+            return [feature_mesh, highest_point_ball_girth_line];
         }
     },
     {
@@ -293,7 +305,7 @@ function genLandmarkFeatures(mesh, scene_landmarks){
         let mesh_landmarks = scene_landmarks.get(mesh.uuid);
         let candidate_features = avalible_features(mesh_landmarks);
 
-        let generated_features = candidate_features.map(feature => {
+        let generated_features = candidate_features.flatMap(feature => {
             //Binding is required for the relevant metadata to be added to the mesh.
             let feature_mesh = feature.f(mesh, mesh_landmarks);
             bindMetadata(feature, feature_mesh);
