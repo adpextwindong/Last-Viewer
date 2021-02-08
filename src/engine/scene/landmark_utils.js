@@ -253,6 +253,32 @@ const FOOT_FEATURES = Object.freeze([
 
             return LineBetweenLandmarks(mesh, pt_projected_out, metatarsal_fibulare);
         }
+
+    },
+    {
+        name: "Navicular Height",
+        type: FEATURE_TYPE.Line,
+        args: [6],
+        number: 13,
+        f : (mesh, mesh_landmarks) => {
+            let navicular = mesh_landmarks[6];
+            let v_nav = extractVector3FromLandmarkPoint(navicular);
+
+            let ymax = getValueOfMaxVert(mesh.children[0], "Y");
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+
+            let nv_height_top = navicular.clone();
+            nv_height_top.geometry = nv_height_top.geometry.clone();
+            nv_height_top.translate(0.0, -v_nav.y,0.0);//Reset to midline
+            nv_height_top.translate(0.0, ymax, 0.0); //Shove to lateral/medial side
+
+            let nv_height_bottom = nv_height_top.clone();
+            nv_height_bottom.geometry = nv_height_bottom.geometry.clone();
+            nv_height_bottom.geometry.translate(0.0,0.0, -v_nav.z + floor);
+
+            let feature_mesh = LineBetweenLandmarks(mesh, nv_height_bottom, nv_height_top);
+            return feature_mesh;
+        }
     },
 
     {
