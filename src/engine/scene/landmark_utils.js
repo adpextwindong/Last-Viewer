@@ -65,6 +65,7 @@ const FEATURE_TYPE = Object.freeze({
     name : "",
     type : FEATURE_TYPE,
     args : [],
+    OPTIONAL(number: 0), //Refers to the measuring items list in the pdf
     f : (mesh, mesh_landmarks) => {
 
         let feature_mesh;
@@ -79,11 +80,14 @@ function bindMetadata(feature, mut_mesh){
 }
 //genLandmarkFeatures handles applying these custom functions
 //This is to provide flexibility incase I need to do extra math like extending lines past landmarks
+
+
 const FOOT_FEATURES = Object.freeze([
     {
         name : "Foot Length Pternion CP Axis Line",
         type : FEATURE_TYPE.Line,
         args : [0,27,"Z"],
+        number: 0,
         f : (mesh, mesh_landmarks) => {
             let pternion = mesh_landmarks[0];
             //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
@@ -97,6 +101,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Ball Girth Circumference Line",
         type : FEATURE_TYPE.Circumference,
         args : [25, 28, 29],
+        number: 1,
         f : (mesh, mesh_landmarks) => {
             let highest_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[25]);
             let most_medial_point_ball_girth = extractVector3FromLandmarkPoint(mesh_landmarks[28]);
@@ -112,6 +117,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Foot Breadth",
         type : FEATURE_TYPE,
         args : [28, 29, "Z"],
+        number: 2,
         f : (mesh, mesh_landmarks) => {
             let most_medial_pt_of_ball_girth = mesh_landmarks[28];
             let most_lateral_point_ball_girth = mesh_landmarks[29];
@@ -125,6 +131,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Instep Circumference",
         type : FEATURE_TYPE.Circumference,
         args : [0,27,"% of Foot Length CONFIG"],
+        number: 3,
         f : (mesh, mesh_landmarks) => {
             let pternion = mesh_landmarks[0];
             //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
@@ -163,6 +170,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Heel Breadth",
         type : FEATURE_TYPE.Line,
         args : [20,21,"Z"],
+        number: 4,
         f : (mesh, mesh_landmarks) => {
             let heel_breadth_medial_pt = mesh_landmarks[20];
             let heel_breath_lateral_pt = mesh_landmarks[21];
@@ -175,6 +183,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Instep Length",
         type : FEATURE_TYPE.Line,
         args : [0,27,"% of Foot Length CONFIG"],
+        number: 5,
         f : (mesh, mesh_landmarks) => {
             let pternion = mesh_landmarks[0];
             //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
@@ -224,6 +233,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Heel Girth Circumference Line",
         type : FEATURE_TYPE.Circumference,
         args : [1,44],
+        number: 20,
         f : (mesh, mesh_landmarks) => {
             let landing_pontis = extractVector3FromLandmarkPoint(mesh_landmarks[1]);
             let junction_pt = extractVector3FromLandmarkPoint(mesh_landmarks[44]);
