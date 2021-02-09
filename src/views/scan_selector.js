@@ -81,6 +81,7 @@ export default {
         return {
         //For now this list is for debugging/development testing purposes.
             scans: [
+                { path: './data/takumi_feet/all_markers/201909301621l.obj' },
                 { path: './data/foot1.obj' },
                 { path: './data/foot2.obj' },
                 { path: './data/foot3.obj' },

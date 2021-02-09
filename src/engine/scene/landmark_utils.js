@@ -366,6 +366,24 @@ const FOOT_FEATURES = Object.freeze([
             return feature_mesh;
         }
     },
+    {
+        name: "Horizontal Ankle Circumference",
+        type: FEATURE_TYPE.Circumference,
+        args: [44],
+        number: 21,
+        f : (mesh, mesh_landmarks) => {
+            let junction_pt = extractVector3FromLandmarkPoint(mesh_landmarks[44]);
+            let adjacent_a = junction_pt.clone();
+            adjacent_a.setY(adjacent_a.y + 50);
+
+            let adjacent_b = junction_pt.clone();
+            adjacent_b.setY(adjacent_b.y - 50);
+            adjacent_b.setX(adjacent_b.x - 50);
+
+            let feature_mesh = CircumferenceLineFromCutPlane(mesh, junction_pt, adjacent_a, adjacent_b);
+            return feature_mesh;
+        }
+    }
 ]);
 //Note these functions must be bound to the feature before use.
 
