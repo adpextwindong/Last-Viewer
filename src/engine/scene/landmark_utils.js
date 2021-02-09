@@ -289,6 +289,8 @@ const FOOT_FEATURES = Object.freeze([
             let sphyrion_fibulare = mesh_landmarks[5];
             let v_sf = extractVector3FromLandmarkPoint(sphyrion_fibulare);
 
+            //TODO we can use a heuristic of checking the y value of the feature and switching function based on that
+            //TODO this would require us to reset all things in mesh space to origin, including landmarks
             let ymin = getValueOfLowestVert(mesh.children[0], "Y");
             let floor = getValueOfLowestVert(mesh.children[0], "Z");
 
