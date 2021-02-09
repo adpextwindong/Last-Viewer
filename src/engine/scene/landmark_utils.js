@@ -412,7 +412,7 @@ function getValueOfLowestVert(mesh, axis){
     let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
 
     let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
-    let min = Math.min(...filtered_verts);
+    let min = Math.min(filtered_verts);
     return min;
     // return verts[verts.indexOf(min)];
 }
@@ -422,7 +422,7 @@ function getValueOfMaxVert(mesh, axis){
     let axis_mod = axis === 'X' ? 0: (axis === 'Y' ? 1: 2);
 
     let filtered_verts  = verts.filter((v, ind) => (ind % 3) === axis_mod);
-    let max = Math.max(...filtered_verts);
+    let max = Math.max(filtered_verts);
     return max;
 }
 
