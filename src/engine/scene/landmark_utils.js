@@ -383,6 +383,28 @@ const FOOT_FEATURES = Object.freeze([
             let feature_mesh = CircumferenceLineFromCutPlane(mesh, junction_pt, adjacent_a, adjacent_b);
             return feature_mesh;
         }
+    },
+    {
+        name: "Arch Length",
+        type: FEATURE_TYPE.Line,
+        args: [23, 24],
+        number: 18,
+        f : (mesh, mesh_landmarks) => {
+            let arch_start = mesh_landmarks[23].clone();
+            arch_start.geometry = arch_start.geometry.clone();
+            let arch_end = mesh_landmarks[24].clone();
+            arch_end.geometry = arch_end.geometry.clone();
+
+            let floor = getValueOfLowestVert(mesh.children[0], "Z");
+            let delta_start = floor - extractVector3FromLandmarkPoint(arch_start).z;
+            let delta_end = floor - extractVector3FromLandmarkPoint(arch_end).z;
+
+            arch_start.geometry.translate(0.0,0.0,delta_start);
+            arch_end.geometry.translate(0.0,0.0,delta_end);
+
+            let feature_mesh = LineBetweenLandmarks(mesh, arch_start, arch_end);
+            return feature_mesh;
+        }
     }
 ]);
 //Note these functions must be bound to the feature before use.
