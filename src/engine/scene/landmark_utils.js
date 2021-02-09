@@ -143,7 +143,7 @@ const FOOT_FEATURES = Object.freeze([
         name : "Instep Circumference",
         type : FEATURE_TYPE.Circumference,
         args : [0,27,"% of Foot Length CONFIG"],
-        number: 3,
+        number: [3,8],
         f : (mesh, mesh_landmarks) => {
             let pternion = mesh_landmarks[0];
             //CP is Center point located in width of Ball Girth Cross section which passes through MT&MF
