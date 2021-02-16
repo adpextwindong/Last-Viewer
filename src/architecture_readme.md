@@ -40,7 +40,7 @@ The Viewer Layout Component and Viewer Engine run concurrently due to how Reques
 ## TASKS
 --------------------------------------------------------------------------------
 
-NOTE: Remaining tasks in these files will be annotated as 
+NOTE: Remaining tasks in these files will be annotated as
 
     TODO {REFACTOR | TASK {ADD | PREDEPLOYMENT}, } --- Predeployment tasks should be done before we push a release.
     WISHLIST --- feature backlog but comment is kept in place to note where in the code it should go.
@@ -49,7 +49,6 @@ NOTE: Remaining tasks in these files will be annotated as
 ## WISHLIST
 --------------------------------------------------------------------------------
 
-Write an async parser for OBJ files that works in another thread to prevent threejs from blocking I guess.
 
 GPU Picking
 Context Menu development and refinement.
@@ -73,67 +72,59 @@ Line picking can be done with a bounding box. This will have to be ported someho
 --------------------------------------------------------------------------------
 ## 2020 CHRISTMAS TASKS AND WISHLIST
 --------------------------------------------------------------------------------
-### DEVOPS
+### FINISHED
 ~~Make sure the VueJS stuff is pinned to a good version.~~
-
-See if we can do tree pruning for different builds. We don't need to ship all of the codebase for a mobile app or presentation build.
-
 ~~WISHLIST -- Push file parsing into an async web worker.~~
-
 ~~WISHLIST -- Maybe checking out TypeScript~~ NO
 ~~WISHLIST -- Figuring out async/await & Promises to a better degree.~~
+~~Optimize load time of first paint for the engine.~~
+~~Func utils like zip need to be split out and imported correctly.~~
+~~We need to split out file metadata from the current load tree helper.~~ DIMENSIONS PENDING
+~~Stitch scene graph might belong in the scene manager honestly. Not sure yet.~~
+~~Right now any landmark texts is just stashed in the respective obj. Which is unclean, unwieldly and should be the responsibiltiy of the file loader or scene manager.~~
+~~We need a lookup table for names in the objs and their respective landmarks.~~
+~~Split out file loading from the scan selector component. It should handle freeing parsed files. Storing landmark texts in a parsed form.~~
+~~Clean up scene manager ownership of the load tree. The current interfaces is split across the scan selector, viewer layout and viewer engine boot process and doesn't support adding scans after initial load.~~
+~~Build up a file loader to handle adding scans during operation.~~
+~~Seperate the boot process out of file loading so we can present a webgl canvas as soon as possible. The scan selector should end up being a component that talks to the scene manager instead of kicking off the boot process.~~
+~~Clean up the load tree object crust in scan_selector. Right now theres a LoadTreeFromObject function that is very untype safe and makes no assertions about the object it accepts. We can probably use a class around loadTree or something to validate this. Or have an actual constructor.~~
+~~The viewer layout shouldn't own a reference to the processed_loadTreeList in its current form like in the launchViewer method. It can't handle any errors at that layer level and it makes the scene managment/file loading structure too rigid.~~
+~~Write an async parser for OBJ files that works in another thread to prevent threejs from blocking I guess.~~
+~~We should see if we can make the VueX related stuff more consistent. Currently only the landmarks deal with that and might need more refactoring.~~
+
+
+## TODO
+### DEVOPS
+See if we can do tree pruning for different builds. We don't need to ship all of the codebase for a mobile app or presentation build.
 
 The config should be pushed to runtime to allow for toggling. Things like the pick helper don't need to be on mobile necessarily.
 
 ### Performance
-~~Optimize load time of first paint for the engine.~~
 Perhaps reintroduce the RAF architecture as a setting so we can handle animating/tweening a scene. Right now the change based rerendering is an optimization for phone battery life.
 
 We need to double check rerendering costs. Right nowe we liberally rerender on mouse handlers and stuff in __bindMouseEngineEvents.
 
 The old RAF architecture might be needed for doing spinning animations or using RAF's and having a settimeout that removes that animation event handler.
-### General Organization
-
-~~Func utils like zip need to be split out and imported correctly.~~
 
 #### Load Tree Helper
-~~We need to split out file metadata from the current load tree helper.~~ DIMENSIONS PENDING
 
 Error handling and validation should be in there.
 
 THREEJS mesh defaults could be split out into another file to keep defaults in a single spot.
 
-~~Stitch scene graph might belong in the scene manager honestly. Not sure yet.~~
-
-#### Landmark handling in the VueX store
-~~Right now any landmark texts is just stashed in the respective obj. Which is unclean, unwieldly and should be the responsibiltiy of the file loader or scene manager.~~
-
-~~We need a lookup table for names in the objs and their respective landmarks.~~
 #### File Loader
-~~Split out file loading from the scan selector component. It should handle freeing parsed files. Storing landmark texts in a parsed form.~~
 
 We need an INFOOT API layer that works well with a file loader layer.
 
 The scan selector interface should accomodate that and be easier to use. This should consider a mobile interface too. For workstation usecases we might want to offer a tree style list to allow for layering, pairing, overlay.
 
-~~Clean up scene manager ownership of the load tree. The current interfaces is split across the scan selector, viewer layout and viewer engine boot process and doesn't support adding scans after initial load.~~
-
-~~Build up a file loader to handle adding scans during operation.~~
-
 Persisting a scan viewing session across open and closes.
-
-~~Seperate the boot process out of file loading so we can present a webgl canvas as soon as possible. The scan selector should end up being a component that talks to the scene manager instead of kicking off the boot process.~~
-
-~~Clean up the load tree object crust in scan_selector. Right now theres a LoadTreeFromObject function that is very untype safe and makes no assertions about the object it accepts. We can probably use a class around loadTree or something to validate this. Or have an actual constructor.~~
 
 The current 'load scheme's' should be turned into a real data type that can store a session. Then the file loader can dyn dispatch based on the paths being on disk, via API (using an iTouch API layer), or API cached on disk or something. This will have to deal with more persistence related things and VueX most likely.
 
 The async fileDropHandler in scan selector is very similar to the stuff in scene graph hiearchy. Theres no validation either which is dangerous and its too tightly coupled with the loading and booting process. This should be split up. The drop handler can just be a standalone function that gets pointed at by a VueJS component. At worst it should be a module closure that binds a file loader handle or something. There is also freeing of createObjectURLS to be considered too.
 
 The foot dimension data handling should work with VueX and the scene manager better to store the data. Honestly it should go through the file loader so it can get stashed/cached or something then rigged up to the respective OBJ, then plumbed into the VueJS component.
-
-~~The viewer layout shouldn't own a reference to the processed_loadTreeList in its current form like in the launchViewer method. It can't handle any errors at that layer level and it makes the scene managment/file loading structure too rigid.~~
-
 
 ### Engine Internal Organization
 We need better file metadata support to determine usable features for certain files. (ex: Landmarker vs Markerless features)
@@ -185,6 +176,5 @@ In short the layers and interfaces are:
     - Engine Interface for VIEWER_LAYOUT & LAYOUT CHILDREN => ENGINE IO Operations
     - VueX store for component level watching of related data and operations.
 
-~~We should see if we can make the VueX related stuff more consistent. Currently only the landmarks deal with that and might need more refactoring.~~
 
 TODO LOOK AT HOW THE EVENT PIPE IS CURRENTLY BEING USED.
