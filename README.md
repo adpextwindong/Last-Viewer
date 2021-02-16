@@ -16,7 +16,9 @@ If you are interested in collaboration/integration/development contact me at geo
 
 ## Preview
 
-Overlaying scan model over shoe last to spot differences. Included are landmark measurment features such as ball girth circumference, heel girth circumference and instep length.
+Feature: Overlaying scan model over shoe last to spot differences.
+
+Included are landmark measurment features such as ball girth circumference, heel girth circumference and instep length.
 
 ![](public/preview.png)
 
@@ -45,3 +47,9 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## License
+
+See [LICENSE.md](LICENSE.md).
+
+Files in lib/vendor are from THREE.js or THREEx with their respective license notes.
