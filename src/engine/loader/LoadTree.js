@@ -75,7 +75,7 @@ const parse_file_type = (name, path) => {
 //The response object is the ThreeJS object loaded by whichever loader (OBJLoader or STLLoader)
 //Config applies Three.js operations to the ThreeJS object before first render.
 class LoadTree extends Tree {
-    constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined, response_object=undefined){
+    constructor(name, path, type, overlay_children = undefined, config = undefined, parent=undefined){
         super(overlay_children, parent);
         this.name = name;
         this.path = path;
@@ -84,24 +84,12 @@ class LoadTree extends Tree {
         //TODO remove this
         console.log(type + OBJ_TYPES);
 
-        //TODO REFACTOR Dimensions should be moved to the file manager metadata layer
-        this.dimensions = undefined; //Used by scene graph hiearchy to store the dimensions on parse
-
         this.file_ext = parse_file_type(name, path);
-        //TODO error log on invalid filetype
 
         if(config){
             this.config = config;
         }
-
-        //TODO REFACTOR response object should be moved to the file manager.
-        if(response_object){
-            //This is the internal THREE.JS Object class for the loaded model
-            this.response_object = response_object;
-        }
-        //response_object is also a field that probably needs to be hidden and exposed through an interface. Not sure yet
     }
-
     hash(){
         return this.path;
     }
